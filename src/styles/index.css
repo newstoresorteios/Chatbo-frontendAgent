@@ -1,0 +1,268 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --chatbo-background: #f8fafc;
+  --chatbo-foreground: #0f172a;
+  --chatbo-card: #ffffff;
+  --chatbo-card-foreground: #0f172a;
+  --chatbo-popover: #ffffff;
+  --chatbo-popover-foreground: #0f172a;
+  --chatbo-muted: #f1f5f9;
+  --chatbo-muted-foreground: #475569;
+  --chatbo-secondary: #e2e8f0;
+  --chatbo-secondary-foreground: #0f172a;
+  --chatbo-accent: #dbeafe;
+  --chatbo-accent-foreground: #0f172a;
+  --chatbo-border-token: #cbd5e1;
+  --chatbo-input-token: #94a3b8;
+  --chatbo-ring-token: #0891b2;
+}
+
+html.dark {
+  color-scheme: dark;
+  --chatbo-background: #020617;
+  --chatbo-foreground: #f8fafc;
+  --chatbo-card: #0f172a;
+  --chatbo-card-foreground: #f8fafc;
+  --chatbo-popover: #0f172a;
+  --chatbo-popover-foreground: #f8fafc;
+  --chatbo-muted: #172033;
+  --chatbo-muted-foreground: #a8b3c7;
+  --chatbo-secondary: #111c30;
+  --chatbo-secondary-foreground: #eaf0f8;
+  --chatbo-accent: #172554;
+  --chatbo-accent-foreground: #f8fafc;
+  --chatbo-border-token: rgb(148 163 184 / 0.22);
+  --chatbo-input-token: rgb(148 163 184 / 0.3);
+  --chatbo-ring-token: #22d3ee;
+}
+
+@theme {
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #2563eb;
+  --color-primary-600: #1d4ed8;
+  --color-primary-700: #1e40af;
+  --color-primary-800: #1e3a8a;
+  --color-primary-900: #172554;
+
+  --color-accent-500: #ef4444;
+  --color-accent-600: #dc2626;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Sora", "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-chatbo-background: #020617;
+  --color-chatbo-background-elevated: #07101f;
+  --color-chatbo-surface: #0f172a;
+  --color-chatbo-surface-secondary: #151f33;
+  --color-chatbo-border: rgb(148 163 184 / 0.18);
+  --color-chatbo-border-strong: rgb(148 163 184 / 0.3);
+  --color-chatbo-cyan: #22d3ee;
+  --color-chatbo-teal: #2dd4bf;
+  --color-chatbo-purple: #8b5cf6;
+}
+
+@layer base {
+  * {
+    @apply border-gray-200 dark:border-gray-700;
+  }
+
+  body {
+    @apply bg-slate-50 text-gray-900 antialiased dark:bg-chatbo-background dark:text-slate-100;
+    font-family: var(--font-sans);
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply text-gray-950 dark:text-white;
+  }
+
+  html.dark h1,
+  html.dark h2,
+  html.dark h3,
+  html.dark h4,
+  html.dark h5,
+  html.dark h6 {
+    color: var(--chatbo-foreground);
+  }
+
+  ::selection {
+    background: rgb(34 211 238 / 0.45);
+    color: #ffffff;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    &:focus-visible {
+      outline: 2px solid #67e8f9;
+      outline-offset: 2px;
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-gray-300 dark:bg-gray-600;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .gradient-hero {
+    background:
+      radial-gradient(circle at 18% 18%, rgb(34 211 238 / 0.2), transparent 34%),
+      radial-gradient(circle at 82% 16%, rgb(139 92 246 / 0.18), transparent 30%),
+      linear-gradient(135deg, #020617 0%, #12356b 52%, #31215f 100%);
+  }
+
+  .gradient-text {
+    background: linear-gradient(110deg, #67e8f9 0%, #34d399 48%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .landing-gradient-text {
+    background: linear-gradient(110deg, #67e8f9 0%, #34d399 48%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .dashboard-grid-bg {
+    background-image:
+      linear-gradient(rgb(34 211 238 / 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(139 92 246 / 0.06) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .nitrus-blue-glow {
+    box-shadow: 0 20px 60px rgb(34 211 238 / 0.18);
+  }
+
+  .nitrus-red-glow {
+    box-shadow: 0 20px 60px rgb(139 92 246 / 0.16);
+  }
+
+  .nitrus-card {
+    @apply rounded-2xl border border-gray-200/80 bg-white/90 shadow-sm shadow-slate-200/50 backdrop-blur dark:border-white/10 dark:bg-gray-900/90 dark:shadow-black/10;
+  }
+
+  .nitrus-kpi {
+    @apply font-display text-3xl font-black leading-none tracking-tight tabular-nums text-gray-950 dark:text-white;
+  }
+}
+
+@layer utilities {
+  .gradient-text-alt {
+    background: linear-gradient(110deg, #22d3ee, #3b82f6, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glass-card {
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.07), rgb(255 255 255 / 0.025));
+    backdrop-filter: blur(16px);
+  }
+
+  .glow-border {
+    position: relative;
+  }
+
+  .glow-border::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgb(37 99 235 / 0.55), rgb(239 68 68 / 0.42));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .glow-border:hover::before {
+    opacity: 1;
+  }
+
+  .animate-pulse-ring {
+    animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+@layer utilities {
+  /* Keep legacy utility classes readable when a page is rendered in dark mode. */
+  .dark .text-gray-950,
+  .dark .text-gray-900,
+  .dark .text-gray-800,
+  .dark .text-gray-700 {
+    color: #f8fafc;
+  }
+
+  .dark .text-gray-600,
+  .dark .text-gray-500,
+  .dark .text-gray-400 {
+    color: #cbd5e1;
+  }
+
+  .dark .border-gray-100,
+  .dark .border-gray-200,
+  .dark .border-gray-300 {
+    border-color: rgb(148 163 184 / 0.22);
+  }
+
+  .dark .border-gray-600,
+  .dark .border-gray-700 {
+    border-color: rgb(148 163 184 / 0.3);
+  }
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgb(37 99 235 / 0.5);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgb(37 99 235 / 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgb(239 68 68 / 0);
+  }
+}

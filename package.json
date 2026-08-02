@@ -1,0 +1,45 @@
+{
+  "name": "pulsedesk",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "backend": "powershell -ExecutionPolicy Bypass -File scripts/start-backend.ps1",
+    "backend:restart": "powershell -ExecutionPolicy Bypass -File scripts/restart-backend.ps1",
+    "backend:seed": "cd ..\\backend-xnamai && .\\venv\\Scripts\\python.exe scripts\\seed_usuarios.py",
+    "backend:setup-conversas": "cd ..\\backend-xnamai && .\\venv\\Scripts\\python.exe scripts\\apply_conversas_schema.py && .\\venv\\Scripts\\python.exe scripts\\seed_conversas.py",
+    "backend:seed-conversas": "cd ..\\backend-xnamai && .\\venv\\Scripts\\python.exe scripts\\seed_conversas.py",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.0.1",
+    "@tanstack/react-query": "^5.74.4",
+    "axios": "^1.8.4",
+    "framer-motion": "^12.6.3",
+    "lucide-react": "^0.487.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-hook-form": "^7.55.0",
+    "react-router-dom": "^7.5.0",
+    "recharts": "^2.15.2",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.24.0",
+    "@tailwindcss/vite": "^4.1.3",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.24.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "tailwindcss": "^4.1.3",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.29.1",
+    "vite": "^6.2.5"
+  }
+}

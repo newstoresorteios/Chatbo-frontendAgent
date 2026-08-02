@@ -1,0 +1,14 @@
+{
+  "name": "ChatBô by Tironi Tech",
+  "short_name": "ChatBô",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#08111f",
+  "theme_color": "#08111f",
+  "icons": [{
+    "src": "/branding/chatbo-icon-512.png",
+    "sizes": "512x512",
+    "type": "image/png",
+    "purpose": "any"
+  }]
+}
