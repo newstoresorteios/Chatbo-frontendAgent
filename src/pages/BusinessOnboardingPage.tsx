@@ -18,13 +18,35 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const steps: Array<{ id: OnboardingStep; label: string }> = [
-  { id: 'empresa', label: 'Empresa' }, { id: 'operacao', label: 'Operação' }, { id: 'catalogo', label: 'Catálogo' },
-  { id: 'canais', label: 'Canais' }, { id: 'persona', label: 'Persona' }, { id: 'test', label: 'Teste' }, { id: 'ativacao', label: 'Ativação' },
+  { id: 'empresa', label: 'Empresa' },
+  { id: 'operacao', label: 'Operação' },
+  { id: 'catalogo', label: 'Catálogo' },
+  { id: 'canais', label: 'Canais' },
+  { id: 'persona', label: 'Persona' },
+  { id: 'teste', label: 'Teste' },
+  { id: 'ativacao', label: 'Ativação' },
 ];
 const initialBusiness: BusinessProfileDraft = { name: '', salesChannels: [], salesModel: undefined, agentConfigurationStatus: 'not_configured' };
 const editableRoles = new Set(['owner', 'admin']);
 const viewRoles = new Set(['owner', 'admin', 'supervisor']);
-const requirementLabels: Record<MissingRequirement, string> = { companyConfigured: 'Empresa configurada', operationConfigured: 'Operação configurada', catalogAvailable: 'Catálogo disponível', catalogScope: 'Origem do catálogo', catalogProductCount: 'Produtos do catálogo', channelConfigured: 'Canal configurado', personaCreated: 'Persona criada', personaActive: 'Persona ativa', testCompleted: 'Teste concluído', readyForActivation: 'Pronto para ativação' };
+const requirementLabels: Record<MissingRequirement, string> = {
+  companyConfigured: 'Empresa configurada',
+  operationConfigured: 'Operação configurada',
+  catalogAvailable: 'Catálogo disponível (opcional)',
+  catalogScope: 'Origem do catálogo',
+  catalogProductCount: 'Produtos do catálogo',
+  channelConfigured: 'Canal configurado',
+  personaCreated: 'Persona criada',
+  personaActive: 'Persona ativa',
+  testCompleted: 'Teste concluído',
+  readyForActivation: 'Pronto para ativação',
+};
+
+function normalizeStep(step?: string | null): OnboardingStep {
+  if (step === 'test') return 'teste';
+  if (steps.some((item) => item.id === step)) return step as OnboardingStep;
+  return 'empresa';
+}
 
 interface ValidationDetail {
   loc?: unknown;
@@ -74,7 +96,9 @@ export function BusinessOnboardingPage() {
   const isBusy = saveBusiness.isPending || onboardingQuery.isFetching || channelsQuery.isFetching || personasQuery.isFetching;
 
   useEffect(() => { if (businessData?.profile) setBusinessDraft((current) => ({ ...current, ...businessData.profile })); }, [businessData?.profile]);
-  useEffect(() => { if (onboarding?.currentStep) setActiveStep(onboarding.currentStep); }, [onboarding?.currentStep]);
+  useEffect(() => {
+    if (onboarding?.currentStep) setActiveStep(normalizeStep(onboarding.currentStep));
+  }, [onboarding?.currentStep]);
   useEffect(() => { const active = personasQuery.data?.items.find((persona) => persona.status === 'active'); if (active) { setSelectedPersona(active); setPersonaDraft(active); } }, [personasQuery.data?.items, setPersonaDraft]);
 
   const invalidateOnboarding = async () => { await queryClient.invalidateQueries({ queryKey: onboardingKeys.current(workspaceId) }); await queryClient.invalidateQueries({ queryKey: workspaceKeys.current() }); };
@@ -92,9 +116,18 @@ export function BusinessOnboardingPage() {
       if (index > currentIndex) {
         if (activeStep === 'empresa') await saveBusinessStep();
         if (activeStep === 'operacao') await saveBusinessStep();
-        if (activeStep === 'persona') { await savePersonaMutation.mutateAsync(); if (!onboarding?.requirements.personaActive) { addToast({ title: 'Persona precisa ser ativada', message: 'Ative a Persona antes de avançar.', type: 'error' }); return; } }
-        if (activeStep === 'catalogo' && !onboarding?.requirements.catalogAvailable) { addToast({ title: 'Catálogo indisponível', message: 'O backend ainda não reconheceu um catálogo válido.', type: 'error' }); return; }
-        if (activeStep === 'canais' && !onboarding?.requirements.channelConfigured) { addToast({ title: 'Canal não configurado', message: 'Selecione e salve pelo menos um canal.', type: 'error' }); return; }
+        if (activeStep === 'persona') {
+          await savePersonaMutation.mutateAsync();
+          if (!onboarding?.requirements.personaActive) {
+            addToast({ title: 'Persona precisa ser ativada', message: 'Ative a Persona antes de avançar.', type: 'error' });
+            return;
+          }
+        }
+        // Catálogo é opcional: pode avançar sem produtos sincronizados.
+        if (activeStep === 'canais' && !onboarding?.requirements.channelConfigured) {
+          addToast({ title: 'Canal não configurado', message: 'Selecione e salve pelo menos um canal.', type: 'error' });
+          return;
+        }
         if (canEdit) await persistStep(next.id);
       }
       setActiveStep(next.id);
@@ -108,17 +141,165 @@ export function BusinessOnboardingPage() {
 
   const req = onboarding.requirements;
   const activePersona = selectedPersona ?? personasQuery.data?.items.find((persona) => persona.status === 'active') ?? personaDraft;
-  const checklist: Array<[MissingRequirement, boolean]> = [['companyConfigured', req.companyConfigured], ['operationConfigured', req.operationConfigured], ['catalogAvailable', req.catalogAvailable], ['channelConfigured', req.channelConfigured], ['personaActive', req.personaActive], ['testCompleted', req.testCompleted]];
-  return <div className="space-y-6">
-    <div><h1 className="text-2xl font-bold text-gray-900 dark:text-white">Onboarding empresarial</h1><p className="text-gray-500 dark:text-gray-400">Configure dados reais da empresa e ative o ChatBô.</p></div>
-    <div className="overflow-x-auto"><div className="flex min-w-max gap-2">{steps.map((step, index) => <button key={step.id} type="button" onClick={() => { void goTo(index); }} disabled={isBusy} className={`min-h-10 rounded-lg border px-4 text-sm font-semibold ${activeStep === step.id ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-600 dark:border-gray-700 dark:text-gray-300'}`}>{index + 1}. {step.label}{onboarding.completedSteps.includes(step.id) ? ' ✓' : ''}</button>)}</div></div>
-    {activeStep === 'empresa' && <Card title="Empresa"><BusinessIdentityForm value={businessDraft} onChange={setBusinessDraft} disabled={!canEdit || isBusy} /><p className="mt-4 text-xs text-gray-500">Obrigatórios: nome ou marca, país, moeda e segmento.</p></Card>}
-    {activeStep === 'operacao' && <Card title="Operação"><BusinessOperationForm value={businessDraft} onChange={setBusinessDraft} disabled={!canEdit || isBusy} /><p className="mt-4 text-xs text-gray-500">Obrigatórios: modelo de vendas, canal comercial, horário e contato principal.</p></Card>}
-    {activeStep === 'catalogo' && <Card title="Catálogo"><p className="text-sm text-gray-600 dark:text-gray-300">{req.catalogAvailable ? `${req.catalogProductCount ?? 0} produto(s) reconhecido(s).` : 'Nenhum catálogo válido foi reconhecido ainda.'}</p>{req.catalogScope === 'legacy_global' && <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">Catálogo atual reconhecido em modo legado. O isolamento por empresa será implementado em uma etapa futura.</p>}</Card>}
-    {activeStep === 'canais' && <Card title="Canais"><div className="grid gap-3 sm:grid-cols-2"><Button variant={channelsQuery.data?.some((c) => c.channelType === 'whatsapp') ? 'secondary' : 'outline'} disabled={!canEdit || channelMutation.isPending} loading={channelMutation.isPending && channelMutation.variables === 'whatsapp'} onClick={() => channelMutation.mutate('whatsapp')}>WhatsApp {channelsQuery.data?.some((c) => c.channelType === 'whatsapp') ? '— Configuração salva' : '— Selecionar'}</Button><Button variant={channelsQuery.data?.some((c) => c.channelType === 'webchat') ? 'secondary' : 'outline'} disabled={!canEdit || channelMutation.isPending} loading={channelMutation.isPending && channelMutation.variables === 'webchat'} onClick={() => channelMutation.mutate('webchat')}>Webchat {channelsQuery.data?.some((c) => c.channelType === 'webchat') ? '— Configuração salva' : '— Selecionar'}</Button></div><p className="mt-4 text-sm text-gray-500">Instagram e E-mail estão indisponíveis nesta etapa. Nenhuma integração ou credencial é ativada.</p></Card>}
-    {activeStep === 'persona' && <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]"><div className="space-y-6"><Card title="Identidade da Persona"><PersonaIdentityForm value={personaDraft} onChange={setPersonaDraft} disabled={!canEdit || isBusy} /></Card><Card title="Tom e apresentação"><div className="space-y-6"><PersonaToneForm value={personaDraft} onChange={setPersonaDraft} disabled={!canEdit || isBusy} /><PersonaPresentationForm value={personaDraft} onChange={setPersonaDraft} disabled={!canEdit || isBusy} /></div></Card><div className="flex gap-3"><Button disabled={!canEdit || savePersonaMutation.isPending} loading={savePersonaMutation.isPending} onClick={() => savePersonaMutation.mutate()}>Salvar Persona</Button><Button variant="secondary" disabled={!canEdit || !selectedPersona?.id || activatePersonaMutation.isPending || !onboarding.requirements.personaCreated} loading={activatePersonaMutation.isPending} onClick={() => activatePersonaMutation.mutate()}>Ativar Persona</Button></div></div><PersonaPreview persona={personaDraft} /></div>}
-    {activeStep === 'test' && <PersonaTestPanel persona={activePersona} disabled={!canEdit || testMutation.isPending || !req.personaActive} isLoading={testMutation.isPending} response={testResponse} error={testError} onTest={(message) => testMutation.mutate(message)} />}
-    {activeStep === 'ativacao' && <Card title="Ativação" icon={CheckCircle2}><div className="space-y-4">{checklist.map(([key, value]) => <div key={key} className="flex items-center gap-2 text-sm">{value ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : <AlertCircle className="h-4 w-4 text-amber-600" />}<span>{requirementLabels[key]}</span></div>)}<Button disabled={!canEdit || activationMutation.isPending || !req.readyForActivation} loading={activationMutation.isPending} onClick={() => activationMutation.mutate()}>Ativar ChatBô</Button></div></Card>}
-    <div className="flex items-center justify-between"><Button variant="outline" onClick={() => { void goTo(currentIndex - 1); }} disabled={currentIndex <= 0 || isBusy}><ChevronLeft className="h-4 w-4" /> Voltar</Button><Button onClick={() => { void goTo(currentIndex + 1); }} disabled={currentIndex >= steps.length - 1 || isBusy}>Avançar <ChevronRight className="h-4 w-4" /></Button></div>
-  </div>;
+  const checklist: Array<[MissingRequirement, boolean]> = [
+    ['companyConfigured', req.companyConfigured],
+    ['operationConfigured', req.operationConfigured],
+    ['channelConfigured', req.channelConfigured],
+    ['personaActive', req.personaActive],
+    ['testCompleted', req.testCompleted],
+  ];
+  const completedSteps = onboarding.completedSteps.map(normalizeStep);
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Onboarding empresarial</h1>
+        <p className="text-gray-500 dark:text-gray-400">Configure dados reais da empresa e ative o ChatBô.</p>
+      </div>
+      <div className="overflow-x-auto">
+        <div className="flex min-w-max gap-2">
+          {steps.map((step, index) => (
+            <button
+              key={step.id}
+              type="button"
+              onClick={() => { void goTo(index); }}
+              disabled={isBusy}
+              className={`min-h-10 rounded-lg border px-4 text-sm font-semibold ${activeStep === step.id ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-600 dark:border-gray-700 dark:text-gray-300'}`}
+            >
+              {index + 1}. {step.label}{completedSteps.includes(step.id) ? ' ✓' : ''}
+            </button>
+          ))}
+        </div>
+      </div>
+      {activeStep === 'empresa' && (
+        <Card title="Empresa">
+          <BusinessIdentityForm value={businessDraft} onChange={setBusinessDraft} disabled={!canEdit || isBusy} />
+          <p className="mt-4 text-xs text-gray-500">Obrigatórios: nome ou marca, país, moeda e segmento.</p>
+        </Card>
+      )}
+      {activeStep === 'operacao' && (
+        <Card title="Operação">
+          <BusinessOperationForm value={businessDraft} onChange={setBusinessDraft} disabled={!canEdit || isBusy} />
+          <p className="mt-4 text-xs text-gray-500">Obrigatórios: modelo de vendas, canal comercial, horário e contato principal.</p>
+        </Card>
+      )}
+      {activeStep === 'catalogo' && (
+        <Card title="Catálogo">
+          {req.catalogAvailable ? (
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              {req.catalogProductCount ?? 0} produto(s) reconhecido(s).
+            </p>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Nenhum produto sincronizado ainda. Isso é opcional — você pode avançar e conectar o catálogo depois em Configurações → Mercos ou na tela de Produtos.
+              </p>
+              <p className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-200">
+                O ChatBô funciona sem catálogo; com produtos sincronizados ele consegue orçar e recomendar melhor.
+              </p>
+            </div>
+          )}
+          {req.catalogScope === 'legacy_global' && (
+            <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              Catálogo atual reconhecido em modo legado. O isolamento por empresa será implementado em uma etapa futura.
+            </p>
+          )}
+        </Card>
+      )}
+      {activeStep === 'canais' && (
+        <Card title="Canais">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Button
+              variant={channelsQuery.data?.some((c) => c.channelType === 'whatsapp') ? 'secondary' : 'outline'}
+              disabled={!canEdit || channelMutation.isPending}
+              loading={channelMutation.isPending && channelMutation.variables === 'whatsapp'}
+              onClick={() => channelMutation.mutate('whatsapp')}
+            >
+              WhatsApp {channelsQuery.data?.some((c) => c.channelType === 'whatsapp') ? '— Configuração salva' : '— Selecionar'}
+            </Button>
+            <Button
+              variant={channelsQuery.data?.some((c) => c.channelType === 'webchat') ? 'secondary' : 'outline'}
+              disabled={!canEdit || channelMutation.isPending}
+              loading={channelMutation.isPending && channelMutation.variables === 'webchat'}
+              onClick={() => channelMutation.mutate('webchat')}
+            >
+              Webchat {channelsQuery.data?.some((c) => c.channelType === 'webchat') ? '— Configuração salva' : '— Selecionar'}
+            </Button>
+          </div>
+          <p className="mt-4 text-sm text-gray-500">Instagram e E-mail estão indisponíveis nesta etapa. Nenhuma integração ou credencial é ativada.</p>
+        </Card>
+      )}
+      {activeStep === 'persona' && (
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="space-y-6">
+            <Card title="Identidade da Persona">
+              <PersonaIdentityForm value={personaDraft} onChange={setPersonaDraft} disabled={!canEdit || isBusy} />
+            </Card>
+            <Card title="Tom e apresentação">
+              <div className="space-y-6">
+                <PersonaToneForm value={personaDraft} onChange={setPersonaDraft} disabled={!canEdit || isBusy} />
+                <PersonaPresentationForm value={personaDraft} onChange={setPersonaDraft} disabled={!canEdit || isBusy} />
+              </div>
+            </Card>
+            <div className="flex gap-3">
+              <Button disabled={!canEdit || savePersonaMutation.isPending} loading={savePersonaMutation.isPending} onClick={() => savePersonaMutation.mutate()}>
+                Salvar Persona
+              </Button>
+              <Button
+                variant="secondary"
+                disabled={!canEdit || !selectedPersona?.id || activatePersonaMutation.isPending || !onboarding.requirements.personaCreated}
+                loading={activatePersonaMutation.isPending}
+                onClick={() => activatePersonaMutation.mutate()}
+              >
+                Ativar Persona
+              </Button>
+            </div>
+          </div>
+          <PersonaPreview persona={personaDraft} />
+        </div>
+      )}
+      {activeStep === 'teste' && (
+        <PersonaTestPanel
+          persona={activePersona}
+          disabled={!canEdit || testMutation.isPending || !req.personaActive}
+          isLoading={testMutation.isPending}
+          response={testResponse}
+          error={testError}
+          onTest={(message) => testMutation.mutate(message)}
+        />
+      )}
+      {activeStep === 'ativacao' && (
+        <Card title="Ativação" icon={CheckCircle2}>
+          <div className="space-y-4">
+            {checklist.map(([key, value]) => (
+              <div key={key} className="flex items-center gap-2 text-sm">
+                {value ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : <AlertCircle className="h-4 w-4 text-amber-600" />}
+                <span>{requirementLabels[key]}</span>
+              </div>
+            ))}
+            {!req.catalogAvailable && (
+              <p className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600 dark:border-white/10 dark:bg-gray-900/40 dark:text-gray-300">
+                Catálogo ainda vazio — opcional. Você pode sincronizar produtos depois sem refazer o onboarding.
+              </p>
+            )}
+            <Button
+              disabled={!canEdit || activationMutation.isPending || !req.readyForActivation}
+              loading={activationMutation.isPending}
+              onClick={() => activationMutation.mutate()}
+            >
+              Ativar ChatBô
+            </Button>
+          </div>
+        </Card>
+      )}
+      <div className="flex items-center justify-between">
+        <Button variant="outline" onClick={() => { void goTo(currentIndex - 1); }} disabled={currentIndex <= 0 || isBusy}>
+          <ChevronLeft className="h-4 w-4" /> Voltar
+        </Button>
+        <Button onClick={() => { void goTo(currentIndex + 1); }} disabled={currentIndex >= steps.length - 1 || isBusy}>
+          Avançar <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
 }

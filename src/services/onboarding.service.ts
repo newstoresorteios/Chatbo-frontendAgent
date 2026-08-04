@@ -71,11 +71,16 @@ export const onboardingKeys = {
   channels: (workspaceId: string) => ['workspace-channels', workspaceId] as const,
 };
 
+function normalizeStep(step?: OnboardingStep | null): OnboardingStep {
+  if (step === 'test') return 'teste';
+  return step ?? 'empresa';
+}
+
 function normalizeOnboarding(data: OnboardingResponse): OnboardingState {
   return {
     status: data.status ?? 'pending',
-    currentStep: data.currentStep ?? 'empresa',
-    completedSteps: data.completedSteps ?? [],
+    currentStep: normalizeStep(data.currentStep),
+    completedSteps: (data.completedSteps ?? []).map((step) => normalizeStep(step)),
     requirements: { ...defaultRequirements, ...(data.requirements ?? {}) },
     startedAt: data.startedAt ?? undefined,
     completedAt: data.completedAt ?? undefined,

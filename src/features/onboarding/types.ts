@@ -26,5 +26,7 @@ export type OnboardingStep =
   | 'catalogo'
   | 'canais'
   | 'persona'
-  | 'test'
-  | 'ativacao';
+  | 'teste'
+  | 'ativacao'
+  /** @deprecated use `teste` — mantido só para respostas legadas */
+  | 'test';
