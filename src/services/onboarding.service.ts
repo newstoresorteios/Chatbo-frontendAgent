@@ -72,7 +72,8 @@ export const onboardingKeys = {
 };
 
 function normalizeStep(step?: OnboardingStep | null): OnboardingStep {
-  if (step === 'test') return 'teste';
+  // Persona/teste saíram do fluxo obrigatório — redireciona para ativação.
+  if (step === 'test' || step === 'teste' || step === 'persona') return 'ativacao';
   return step ?? 'empresa';
 }
 

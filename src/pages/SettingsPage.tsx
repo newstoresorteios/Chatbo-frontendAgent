@@ -20,8 +20,10 @@ import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { aiSettingsStore } from '@/store/aiSettingsStore';
 import { motion } from 'framer-motion';
+import { PersonaPage } from '@/pages/PersonaPage';
 import {
   Bell,
+  Brain,
   Building2,
   DatabaseZap,
   IdCard,
@@ -67,6 +69,7 @@ export function SettingsPage() {
 
   const canManageCompany = ['owner', 'admin'].includes(workspace.role) || can('manageUsers');
   const canManageIntegrations = can('manageIntegrations');
+  const canManagePersona = can('managePlatform') || ['owner', 'admin'].includes(workspace.role);
   const isSystemAdmin = workspace.accountType === 'system_admin';
 
   const visibleTabs = useMemo<SettingsTab[]>(() => {
@@ -86,6 +89,10 @@ export function SettingsPage() {
       );
     }
 
+    if (canManagePersona) {
+      tabs.push({ id: 'persona', label: 'Persona do agente', group: 'company', icon: Brain });
+    }
+
     if (canManageIntegrations) {
       tabs.push(
         { id: 'fontes', label: 'Canais e fontes de dados', group: 'integrations', icon: DatabaseZap },
@@ -103,7 +110,7 @@ export function SettingsPage() {
     }
 
     return tabs;
-  }, [canManageCompany, canManageIntegrations, isSystemAdmin]);
+  }, [canManageCompany, canManageIntegrations, canManagePersona, isSystemAdmin]);
 
   useEffect(() => {
     if (tabFromUrl && visibleTabs.some((tab) => tab.id === tabFromUrl)) {
@@ -169,6 +176,9 @@ export function SettingsPage() {
         </nav>
 
         <div className="flex-1">
+          {activeTab === 'persona' ? (
+            <PersonaPage />
+          ) : (
           <Card title={activeLabel}>
             {activeTab === 'perfil' && (
               <div className="space-y-4">
@@ -186,7 +196,6 @@ export function SettingsPage() {
               <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
                 <p>Workspace: <strong>{workspace.name ?? 'legacy'}</strong></p>
                 <p>Tipo de conta: <strong>{workspace.accountType}</strong></p>
-                <p>Onboarding: <strong>{workspace.onboardingStatus}</strong></p>
               </div>
             )}
             {activeTab === 'empresa' && <CompanySettingsPanel />}
@@ -275,6 +284,7 @@ export function SettingsPage() {
               </div>
             )}
           </Card>
+          )}
         </div>
       </div>
     </motion.div>

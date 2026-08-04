@@ -40,6 +40,7 @@ export const SETTINGS_TAB_PERMISSIONS: Record<string, NavPermission | 'admin' | 
   sistema: undefined,
   usuarios: 'manageUsers',
   permissoes: undefined,
+  persona: 'managePlatform',
   mercos: 'manageIntegrations',
   whatsapp: 'admin',
   openai: undefined,

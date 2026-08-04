@@ -40,12 +40,12 @@ const navSections: NavSection[] = [
   { title: 'AGENTE', items: [
     { to: '/copiloto', icon: Sparkles, label: 'Assistente ChatBô' },
     { to: '/robo', icon: Bot, label: 'Agente Automático' },
-    { to: '/persona', icon: Brain, label: 'Persona do agente', permission: 'managePlatform' },
   ] },
   { title: 'GESTÃO', items: [
     { to: '/campanhas', icon: Megaphone, label: 'Campanhas', permission: 'managePlatform' },
     { to: '/relatorios', icon: BarChart3, label: 'Relatórios', permission: 'viewReports' },
     { to: '/configuracoes', icon: UserCircle, label: 'Equipe e acessos' },
+    { to: '/configuracoes?tab=persona', icon: Brain, label: 'Persona do agente', permission: 'managePlatform' },
     { to: '/integracoes', icon: Link2, label: 'Canais e integrações', permission: 'manageIntegrations' },
     { to: '/minha-empresa', icon: Building2, label: 'Minha empresa', permission: 'manageUsers', roles: ['owner', 'admin'] },
   ] },

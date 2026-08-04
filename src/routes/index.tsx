@@ -19,7 +19,6 @@ import { ProfilePage } from '@/pages/ProfilePage';
 import { SettingsPage } from '@/pages/SettingsPage';
 import { PermissionRoute } from '@/routes/PermissionRoute';
 import { ProtectedRoute, PublicRoute } from '@/routes/ProtectedRoute';
-import { OnboardingRoute } from '@/routes/OnboardingRoute';
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { RouteLoadingFallback } from '@/components/ui/PageState';
@@ -32,8 +31,6 @@ const ProductsPage = lazy(() => import('@/pages/ProductsPage').then((m) => ({ de
 const OrdersPage = lazy(() => import('@/pages/OrdersPage').then((m) => ({ default: m.OrdersPage })));
 const CopilotPage = lazy(() => import('@/pages/CopilotPage').then((m) => ({ default: m.CopilotPage })));
 const BusinessProfilePage = lazy(() => import('@/pages/BusinessProfilePage').then((m) => ({ default: m.BusinessProfilePage })));
-const PersonaPage = lazy(() => import('@/pages/PersonaPage').then((m) => ({ default: m.PersonaPage })));
-const BusinessOnboardingPage = lazy(() => import('@/pages/BusinessOnboardingPage').then((m) => ({ default: m.BusinessOnboardingPage })));
 
 function LazyPage({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<RouteLoadingFallback />}>{children}</Suspense>;
@@ -79,15 +76,12 @@ export function AppRoutes() {
           <Route path="/configuracoes/assinatura" element={<SubscriptionPage />} />
           <Route path="/perfil" element={<ProfilePage />} />
           <Route path="/minha-empresa" element={<LazyPage><BusinessProfilePage /></LazyPage>} />
-
-          <Route element={<OnboardingRoute />}>
-            <Route path="/onboarding" element={<LazyPage><BusinessOnboardingPage /></LazyPage>} />
-          </Route>
+          <Route path="/onboarding" element={<Navigate to="/dashboard" replace />} />
 
           <Route element={<PermissionRoute permission="managePlatform" />}>
             <Route path="/canais" element={<ChannelsPage />} />
             <Route path="/campanhas" element={<CampaignsPage />} />
-            <Route path="/persona" element={<LazyPage><PersonaPage /></LazyPage>} />
+            <Route path="/persona" element={<Navigate to="/configuracoes?tab=persona" replace />} />
           </Route>
 
           <Route element={<PermissionRoute permission="viewReports" />}>

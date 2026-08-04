@@ -40,7 +40,7 @@ export function RegisterPage() {
 
   const onSubmit = async (data: RegisterForm) => {
     try {
-      const user = await registerUser({
+      await registerUser({
         name: data.name,
         email: data.email,
         password: data.password,
@@ -51,7 +51,7 @@ export function RegisterPage() {
         message: 'Bem-vindo ao ChatBô!',
         type: 'success',
       });
-      navigate(user.onboardingStatus === 'complete' ? '/dashboard' : '/onboarding');
+      navigate('/dashboard');
     } catch (error) {
       addToast({
         title: 'Não foi possível cadastrar',
