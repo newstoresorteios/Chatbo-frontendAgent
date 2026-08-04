@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/((?!client-logs$).*)",
-      "destination": "https://xnamai-backendagent.onrender.com/api/$1"
+      "destination": "https://chatbo-backendagent.onrender.com/api/$1"
     },
     {
       "source": "/((?!api/).*)",

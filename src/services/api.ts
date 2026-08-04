@@ -8,7 +8,30 @@ function normalizeApiUrl(value: string | undefined): string {
   return normalized || '/api';
 }
 
-const API_URL = normalizeApiUrl(import.meta.env.VITE_API_URL);
+/**
+ * Prefer same-origin `/api` in the browser when the configured URL is a Render host.
+ * Calling Render directly from chatbo.com.br triggers CORS; Vercel rewrites `/api` → backend.
+ */
+function resolveApiUrl(value: string | undefined): string {
+  const normalized = normalizeApiUrl(value);
+
+  if (typeof window === 'undefined' || !/^https?:\/\//i.test(normalized)) {
+    return normalized;
+  }
+
+  try {
+    const url = new URL(normalized);
+    if (url.hostname.endsWith('.onrender.com')) {
+      return '/api';
+    }
+  } catch {
+    return normalized;
+  }
+
+  return normalized;
+}
+
+const API_URL = resolveApiUrl(import.meta.env.VITE_API_URL);
 
 export const TOKEN_KEY = 'pulsedesk_token';
 export const REFRESH_KEY = 'pulsedesk_refresh';
