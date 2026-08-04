@@ -1,3 +1,4 @@
+import { AgentContextPanel } from '@/components/chat/AgentContextPanel';
 import { ChannelBadge } from '@/components/ui/ChannelBadge';
 import { ChatBubble } from '@/components/chat/ChatBubble';
 import { ConversationCard } from '@/components/chat/ConversationCard';
@@ -13,7 +14,13 @@ import { Select } from '@/components/ui/Select';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChat } from '@/contexts/ChatContext';
 import { useNotification } from '@/contexts/NotificationContext';
-import { useConversations, useCustomerDetail, useMessages, useProducts } from '@/hooks/useQueries';
+import {
+  useConversationAgentContext,
+  useConversations,
+  useCustomerDetail,
+  useMessages,
+  useProducts,
+} from '@/hooks/useQueries';
 import { useConversationSuggestion } from '@/hooks/useConversationSuggestion';
 import { conversationsService } from '@/services/conversations.service';
 import { roleLabel, usersService } from '@/services/users.service';
@@ -70,6 +77,11 @@ export function ConversationsPage() {
   const { data: messages, isLoading: messagesLoading } = useMessages(activeConversationId);
   const activeConversation = conversations?.find((c) => c.id === activeConversationId);
   const { data: customerDetail } = useCustomerDetail(activeConversation?.customerId);
+  const {
+    data: agentContext,
+    isLoading: agentContextLoading,
+    isError: agentContextError,
+  } = useConversationAgentContext(activeConversationId);
   const { data: teamUsers, isLoading: teamLoading } = useQuery({
     queryKey: ['usuarios'],
     queryFn: usersService.list,
@@ -479,52 +491,72 @@ export function ConversationsPage() {
         </div>
 
         <div className="hidden w-80 flex-col border-l border-gray-200/80 xl:flex dark:border-white/10">
-          {customerDetail ? (
+          {activeConversation ? (
             <div className="flex-1 overflow-y-auto p-4">
-              <div className="mb-6 rounded-2xl border border-gray-200/80 bg-gradient-to-br from-white to-blue-50/70 p-4 text-center shadow-sm dark:border-white/10 dark:from-gray-900 dark:to-blue-950/20">
-                <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-red-500 text-xl font-bold text-white shadow-lg shadow-blue-600/20">
-                  {customerDetail.name.split(' ').map((n) => n[0]).slice(0, 2).join('')}
-                </div>
-                <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.16em] text-blue-600 dark:text-blue-300">Perfil comercial do cliente</p>
-                <h3 className="font-semibold text-gray-900 dark:text-white">{customerDetail.name}</h3>
-                <p className="text-sm text-gray-500">{customerDetail.company}</p>
-              </div>
+              {customerDetail ? (
+                <>
+                  <div className="mb-6 rounded-2xl border border-gray-200/80 bg-gradient-to-br from-white to-blue-50/70 p-4 text-center shadow-sm dark:border-white/10 dark:from-gray-900 dark:to-blue-950/20">
+                    <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-red-500 text-xl font-bold text-white shadow-lg shadow-blue-600/20">
+                      {customerDetail.name.split(' ').map((n) => n[0]).slice(0, 2).join('')}
+                    </div>
+                    <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.16em] text-blue-600 dark:text-blue-300">Perfil comercial do cliente</p>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">{customerDetail.name}</h3>
+                    <p className="text-sm text-gray-500">{customerDetail.company}</p>
+                  </div>
 
-              <div className="space-y-3 text-sm">
-                <InfoRow label="Telefone" value={customerDetail.phone} />
-                <InfoRow label="Email" value={customerDetail.email} />
-                <InfoRow label="Cidade" value={customerDetail.city} />
-                <InfoRow label="Último atendimento" value={formatDateTime(customerDetail.lastService)} />
-              </div>
+                  <div className="space-y-3 text-sm">
+                    <InfoRow label="Telefone" value={customerDetail.phone || activeConversation.contactPhone || '—'} />
+                    <InfoRow label="Email" value={customerDetail.email} />
+                    <InfoRow label="Cidade" value={customerDetail.city} />
+                    <InfoRow label="Último atendimento" value={formatDateTime(customerDetail.lastService)} />
+                  </div>
 
-              {customerDetail.notes && (
-                <div className="mt-4 rounded-lg bg-amber-50 p-3 text-sm dark:bg-amber-900/20">
-                  <p className="font-medium text-amber-800 dark:text-amber-300">Observações</p>
-                  <p className="mt-1 text-amber-700 dark:text-amber-400">{customerDetail.notes}</p>
+                  {customerDetail.notes && (
+                    <div className="mt-4 rounded-lg bg-amber-50 p-3 text-sm dark:bg-amber-900/20">
+                      <p className="font-medium text-amber-800 dark:text-amber-300">Observações</p>
+                      <p className="mt-1 text-amber-700 dark:text-amber-400">{customerDetail.notes}</p>
+                    </div>
+                  )}
+
+                  <div className="mt-4">
+                    <h4 className="mb-2 flex items-center gap-1 text-sm font-medium">
+                      <ShoppingCart className="h-4 w-4 text-blue-600" /> Pedidos ({customerDetail.orders.length})
+                    </h4>
+                    {customerDetail.orders.slice(0, 3).map((o) => (
+                      <div key={o.id} className="mb-1 text-xs text-gray-500">
+                        {o.number} · {formatCurrency(o.total)}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-4">
+                    <h4 className="mb-2 flex items-center gap-1 text-sm font-medium">
+                      <Package className="h-4 w-4 text-red-500" /> Produtos comprados
+                    </h4>
+                    {customerDetail.purchasedProducts.slice(0, 3).map((p) => (
+                      <div key={p.id} className="mb-1 text-xs text-gray-500">
+                        {p.name}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="mb-4 rounded-2xl border border-gray-200/80 bg-white/70 p-4 dark:border-white/10 dark:bg-gray-900/40">
+                  <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.16em] text-blue-600 dark:text-blue-300">
+                    Contato
+                  </p>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">{activeConversation.customerName}</h3>
+                  {activeConversation.contactPhone && (
+                    <p className="mt-1 text-sm text-gray-500">{activeConversation.contactPhone}</p>
+                  )}
                 </div>
               )}
 
-              <div className="mt-4">
-                <h4 className="mb-2 flex items-center gap-1 text-sm font-medium">
-                  <ShoppingCart className="h-4 w-4 text-blue-600" /> Pedidos ({customerDetail.orders.length})
-                </h4>
-                {customerDetail.orders.slice(0, 3).map((o) => (
-                  <div key={o.id} className="mb-1 text-xs text-gray-500">
-                    {o.number} · {formatCurrency(o.total)}
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-4">
-                <h4 className="mb-2 flex items-center gap-1 text-sm font-medium">
-                  <Package className="h-4 w-4 text-red-500" /> Produtos comprados
-                </h4>
-                {customerDetail.purchasedProducts.slice(0, 3).map((p) => (
-                  <div key={p.id} className="mb-1 text-xs text-gray-500">
-                    {p.name}
-                  </div>
-                ))}
-              </div>
+              <AgentContextPanel
+                context={agentContext}
+                isLoading={agentContextLoading}
+                isError={agentContextError}
+              />
 
               <div className="mt-6 space-y-2">
                 <div className="rounded-2xl border border-blue-200/70 bg-gradient-to-br from-blue-50 via-white to-red-50 p-3 shadow-sm dark:border-white/10 dark:from-blue-950/30 dark:via-gray-900 dark:to-red-950/20">

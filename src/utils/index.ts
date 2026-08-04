@@ -68,3 +68,26 @@ export const conversationStatusLabels: Record<string, string> = {
   waiting: 'Aguardando',
   closed: 'Encerrada',
 };
+
+export const agentStageLabels: Record<string, string> = {
+  commercial_interest: 'Interesse',
+  product_selection: 'Produto',
+  cart: 'Carrinho',
+  checkout: 'Checkout',
+  awaiting_payment: 'Aguardando pagamento',
+};
+
+export const agentLifecycleLabels: Record<string, string> = {
+  active: 'Ativo',
+  completed: 'Concluído',
+  cancelled: 'Cancelado',
+  expired: 'Expirado',
+};
+
+export function formatCents(cents: number | null | undefined, currency = 'BRL'): string {
+  if (cents == null || Number.isNaN(cents)) return '—';
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency,
+  }).format(cents / 100);
+}

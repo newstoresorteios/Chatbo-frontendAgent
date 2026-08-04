@@ -183,6 +183,98 @@ export interface Conversation {
   protocol?: string;
   assignedTo?: string;
   assignedName?: string;
+  canalId?: string | null;
+  contactPhone?: string | null;
+}
+
+/** Stages do funil AI (`ai_conversation_statuses.stage`). */
+export type AgentConversationStage =
+  | 'commercial_interest'
+  | 'product_selection'
+  | 'cart'
+  | 'checkout'
+  | 'awaiting_payment';
+
+/** Status do funil AI (`ai_conversation_statuses.status`). */
+export type AgentConversationLifecycle =
+  | 'active'
+  | 'completed'
+  | 'cancelled'
+  | 'expired';
+
+export type AgentMarketingStatus = 'eligible' | 'opted_out';
+
+export interface AgentRemarketingContact {
+  id?: number;
+  identityKey?: string | null;
+  senderKey?: string | null;
+  senderPhone?: string | null;
+  senderName?: string | null;
+  marketingStatus?: AgentMarketingStatus | string | null;
+  messagingWindowExpiresAt?: string | null;
+  channel?: string | null;
+}
+
+export interface AgentConversationStatus {
+  id?: number;
+  status?: AgentConversationLifecycle | string | null;
+  stage?: AgentConversationStage | string | null;
+  productName?: string | null;
+  cartUrl?: string | null;
+  paymentUrl?: string | null;
+  orderId?: string | null;
+  cartSessionId?: string | null;
+  lastCustomerMessageAt?: string | null;
+  nextScheduledAt?: string | null;
+  completionReason?: string | null;
+  completedAt?: string | null;
+}
+
+export interface AgentContactMemory {
+  id: number;
+  memoryKey?: string | null;
+  memoryKind?: string | null;
+  safeSummary?: string | null;
+  importance?: number | null;
+  confidence?: number | null;
+  status?: string | null;
+  lastConfirmedAt?: string | null;
+  useInInstructions?: boolean;
+}
+
+export interface AgentPixPayment {
+  id: number;
+  status?: string | null;
+  amountCents?: number | null;
+  currency?: string | null;
+  description?: string | null;
+  expiresAt?: string | null;
+  paidAt?: string | null;
+  qrCode?: string | null;
+  conversationId?: string | null;
+  senderKey?: string | null;
+}
+
+export interface AgentRecentResponse {
+  id: number;
+  replyText: string;
+  intent?: string | null;
+  handoffRequired: boolean;
+  safetyReason?: string | null;
+  providerSendOk: boolean;
+  createdAt?: string | null;
+  channel?: string | null;
+}
+
+/** Resposta de `GET /conversas/:id/agente`. */
+export interface ConversationAgentContext {
+  conversationId: string;
+  senderKey?: string | null;
+  contact?: AgentRemarketingContact | null;
+  status?: AgentConversationStatus | null;
+  memories: AgentContactMemory[];
+  pixPayments: AgentPixPayment[];
+  recentResponses: AgentRecentResponse[];
 }
 
 export interface FunnelStage {

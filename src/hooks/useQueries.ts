@@ -7,6 +7,7 @@ import { agentService } from '@/services/agent.service';
 import { rankingsService } from '@/services/rankings.service';
 import { systemService } from '@/services/system.service';
 import { conversationsService } from '@/services/conversations.service';
+import { agentRuntimeService } from '@/services/agentRuntime.service';
 import type { ListParams } from '@/types';
 
 export function useDashboard() {
@@ -111,5 +112,19 @@ export function useMessages(conversationId: string | null) {
     queryFn: () => conversationsService.getMessages(conversationId!),
     enabled: !!conversationId,
     refetchInterval: conversationId ? 4000 : false,
+  });
+}
+
+export function useConversationAgentContext(conversationId: string | null) {
+  return useQuery({
+    queryKey: ['conversation-agent-context', conversationId],
+    queryFn: () => agentRuntimeService.getConversationAgentContext(conversationId!),
+    enabled: !!conversationId,
+    refetchInterval: conversationId ? 10_000 : false,
+    retry: (failureCount, error) => {
+      const status = (error as { response?: { status?: number } })?.response?.status;
+      if (status === 404 || status === 501) return false;
+      return failureCount < 2;
+    },
   });
 }
