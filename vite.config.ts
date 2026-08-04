@@ -15,6 +15,11 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8000',
         changeOrigin: true,
+        bypass(req) {
+          if (req.url?.startsWith('/api/client-logs')) {
+            return req.url;
+          }
+        },
       },
     },
   },

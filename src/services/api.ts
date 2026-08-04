@@ -1,5 +1,6 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import type { AuthResponse, LoginCredentials, RegisterCredentials, User } from '@/types';
+import { logger } from '@/utils/logger';
 import { normalizeSessionUser } from '@/utils/sessionScope';
 
 function normalizeApiUrl(value: string | undefined): string {
@@ -40,6 +41,11 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  const method = (config.method ?? 'get').toUpperCase();
+  const url = `${config.baseURL ?? ''}${config.url ?? ''}`;
+  logger.debug('API request', { method, url });
+
   return config;
 });
 
@@ -49,11 +55,31 @@ let refreshQueue: Array<(token: string) => void> = [];
 type RetryConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const method = (response.config.method ?? 'get').toUpperCase();
+    const url = `${response.config.baseURL ?? ''}${response.config.url ?? ''}`;
+    logger.info('API response', {
+      method,
+      url,
+      status: response.status,
+    });
+    return response;
+  },
   async (error: AxiosError) => {
     const status = error.response?.status;
     const original = error.config as RetryConfig | undefined;
     const url = String(original?.url ?? '');
+    const method = (original?.method ?? 'get').toUpperCase();
+    const fullUrl = original ? `${original.baseURL ?? ''}${original.url ?? ''}` : url;
+
+    logger.error('API error', {
+      method,
+      url: fullUrl,
+      status,
+      code: error.code,
+      message: error.message,
+      data: error.response?.data,
+    });
 
     if (
       status !== 401
@@ -62,6 +88,7 @@ api.interceptors.response.use(
       || AUTH_PATHS.some((path) => url.includes(path))
     ) {
       if (status === 401 && !AUTH_PATHS.some((path) => url.includes(path))) {
+        logger.warn('Session expired, redirecting to login', { url: fullUrl });
         clearAuthStorage();
         window.location.href = '/login';
       }
@@ -70,6 +97,7 @@ api.interceptors.response.use(
 
     const refreshToken = localStorage.getItem(REFRESH_KEY);
     if (!refreshToken || refreshToken === 'undefined') {
+      logger.warn('Refresh token missing, redirecting to login', { url: fullUrl });
       clearAuthStorage();
       window.location.href = '/login';
       return Promise.reject(error);
@@ -88,6 +116,7 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     try {
+      logger.info('Refreshing auth token', { url: fullUrl });
       const { data } = await axios.post<AuthResponse>(`${API_URL}/auth/refresh`, {
         refreshToken,
       });
@@ -102,6 +131,10 @@ api.interceptors.response.use(
       original.headers.Authorization = `Bearer ${data.token}`;
       return api(original);
     } catch (refreshError) {
+      logger.error('Auth refresh failed', {
+        url: fullUrl,
+        message: refreshError instanceof Error ? refreshError.message : String(refreshError),
+      });
       refreshQueue = [];
       clearAuthStorage();
       window.location.href = '/login';
