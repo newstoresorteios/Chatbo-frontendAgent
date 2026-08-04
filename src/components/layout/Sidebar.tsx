@@ -17,16 +17,19 @@ import {
   LogOut,
   Megaphone,
   Package,
+  Shield,
   ShoppingCart,
   Sparkles,
   UserCircle,
   Users,
   X,
 } from 'lucide-react';
+import { useMemo } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { usePermissions } from '@/hooks/usePermissions';
+import { isSystemAdmin } from '@/utils/sessionScope';
 
 const navSections: NavSection[] = [
   { title: 'OPERAÇÃO', items: [
@@ -59,11 +62,25 @@ interface SidebarProps {
 }
 
 export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProps) {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const { can } = usePermissions();
   const workspace = useWorkspace();
   const navigate = useNavigate();
-  const visibleSections = filterNavSections(navSections, can, workspace.role);
+  const visibleSections = useMemo(() => {
+    const sections = filterNavSections(navSections, can, workspace.role);
+    if (isSystemAdmin(user)) {
+      return [
+        {
+          title: 'SUPERADMIN',
+          items: [
+            { to: '/system/empresas', icon: Shield, label: 'Empresas e acessos' },
+          ],
+        },
+        ...sections,
+      ];
+    }
+    return sections;
+  }, [can, workspace.role, user]);
 
   const handleExitToLanding = () => {
     onMobileClose();

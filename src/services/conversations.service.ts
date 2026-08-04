@@ -12,8 +12,10 @@ export const conversationsService = {
       await delay(400);
       return mockConversations;
     }
-    const { data } = await api.get<Conversation[]>('/conversas');
-    return data;
+    const { data } = await api.get<Conversation[] | { items?: Conversation[] }>('/conversas');
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.items)) return data.items;
+    return [];
   },
 
   getMessages: async (conversationId: string): Promise<Message[]> => {

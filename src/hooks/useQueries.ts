@@ -103,6 +103,8 @@ export function useConversations() {
     queryKey: ['conversations'],
     queryFn: conversationsService.getConversations,
     refetchInterval: 5000,
+    // Garante array mesmo se o backend devolver envelope inesperado.
+    select: (data) => (Array.isArray(data) ? data : []),
   });
 }
 

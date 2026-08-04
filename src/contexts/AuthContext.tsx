@@ -18,7 +18,7 @@ interface AuthContextValue {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: LoginCredentials) => Promise<void>;
+  login: (credentials: LoginCredentials) => Promise<User>;
   register: (credentials: RegisterCredentials) => Promise<User>;
   logout: () => void;
   updateProfile: (patch: Partial<User>) => Promise<void>;
@@ -119,13 +119,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const authUser = normalizeSessionUser({ ...mockUser, email: credentials.email });
         persistSession('mock-jwt-token', 'mock-refresh-token', authUser);
         setUser(authUser);
-        return;
+        return authUser;
       }
 
       const { data } = await authService.login(credentials);
       const authUser = normalizeSessionUser(data.user);
       persistSession(data.token, data.refreshToken, authUser);
       setUser(authUser);
+      return authUser;
     } catch (error: unknown) {
       throw new Error(extractApiErrorMessage(error, 'Não foi possível entrar'));
     } finally {

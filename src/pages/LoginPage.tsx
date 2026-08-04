@@ -44,8 +44,8 @@ export function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     setLoginError(null);
     try {
-      await login(data);
-      navigate('/dashboard');
+      const sessionUser = await login(data);
+      navigate(sessionUser.accountType === 'system_admin' ? '/system/empresas' : '/dashboard');
     } catch (error) {
       const message = extractApiErrorMessage(error, 'E-mail ou senha incorretos');
       setLoginError(message);

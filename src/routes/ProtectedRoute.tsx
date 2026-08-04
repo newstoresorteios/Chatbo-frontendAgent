@@ -14,8 +14,15 @@ export function ProtectedRoute() {
 }
 
 export function PublicRoute() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   if (isLoading) return <Loading className="min-h-screen" />;
-  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
+  if (isAuthenticated) {
+    return (
+      <Navigate
+        to={user?.accountType === 'system_admin' ? '/system/empresas' : '/dashboard'}
+        replace
+      />
+    );
+  }
   return <Outlet />;
 }

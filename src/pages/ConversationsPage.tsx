@@ -73,7 +73,12 @@ export function ConversationsPage() {
   } = useChat();
 
   const { user } = useAuth();
-  const { data: conversations, isLoading } = useConversations();
+  const {
+    data: conversations,
+    isLoading,
+    isError: conversationsError,
+    refetch: refetchConversations,
+  } = useConversations();
   const { data: messages, isLoading: messagesLoading } = useMessages(activeConversationId);
   const activeConversation = conversations?.find((c) => c.id === activeConversationId);
   const { data: customerDetail } = useCustomerDetail(activeConversation?.customerId);
@@ -309,7 +314,21 @@ export function ConversationsPage() {
 
   const allMessages = mergedForAi;
 
-  if (isLoading) return <Loading />;
+  if (isLoading) return <Loading text="Carregando conversas..." />;
+  if (conversationsError) {
+    return (
+      <EmptyState
+        icon={XCircle}
+        title="Não foi possível carregar as conversas"
+        description="Verifique a conexão com o backend e tente novamente."
+        action={
+          <Button variant="outline" onClick={() => { void refetchConversations(); }}>
+            Tentar novamente
+          </Button>
+        }
+      />
+    );
+  }
 
   return (
     <div className="flex h-[calc(100vh-7rem)] flex-col">
