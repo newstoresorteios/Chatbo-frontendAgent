@@ -1,9 +1,12 @@
 {
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://xnamai-backendagent.onrender.com/api/:path*"
+      "source": "/api/((?!client-logs$).*)",
+      "destination": "https://xnamai-backendagent.onrender.com/api/$1"
     },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
   ]
 }
