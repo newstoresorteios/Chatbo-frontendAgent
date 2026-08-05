@@ -15,11 +15,23 @@ export interface NavItem {
   description?: string;
   permission?: NavPermission;
   roles?: WorkspaceRole[];
+  children?: NavItem[];
 }
 
 export interface NavSection {
   title: string;
   items: NavItem[];
+}
+
+function itemVisible(
+  item: NavItem,
+  can: (permission: string) => boolean,
+  role?: WorkspaceRole,
+): boolean {
+  const hasPermission = !item.permission || can(item.permission);
+  const hasRole = !item.roles || Boolean(role && item.roles.includes(role));
+  if (item.permission && item.roles) return hasPermission || hasRole;
+  return hasPermission && hasRole;
 }
 
 export function filterNavSections(
@@ -30,12 +42,18 @@ export function filterNavSections(
   return sections
     .map((section) => ({
       ...section,
-      items: section.items.filter((item) => {
-        const hasPermission = !item.permission || can(item.permission);
-        const hasRole = !item.roles || Boolean(role && item.roles.includes(role));
-        if (item.permission && item.roles) return hasPermission || hasRole;
-        return hasPermission && hasRole;
-      }),
+      items: section.items
+        .map((item) => {
+          const children = item.children?.filter((child) => itemVisible(child, can, role));
+          return {
+            ...item,
+            children: children && children.length > 0 ? children : undefined,
+          };
+        })
+        .filter((item) => {
+          if (item.children?.length) return true;
+          return itemVisible(item, can, role);
+        }),
     }))
     .filter((section) => section.items.length > 0);
 }

@@ -1,11 +1,17 @@
 import { Logo } from '@/components/layout/Logo';
 import { cn } from '@/utils';
-import { filterNavSections, type NavSection } from '@/utils/navPermissions';
+import { filterNavSections, type NavItem, type NavSection } from '@/utils/navPermissions';
+import {
+  filterSettingsNavItems,
+  SETTINGS_NAV_ITEMS,
+  settingsTabPath,
+} from '@/features/settings/settingsNav';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   BarChart3,
   Bot,
   Brain,
+  ChevronDown,
   ChevronLeft,
   DollarSign,
   Flame,
@@ -22,33 +28,40 @@ import {
   Users,
   X,
 } from 'lucide-react';
-import { useMemo } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { isSystemAdmin } from '@/utils/sessionScope';
 
-const navSections: NavSection[] = [
-  { title: 'OPERAÇÃO', items: [
-    { to: '/dashboard', icon: Gauge, label: 'Painel Comercial', permission: 'viewFinancial', roles: ['owner', 'admin', 'supervisor'] },
-    { to: '/atendimento', icon: Headphones, label: 'Central de Conversão' },
-    { to: '/contatos', icon: Users, label: 'Clientes' },
-    { to: '/produtos', icon: Package, label: 'Produtos' },
-    { to: '/pedidos', icon: ShoppingCart, label: 'Pedidos', permission: 'viewFinancial', roles: ['owner', 'admin', 'supervisor'] },
-    { to: '/funil', icon: GitBranch, label: 'Funil de Vendas', permission: 'viewFinancial', roles: ['owner', 'admin', 'supervisor'] },
-  ] },
-  { title: 'AGENTE', items: [
-    { to: '/copiloto', icon: Sparkles, label: 'Assistente ChatBô', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
-    { to: '/robo', icon: Bot, label: 'Agente Automático', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
-    { to: '/persona', icon: Brain, label: 'Persona do agente', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
-  ] },
-  { title: 'GESTÃO', items: [
-    { to: '/campanhas', icon: Megaphone, label: 'Campanhas', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
-    { to: '/relatorios', icon: BarChart3, label: 'Relatórios', permission: 'viewReports', roles: ['owner', 'admin', 'supervisor'] },
-    { to: '/configuracoes', icon: Settings, label: 'Configurações' },
-  ] },
-];
+function buildNavSections(settingsChildren: NavItem[]): NavSection[] {
+  return [
+    { title: 'OPERAÇÃO', items: [
+      { to: '/dashboard', icon: Gauge, label: 'Painel Comercial', permission: 'viewFinancial', roles: ['owner', 'admin', 'supervisor'] },
+      { to: '/atendimento', icon: Headphones, label: 'Central de Conversão' },
+      { to: '/contatos', icon: Users, label: 'Clientes' },
+      { to: '/produtos', icon: Package, label: 'Produtos' },
+      { to: '/pedidos', icon: ShoppingCart, label: 'Pedidos', permission: 'viewFinancial', roles: ['owner', 'admin', 'supervisor'] },
+      { to: '/funil', icon: GitBranch, label: 'Funil de Vendas', permission: 'viewFinancial', roles: ['owner', 'admin', 'supervisor'] },
+    ] },
+    { title: 'AGENTE', items: [
+      { to: '/copiloto', icon: Sparkles, label: 'Assistente ChatBô', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
+      { to: '/robo', icon: Bot, label: 'Agente Automático', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
+      { to: '/persona', icon: Brain, label: 'Persona do agente', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
+    ] },
+    { title: 'GESTÃO', items: [
+      { to: '/campanhas', icon: Megaphone, label: 'Campanhas', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
+      { to: '/relatorios', icon: BarChart3, label: 'Relatórios', permission: 'viewReports', roles: ['owner', 'admin', 'supervisor'] },
+      {
+        to: '/configuracoes',
+        icon: Settings,
+        label: 'Configurações',
+        children: settingsChildren,
+      },
+    ] },
+  ];
+}
 
 interface SidebarProps {
   collapsed: boolean;
@@ -57,14 +70,44 @@ interface SidebarProps {
   onMobileClose: () => void;
 }
 
+function isSettingsChildActive(pathname: string, search: string, childTo: string): boolean {
+  if (pathname !== '/configuracoes') return false;
+  const childTab = new URLSearchParams(childTo.split('?')[1] ?? '').get('tab') ?? 'perfil';
+  const currentTab = new URLSearchParams(search).get('tab') ?? 'perfil';
+  return childTab === currentTab;
+}
+
 export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProps) {
   const { logout, user } = useAuth();
   const { can } = usePermissions();
   const workspace = useWorkspace();
   const navigate = useNavigate();
+  const location = useLocation();
+  const systemAdmin = isSystemAdmin(user);
+  const [settingsOpen, setSettingsOpen] = useState(() => location.pathname.startsWith('/configuracoes'));
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/configuracoes')) {
+      setSettingsOpen(true);
+    }
+  }, [location.pathname]);
+
   const visibleSections = useMemo(() => {
-    const sections = filterNavSections(navSections, can, workspace.role);
-    if (isSystemAdmin(user)) {
+    const settingsChildren: NavItem[] = filterSettingsNavItems(
+      SETTINGS_NAV_ITEMS,
+      can,
+      workspace.role,
+      systemAdmin,
+    ).map((item) => ({
+      to: settingsTabPath(item.id),
+      icon: item.icon,
+      label: item.label,
+      permission: item.permission,
+      roles: item.roles,
+    }));
+
+    const sections = filterNavSections(buildNavSections(settingsChildren), can, workspace.role);
+    if (systemAdmin) {
       return [
         {
           title: 'SUPERADMIN',
@@ -76,12 +119,110 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
       ];
     }
     return sections;
-  }, [can, workspace.role, user]);
+  }, [can, workspace.role, systemAdmin]);
 
   const handleExitToLanding = () => {
     onMobileClose();
     logout();
     navigate('/');
+  };
+
+  const renderItem = (item: NavItem) => {
+    const { to, icon: Icon, label, children } = item;
+    const hasChildren = Boolean(children?.length);
+    const isSettingsParent = to === '/configuracoes' && hasChildren;
+    const parentActive = location.pathname.startsWith('/configuracoes');
+
+    if (isSettingsParent && children) {
+      return (
+        <li key={to}>
+          <button
+            type="button"
+            onClick={() => {
+              if (collapsed) {
+                navigate('/configuracoes');
+                onMobileClose();
+                return;
+              }
+              setSettingsOpen((open) => !open);
+            }}
+            className={cn(
+              'group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-semibold leading-5 transition-all',
+              parentActive
+                ? 'bg-gradient-to-r from-blue-600 to-red-500 text-white shadow-lg shadow-blue-600/20'
+                : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white',
+              collapsed && 'justify-center px-2',
+            )}
+            title={collapsed ? label : undefined}
+            aria-expanded={settingsOpen}
+          >
+            <Icon className="h-[19px] w-[19px] shrink-0 transition-transform group-hover:scale-105" />
+            {!collapsed && (
+              <>
+                <span className="min-w-0 flex-1 truncate text-left">{label}</span>
+                <ChevronDown className={cn('h-4 w-4 shrink-0 transition-transform', settingsOpen && 'rotate-180')} />
+              </>
+            )}
+          </button>
+          <AnimatePresence initial={false}>
+            {!collapsed && settingsOpen && (
+              <motion.ul
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.18 }}
+                className="mt-1 space-y-0.5 overflow-hidden border-l border-gray-200 pl-3 ml-5 dark:border-slate-700"
+              >
+                {children.map((child) => {
+                  const ChildIcon = child.icon;
+                  const active = isSettingsChildActive(location.pathname, location.search, child.to);
+                  return (
+                    <li key={child.to}>
+                      <NavLink
+                        to={child.to}
+                        onClick={onMobileClose}
+                        className={cn(
+                          'flex items-center gap-2 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors',
+                          active
+                            ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300'
+                            : 'text-gray-600 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-white',
+                        )}
+                      >
+                        <ChildIcon className="h-3.5 w-3.5 shrink-0" />
+                        <span className="truncate">{child.label}</span>
+                      </NavLink>
+                    </li>
+                  );
+                })}
+              </motion.ul>
+            )}
+          </AnimatePresence>
+        </li>
+      );
+    }
+
+    return (
+      <li key={to}>
+        <NavLink
+          to={to}
+          end={to === '/configuracoes'}
+          onClick={onMobileClose}
+          className={({ isActive }) =>
+            cn(
+              'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-semibold leading-5 transition-all',
+              isActive
+                ? 'bg-gradient-to-r from-blue-600 to-red-500 text-white shadow-lg shadow-blue-600/20'
+                : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white',
+              collapsed && 'justify-center px-2',
+            )
+          }
+          title={collapsed ? label : undefined}
+        >
+          <Icon className="h-[19px] w-[19px] shrink-0 transition-transform group-hover:scale-105" />
+          {!collapsed && <span className="min-w-0 flex-1 truncate">{label}</span>}
+        </NavLink>
+      </li>
+    );
   };
 
   const content = (
@@ -118,28 +259,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
               </p>
             )}
             <ul className="space-y-0.5 px-3">
-              {section.items.map(({ to, icon: Icon, label }) => (
-                <li key={to}>
-                  <NavLink
-                    to={to}
-                    end={to === '/configuracoes'}
-                    onClick={onMobileClose}
-                    className={({ isActive }) =>
-                      cn(
-                        'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-semibold leading-5 transition-all',
-                        isActive
-                          ? 'bg-gradient-to-r from-blue-600 to-red-500 text-white shadow-lg shadow-blue-600/20'
-                          : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white',
-                        collapsed && 'justify-center px-2',
-                      )
-                    }
-                    title={collapsed ? label : undefined}
-                  >
-                    <Icon className="h-[19px] w-[19px] shrink-0 transition-transform group-hover:scale-105" />
-                    {!collapsed && <span className="min-w-0 flex-1 truncate">{label}</span>}
-                  </NavLink>
-                </li>
-              ))}
+              {section.items.map(renderItem)}
             </ul>
           </div>
         ))}
