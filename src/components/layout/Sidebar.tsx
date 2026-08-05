@@ -33,21 +33,21 @@ import { isSystemAdmin } from '@/utils/sessionScope';
 
 const navSections: NavSection[] = [
   { title: 'OPERAÇÃO', items: [
-    { to: '/dashboard', icon: Gauge, label: 'Painel Comercial' },
+    { to: '/dashboard', icon: Gauge, label: 'Painel Comercial', permission: 'viewFinancial' },
     { to: '/atendimento', icon: Headphones, label: 'Central de Conversão' },
     { to: '/contatos', icon: Users, label: 'Clientes' },
     { to: '/produtos', icon: Package, label: 'Produtos' },
-    { to: '/pedidos', icon: ShoppingCart, label: 'Pedidos' },
-    { to: '/funil', icon: GitBranch, label: 'Funil de Vendas' },
+    { to: '/pedidos', icon: ShoppingCart, label: 'Pedidos', permission: 'viewFinancial' },
+    { to: '/funil', icon: GitBranch, label: 'Funil de Vendas', permission: 'viewFinancial' },
   ] },
   { title: 'AGENTE', items: [
-    { to: '/copiloto', icon: Sparkles, label: 'Assistente ChatBô' },
-    { to: '/robo', icon: Bot, label: 'Agente Automático' },
+    { to: '/copiloto', icon: Sparkles, label: 'Assistente ChatBô', permission: 'managePlatform' },
+    { to: '/robo', icon: Bot, label: 'Agente Automático', permission: 'managePlatform' },
   ] },
   { title: 'GESTÃO', items: [
     { to: '/campanhas', icon: Megaphone, label: 'Campanhas', permission: 'managePlatform' },
     { to: '/relatorios', icon: BarChart3, label: 'Relatórios', permission: 'viewReports' },
-    { to: '/configuracoes', icon: UserCircle, label: 'Equipe e acessos' },
+    { to: '/configuracoes', icon: UserCircle, label: 'Equipe e acessos', permission: 'manageUsers' },
     { to: '/configuracoes?tab=persona', icon: Brain, label: 'Persona do agente', permission: 'managePlatform' },
     { to: '/integracoes', icon: Link2, label: 'Canais e integrações', permission: 'manageIntegrations' },
     { to: '/minha-empresa', icon: Building2, label: 'Minha empresa', permission: 'manageUsers', roles: ['owner', 'admin'] },

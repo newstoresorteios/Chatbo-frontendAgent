@@ -16,8 +16,8 @@ export function SystemAdminLayout() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <header className="border-b border-white/10 bg-slate-900/80 backdrop-blur">
+    <div className="min-h-screen bg-slate-950">
+      <header className="border-b border-white/10 bg-slate-900/80 text-slate-100 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4">
           <div className="flex items-center gap-4">
             <Logo size="sm" showText />
@@ -25,13 +25,13 @@ export function SystemAdminLayout() {
               <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-cyan-300">
                 Superadmin
               </p>
-              <p className="text-sm text-slate-400">Provisionamento de empresas e acessos</p>
+              <p className="text-sm text-slate-300">Provisionamento de empresas e acessos</p>
             </div>
           </div>
           <div className="flex items-center gap-3 text-sm">
             <div className="text-right">
               <p className="font-semibold text-white">{user?.name ?? 'Admin'}</p>
-              <p className="text-xs text-slate-400">{user?.email}</p>
+              <p className="text-xs text-slate-300">{user?.email}</p>
             </div>
             <button
               type="button"

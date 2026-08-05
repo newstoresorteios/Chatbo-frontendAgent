@@ -1,5 +1,7 @@
 import { Loading } from '@/components/ui/EmptyState';
+import { useAuth } from '@/contexts/AuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
+import { defaultAppHome } from '@/utils/appHome';
 import { Navigate, Outlet } from 'react-router-dom';
 
 interface PermissionRouteProps {
@@ -7,6 +9,7 @@ interface PermissionRouteProps {
 }
 
 export function PermissionRoute({ permission }: PermissionRouteProps) {
+  const { user } = useAuth();
   const { can, isLoading, isFetching } = usePermissions();
 
   if (isLoading || isFetching) {
@@ -14,7 +17,7 @@ export function PermissionRoute({ permission }: PermissionRouteProps) {
   }
 
   if (!can(permission)) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={defaultAppHome(user)} replace />;
   }
 
   return <Outlet />;

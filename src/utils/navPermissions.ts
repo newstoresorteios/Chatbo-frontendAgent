@@ -1,7 +1,12 @@
 import type { LucideIcon } from 'lucide-react';
 import type { WorkspaceRole } from '@/utils/sessionScope';
 
-export type NavPermission = 'viewReports' | 'manageIntegrations' | 'managePlatform' | 'manageUsers';
+export type NavPermission =
+  | 'viewReports'
+  | 'viewFinancial'
+  | 'manageIntegrations'
+  | 'managePlatform'
+  | 'manageUsers';
 
 export interface NavItem {
   to: string;
@@ -36,18 +41,21 @@ export function filterNavSections(
 }
 
 export const SETTINGS_TAB_PERMISSIONS: Record<string, NavPermission | 'admin' | undefined> = {
-  empresa: undefined,
+  empresa: 'manageUsers',
   sistema: undefined,
   usuarios: 'manageUsers',
-  permissoes: undefined,
+  permissoes: 'manageUsers',
   persona: 'managePlatform',
   mercos: 'manageIntegrations',
   whatsapp: 'admin',
   openai: undefined,
   integracoes: 'manageIntegrations',
+  fontes: 'manageIntegrations',
   notificacoes: undefined,
   seguranca: undefined,
   tema: undefined,
+  preferencias: undefined,
+  perfil: undefined,
 };
 
 export function canAccessSettingsTab(

@@ -331,59 +331,63 @@ export function ConversationsPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-7rem)] flex-col">
-      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <span className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
-            <Target className="h-3.5 w-3.5" /> Central de Conversão
-          </span>
-          <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-gray-950 dark:text-white lg:text-3xl">Central de Conversão</h1>
-          <p className="mt-1 max-w-2xl text-gray-500 dark:text-gray-400">
-            Responda leads, qualifique oportunidades e use IA para acelerar cada negociação.
+    <div className="-m-4 flex h-[calc(100vh-4rem)] flex-col lg:-m-6">
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-gray-200/80 bg-white/90 px-4 py-3 dark:border-white/10 dark:bg-gray-950/80">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <Target className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
+            <h1 className="truncate font-display text-lg font-bold tracking-tight text-gray-950 dark:text-white">
+              Central de Conversão
+            </h1>
+          </div>
+          <p className="mt-0.5 hidden text-xs text-gray-500 sm:block dark:text-gray-400">
+            Chat em destaque · contexto do agente abaixo do atendimento
           </p>
         </div>
-        <div className="hidden rounded-2xl border border-gray-200/80 bg-white/80 px-4 py-3 shadow-sm dark:border-white/10 dark:bg-gray-900/80 lg:block">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Mesa Comercial ChatBô</p>
-          <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">Atendimento orientado à venda</p>
+        <Badge variant="info" className="shrink-0">
+          {filtered.length} conversa{filtered.length === 1 ? '' : 's'}
+        </Badge>
+      </div>
+
+      <div className="shrink-0 border-b border-gray-200/80 bg-slate-50/90 px-4 py-3 dark:border-white/10 dark:bg-white/[0.03]">
+        <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_12rem_12rem] md:items-center">
+          <Search
+            placeholder="Buscar leads e conversas..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <Select
+            options={[
+              { value: 'all', label: 'Todos os canais' },
+              { value: 'whatsapp', label: 'WhatsApp' },
+              { value: 'instagram', label: 'Instagram' },
+              { value: 'facebook', label: 'Facebook' },
+              { value: 'telegram', label: 'Telegram' },
+              { value: 'webchat', label: 'WebChat' },
+              { value: 'email', label: 'E-mail' },
+            ]}
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          />
+          <Select
+            options={[
+              { value: 'all', label: 'Todos os status' },
+              { value: 'active', label: 'Ativas' },
+              { value: 'waiting', label: 'Aguardando' },
+              { value: 'closed', label: 'Encerradas' },
+            ]}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          />
         </div>
       </div>
 
-      <div className="flex flex-1 overflow-hidden rounded-2xl border border-gray-200/80 bg-white/90 shadow-lg shadow-slate-200/50 backdrop-blur dark:border-white/10 dark:bg-gray-900/90 dark:shadow-black/20">
-        <div
-          className={`flex w-full flex-col border-r border-gray-200 md:w-80 lg:w-96 dark:border-gray-700 ${
+      <div className="flex min-h-0 flex-1 overflow-hidden bg-white dark:bg-gray-950">
+        <aside
+          className={`flex w-full shrink-0 flex-col border-r border-gray-200 md:w-72 lg:w-80 dark:border-gray-800 ${
             activeConversationId ? 'hidden md:flex' : 'flex'
           }`}
         >
-          <div className="space-y-3 border-b border-gray-200/80 bg-slate-50/60 p-3 dark:border-white/10 dark:bg-white/[0.03]">
-            <Search
-              placeholder="Buscar leads e conversas..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <Select
-              options={[
-                { value: 'all', label: 'Todos os canais' },
-                { value: 'whatsapp', label: 'WhatsApp' },
-                { value: 'instagram', label: 'Instagram' },
-                { value: 'facebook', label: 'Facebook' },
-                { value: 'telegram', label: 'Telegram' },
-                { value: 'webchat', label: 'WebChat' },
-                { value: 'email', label: 'E-mail' },
-              ]}
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-            />
-            <Select
-              options={[
-                { value: 'all', label: 'Todos os status' },
-                { value: 'active', label: 'Ativas' },
-                { value: 'waiting', label: 'Aguardando' },
-                { value: 'closed', label: 'Encerradas' },
-              ]}
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            />
-          </div>
           <div className="flex-1 overflow-y-auto">
             {displayList.length === 0 ? (
               <ConversationsEmptyState filtered={!isInboxEmpty || hasActiveFilters} />
@@ -399,12 +403,12 @@ export function ConversationsPage() {
               ))
             )}
           </div>
-        </div>
+        </aside>
 
-        <div className={`flex-1 flex-col ${activeConversationId ? 'flex' : 'hidden md:flex'}`}>
+        <section className={`min-w-0 flex-1 flex-col ${activeConversationId ? 'flex' : 'hidden md:flex'}`}>
           {activeConversation ? (
-            <>
-              <div className="flex items-center justify-between gap-3 border-b border-gray-200/80 bg-white/80 px-4 py-3 backdrop-blur dark:border-white/10 dark:bg-gray-900/80">
+            <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+              <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-blue-200/60 bg-gradient-to-r from-blue-50/95 via-white/95 to-white/95 px-4 py-3 backdrop-blur dark:border-blue-900/40 dark:from-blue-950/50 dark:via-gray-950/95 dark:to-gray-950/95">
                 <div className="flex min-w-0 items-center gap-2">
                   <Button
                     variant="ghost"
@@ -421,9 +425,14 @@ export function ConversationsPage() {
                     <ArrowLeft className="h-5 w-5" />
                   </Button>
                   <div className="min-w-0">
-                    <h3 className="font-semibold text-gray-900 dark:text-white">
-                      {activeConversation.customerName}
-                    </h3>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="truncate text-base font-semibold text-gray-900 dark:text-white">
+                        {activeConversation.customerName}
+                      </h3>
+                      <Badge variant={STATUS_VARIANTS[activeConversation.status]}>
+                        {STATUS_LABELS[activeConversation.status]}
+                      </Badge>
+                    </div>
                     <div className="mt-1 flex flex-wrap items-center gap-2">
                       <ChannelBadge channel={activeConversation.channel} />
                       {activeConversation.protocol && (
@@ -438,10 +447,59 @@ export function ConversationsPage() {
                     </div>
                   </div>
                 </div>
-                <div className="flex shrink-0 items-center gap-2">
+              </div>
+
+              <div className="relative mx-3 mt-3 flex min-h-[22rem] flex-1 flex-col overflow-hidden rounded-2xl border-2 border-blue-500/35 bg-slate-50 shadow-[0_0_0_1px_rgba(59,130,246,0.12),0_18px_40px_-24px_rgba(37,99,235,0.55)] dark:border-blue-400/30 dark:bg-[#0b1220] dark:shadow-[0_0_0_1px_rgba(96,165,250,0.18),0_24px_48px_-28px_rgba(37,99,235,0.65)] sm:min-h-[26rem] lg:min-h-[32rem]">
+                <div className="flex items-center justify-between border-b border-blue-200/50 px-4 py-2 dark:border-blue-900/40">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-blue-700 dark:text-blue-300">
+                    Conversa em atendimento
+                  </p>
+                  {messagesLoading ? (
+                    <span className="text-xs text-gray-400">Carregando mensagens...</span>
+                  ) : (
+                    <span className="text-xs text-gray-500">{allMessages.length} mensagens</span>
+                  )}
+                </div>
+                <div className="dashboard-grid-bg flex-1 space-y-4 overflow-y-auto p-4">
+                  {isClosed && (
+                    <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                      Conversa encerrada. Reabra para enviar novas mensagens.
+                    </div>
+                  )}
+                  {messagesLoading ? (
+                    <Loading text="Carregando mensagens..." />
+                  ) : allMessages.length === 0 ? (
+                    <EmptyState
+                      icon={User}
+                      title="Nenhuma mensagem ainda"
+                      description="Assim que o lead ou o agente enviarem mensagens, elas aparecem aqui."
+                    />
+                  ) : (
+                    allMessages.map((msg) => (
+                      <ChatBubble
+                        key={msg.id}
+                        message={msg}
+                        customerName={activeConversation.customerName}
+                      />
+                    ))
+                  )}
+                  {isTyping && <div className="text-sm text-gray-400">Digitando...</div>}
+                  <div ref={messagesEndRef} />
+                </div>
+                <div className="border-t border-blue-200/40 bg-white/90 dark:border-blue-900/40 dark:bg-gray-950/80">
+                  <MessageInput
+                    onSend={handleSend}
+                    disabled={sendMutation.isPending || isClosed}
+                    placeholder={isClosed ? 'Conversa encerrada' : 'Digite sua resposta comercial...'}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4 px-3 py-4">
+                <div className="flex flex-wrap gap-2">
                   {!isClosed && !isAssignedToMe && user && (
                     <Button
-                      variant="outline"
+                      variant="primary"
                       size="sm"
                       onClick={() => assumeMutation.mutate()}
                       disabled={assumeMutation.isPending}
@@ -459,145 +517,60 @@ export function ConversationsPage() {
                       <RefreshCw className="h-4 w-4" /> Reabrir
                     </Button>
                   ) : (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCloseOpen(true)}
-                    >
-                      <XCircle className="h-4 w-4" /> Concluir
+                    <Button variant="outline" size="sm" onClick={() => setCloseOpen(true)}>
+                      <CheckCircle2 className="h-4 w-4" /> Concluir
                     </Button>
                   )}
-                  <Badge variant={STATUS_VARIANTS[activeConversation.status]}>
-                    {STATUS_LABELS[activeConversation.status]}
-                  </Badge>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setTransferOpen(true)}
+                    disabled={isClosed || teamLoading || agentOptions.length === 0}
+                  >
+                    <RefreshCw className="h-4 w-4" /> Transferir
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleOpenFunnel}>
+                    <ShoppingCart className="h-4 w-4" /> Abrir oportunidade
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setReserveOpen(true)}
+                    disabled={isClosed || productOptions.length === 0}
+                  >
+                    <Package className="h-4 w-4" /> Reservar produto
+                  </Button>
                 </div>
-              </div>
 
-              <div className="dashboard-grid-bg flex-1 space-y-4 overflow-y-auto bg-slate-50 p-4 dark:bg-[#0b1220]">
-                {isClosed && (
-                  <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
-                    Conversa encerrada. Reabra para enviar novas mensagens.
-                  </div>
-                )}
-                {messagesLoading ? (
-                  <Loading text="Carregando mensagens..." />
-                ) : (
-                  allMessages.map((msg) => (
-                    <ChatBubble
-                      key={msg.id}
-                      message={msg}
-                      customerName={activeConversation.customerName}
-                    />
-                  ))
-                )}
-                {isTyping && (
-                  <div className="text-sm text-gray-400">
-                    Digitando...
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-
-              <MessageInput
-                onSend={handleSend}
-                disabled={sendMutation.isPending || isClosed}
-                placeholder={isClosed ? 'Conversa encerrada' : 'Digite sua resposta comercial...'}
-              />
-            </>
-          ) : (
-            <ConversationsSelectPrompt />
-          )}
-        </div>
-
-        <div className="hidden w-80 flex-col border-l border-gray-200/80 xl:flex dark:border-white/10">
-          {activeConversation ? (
-            <div className="flex-1 overflow-y-auto p-4">
-              {customerDetail ? (
-                <>
-                  <div className="mb-6 rounded-2xl border border-gray-200/80 bg-gradient-to-br from-white to-blue-50/70 p-4 text-center shadow-sm dark:border-white/10 dark:from-gray-900 dark:to-blue-950/20">
-                    <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-red-500 text-xl font-bold text-white shadow-lg shadow-blue-600/20">
-                      {customerDetail.name.split(' ').map((n) => n[0]).slice(0, 2).join('')}
-                    </div>
-                    <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.16em] text-blue-600 dark:text-blue-300">Perfil comercial do cliente</p>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">{customerDetail.name}</h3>
-                    <p className="text-sm text-gray-500">{customerDetail.company}</p>
-                  </div>
-
-                  <div className="space-y-3 text-sm">
-                    <InfoRow label="Telefone" value={customerDetail.phone || activeConversation.contactPhone || '—'} />
-                    <InfoRow label="Email" value={customerDetail.email} />
-                    <InfoRow label="Cidade" value={customerDetail.city} />
-                    <InfoRow label="Último atendimento" value={formatDateTime(customerDetail.lastService)} />
-                  </div>
-
-                  {customerDetail.notes && (
-                    <div className="mt-4 rounded-lg bg-amber-50 p-3 text-sm dark:bg-amber-900/20">
-                      <p className="font-medium text-amber-800 dark:text-amber-300">Observações</p>
-                      <p className="mt-1 text-amber-700 dark:text-amber-400">{customerDetail.notes}</p>
-                    </div>
-                  )}
-
-                  <div className="mt-4">
-                    <h4 className="mb-2 flex items-center gap-1 text-sm font-medium">
-                      <ShoppingCart className="h-4 w-4 text-blue-600" /> Pedidos ({customerDetail.orders.length})
-                    </h4>
-                    {customerDetail.orders.slice(0, 3).map((o) => (
-                      <div key={o.id} className="mb-1 text-xs text-gray-500">
-                        {o.number} · {formatCurrency(o.total)}
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-4">
-                    <h4 className="mb-2 flex items-center gap-1 text-sm font-medium">
-                      <Package className="h-4 w-4 text-red-500" /> Produtos comprados
-                    </h4>
-                    {customerDetail.purchasedProducts.slice(0, 3).map((p) => (
-                      <div key={p.id} className="mb-1 text-xs text-gray-500">
-                        {p.name}
-                      </div>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <div className="mb-4 rounded-2xl border border-gray-200/80 bg-white/70 p-4 dark:border-white/10 dark:bg-gray-900/40">
-                  <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.16em] text-blue-600 dark:text-blue-300">
-                    Contato
-                  </p>
-                  <h3 className="font-semibold text-gray-900 dark:text-white">{activeConversation.customerName}</h3>
-                  {activeConversation.contactPhone && (
-                    <p className="mt-1 text-sm text-gray-500">{activeConversation.contactPhone}</p>
-                  )}
-                </div>
-              )}
-
-              <AgentContextPanel
-                context={agentContext}
-                isLoading={agentContextLoading}
-                isError={agentContextError}
-              />
-
-              <div className="mt-6 space-y-2">
-                <div className="rounded-2xl border border-blue-200/70 bg-gradient-to-br from-blue-50 via-white to-red-50 p-3 shadow-sm dark:border-white/10 dark:from-blue-950/30 dark:via-gray-900 dark:to-red-950/20">
-                  <div className="flex items-center justify-between gap-2">
+                <div className="rounded-2xl border border-blue-200/70 bg-gradient-to-br from-blue-50 via-white to-red-50 p-4 shadow-sm dark:border-white/10 dark:from-blue-950/30 dark:via-gray-900 dark:to-red-950/20">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <p className="flex items-center gap-1 text-xs font-bold uppercase tracking-[0.12em] text-blue-700 dark:text-blue-300">
                       <Sparkles className="h-3.5 w-3.5" /> Assistente ChatBô
                     </p>
                     {aiSuggestion && (
-                      <Badge variant={aiSuggestion.priority === 'high' ? 'danger' : aiSuggestion.priority === 'medium' ? 'warning' : 'default'} className="text-[10px]">
+                      <Badge
+                        variant={
+                          aiSuggestion.priority === 'high'
+                            ? 'danger'
+                            : aiSuggestion.priority === 'medium'
+                              ? 'warning'
+                              : 'default'
+                        }
+                        className="text-[10px]"
+                      >
                         {aiSuggestion.source === 'openai' ? 'GPT' : 'IA local'}
                       </Badge>
                     )}
                   </div>
                   {aiLoading ? (
-                    <p className="mt-2 text-xs text-blue-500">Analisando oportunidade...</p>
+                    <p className="mt-2 text-sm text-blue-500">Analisando oportunidade...</p>
                   ) : (
                     <>
-                      <p className="mt-1 text-xs text-blue-700 dark:text-blue-300">
+                      <p className="mt-2 text-sm text-blue-800 dark:text-blue-200">
                         {aiSuggestion?.insight ?? 'Selecione uma conversa para análise.'}
                       </p>
                       {aiSuggestion?.suggestion && (
-                        <p className="mt-2 rounded-md bg-white/60 p-2 text-xs text-gray-700 dark:bg-gray-900/40 dark:text-gray-300">
+                        <p className="mt-2 rounded-lg bg-white/70 p-3 text-sm text-gray-700 dark:bg-gray-950/50 dark:text-gray-300">
                           {aiSuggestion.suggestion}
                         </p>
                       )}
@@ -606,50 +579,97 @@ export function ConversationsPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="mt-2 w-full text-xs"
+                    className="mt-3"
                     onClick={handleUseSuggestion}
                     disabled={aiLoading || !aiSuggestion?.suggestion || isClosed}
                   >
-                    <Wand2 className="h-3 w-3" /> Usar resposta sugerida
+                    <Wand2 className="h-3.5 w-3.5" /> Usar resposta sugerida
                   </Button>
                 </div>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  size="sm"
-                  onClick={() => setTransferOpen(true)}
-                  disabled={isClosed || teamLoading || agentOptions.length === 0}
-                >
-                  <RefreshCw className="h-4 w-4" /> Transferir conversa
-                </Button>
-                <Button variant="outline" className="w-full justify-start" size="sm" onClick={handleOpenFunnel}>
-                  <ShoppingCart className="h-4 w-4" /> Abrir oportunidade
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  size="sm"
-                  onClick={() => setReserveOpen(true)}
-                  disabled={isClosed || productOptions.length === 0}
-                >
-                  <Package className="h-4 w-4" /> Reservar produto
-                </Button>
-                {!isClosed && (
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    size="sm"
-                    onClick={() => setCloseOpen(true)}
-                  >
-                    <CheckCircle2 className="h-4 w-4" /> Concluir atendimento
-                  </Button>
-                )}
+
+                <div className="grid gap-3 lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)]">
+                  <div className="rounded-2xl border border-gray-200/80 bg-white/80 p-4 dark:border-white/10 dark:bg-gray-900/50">
+                    {customerDetail ? (
+                      <>
+                        <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.16em] text-blue-600 dark:text-blue-300">
+                          Contato
+                        </p>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">{customerDetail.name}</h3>
+                        <p className="text-sm text-gray-500">{customerDetail.company}</p>
+                        <div className="mt-3 space-y-1 text-sm">
+                          <InfoRow label="Telefone" value={customerDetail.phone || activeConversation.contactPhone || '—'} />
+                          <InfoRow label="Email" value={customerDetail.email || '—'} />
+                          <InfoRow label="Cidade" value={customerDetail.city || '—'} />
+                          <InfoRow label="Último atendimento" value={formatDateTime(customerDetail.lastService)} />
+                        </div>
+                        {customerDetail.notes && (
+                          <div className="mt-3 rounded-lg bg-amber-50 p-3 text-sm dark:bg-amber-900/20">
+                            <p className="font-medium text-amber-800 dark:text-amber-300">Observações</p>
+                            <p className="mt-1 text-amber-700 dark:text-amber-400">{customerDetail.notes}</p>
+                          </div>
+                        )}
+                        {(customerDetail.orders.length > 0 || customerDetail.purchasedProducts.length > 0) && (
+                          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                            {customerDetail.orders.length > 0 && (
+                              <div>
+                                <h4 className="mb-1 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                  <ShoppingCart className="h-3.5 w-3.5 text-blue-600" /> Pedidos
+                                </h4>
+                                {customerDetail.orders.slice(0, 3).map((o) => (
+                                  <div key={o.id} className="mb-1 text-xs text-gray-500">
+                                    {o.number} · {formatCurrency(o.total)}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            {customerDetail.purchasedProducts.length > 0 && (
+                              <div>
+                                <h4 className="mb-1 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                  <Package className="h-3.5 w-3.5 text-red-500" /> Produtos
+                                </h4>
+                                {customerDetail.purchasedProducts.slice(0, 3).map((p) => (
+                                  <div key={p.id} className="mb-1 text-xs text-gray-500">
+                                    {p.name}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.16em] text-blue-600 dark:text-blue-300">
+                          Contato
+                        </p>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">
+                          {activeConversation.customerName}
+                        </h3>
+                        {activeConversation.contactPhone && (
+                          <p className="mt-1 text-sm text-gray-500">{activeConversation.contactPhone}</p>
+                        )}
+                        {agentContext?.contact?.senderName && (
+                          <p className="mt-1 text-xs text-gray-400">
+                            Identidade agente: {agentContext.contact.senderName}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  </div>
+
+                  <AgentContextPanel
+                    context={agentContext}
+                    isLoading={agentContextLoading}
+                    isError={agentContextError}
+                    layout="grid"
+                  />
+                </div>
               </div>
             </div>
           ) : (
-            <EmptyState icon={User} title="Perfil comercial do cliente" description="Selecione uma conversa" />
+            <ConversationsSelectPrompt />
           )}
-        </div>
+        </section>
       </div>
 
       <Modal

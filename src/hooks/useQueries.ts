@@ -114,6 +114,7 @@ export function useMessages(conversationId: string | null) {
     queryFn: () => conversationsService.getMessages(conversationId!),
     enabled: !!conversationId,
     refetchInterval: conversationId ? 4000 : false,
+    select: (data) => (Array.isArray(data) ? data : []),
   });
 }
 

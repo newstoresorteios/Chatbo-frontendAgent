@@ -6,6 +6,7 @@ import { useNotification } from '@/contexts/NotificationContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { authService } from '@/services/api';
 import { extractApiErrorMessage } from '@/utils/apiErrors';
+import { defaultAppHome } from '@/utils/appHome';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Lock, Mail } from 'lucide-react';
@@ -45,7 +46,7 @@ export function LoginPage() {
     setLoginError(null);
     try {
       const sessionUser = await login(data);
-      navigate(sessionUser.accountType === 'system_admin' ? '/system/empresas' : '/dashboard');
+      navigate(defaultAppHome(sessionUser));
     } catch (error) {
       const message = extractApiErrorMessage(error, 'E-mail ou senha incorretos');
       setLoginError(message);

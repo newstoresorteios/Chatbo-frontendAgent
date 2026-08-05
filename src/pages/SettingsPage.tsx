@@ -141,7 +141,9 @@ export function SettingsPage() {
       <div>
         <h1 className="font-display text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Configurações</h1>
         <p className="mt-1 text-gray-500 dark:text-gray-400">
-          Preferências pessoais, equipe, fontes comerciais e controles técnicos conforme seu acesso.
+          {canManageCompany || canManagePersona
+            ? 'Preferências pessoais, equipe, fontes comerciais e controles técnicos conforme seu acesso.'
+            : 'Preferências pessoais da sua conta. Gestão da empresa e persona ficam restritas a administradores.'}
         </p>
       </div>
 

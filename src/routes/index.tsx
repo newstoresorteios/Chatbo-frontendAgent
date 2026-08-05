@@ -61,26 +61,27 @@ export function AppRoutes() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
-          <Route path="/dashboard" element={<LazyPage><DashboardPage /></LazyPage>} />
           <Route path="/atendimento" element={<LazyPage><ConversationsPage /></LazyPage>} />
           <Route path="/conversas" element={<Navigate to="/atendimento" replace />} />
           <Route path="/contatos" element={<CustomersPage />} />
           <Route path="/clientes" element={<Navigate to="/contatos" replace />} />
           <Route path="/produtos" element={<LazyPage><ProductsPage /></LazyPage>} />
-          <Route path="/pedidos" element={<LazyPage><OrdersPage /></LazyPage>} />
-          <Route path="/robo" element={<ChatbotPage />} />
-          <Route path="/copiloto" element={<LazyPage><CopilotPage /></LazyPage>} />
-          <Route path="/agente-ia" element={<Navigate to="/copiloto" replace />} />
-          <Route path="/funil" element={<FunnelPage />} />
           <Route path="/configuracoes" element={<SettingsPage />} />
-          <Route path="/configuracoes/assinatura" element={<SubscriptionPage />} />
           <Route path="/perfil" element={<ProfilePage />} />
-          <Route path="/minha-empresa" element={<LazyPage><BusinessProfilePage /></LazyPage>} />
-          <Route path="/onboarding" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/onboarding" element={<Navigate to="/atendimento" replace />} />
+
+          <Route element={<PermissionRoute permission="viewFinancial" />}>
+            <Route path="/dashboard" element={<LazyPage><DashboardPage /></LazyPage>} />
+            <Route path="/pedidos" element={<LazyPage><OrdersPage /></LazyPage>} />
+            <Route path="/funil" element={<FunnelPage />} />
+          </Route>
 
           <Route element={<PermissionRoute permission="managePlatform" />}>
             <Route path="/canais" element={<ChannelsPage />} />
             <Route path="/campanhas" element={<CampaignsPage />} />
+            <Route path="/copiloto" element={<LazyPage><CopilotPage /></LazyPage>} />
+            <Route path="/robo" element={<ChatbotPage />} />
+            <Route path="/agente-ia" element={<Navigate to="/copiloto" replace />} />
             <Route path="/persona" element={<Navigate to="/configuracoes?tab=persona" replace />} />
           </Route>
 
@@ -91,6 +92,11 @@ export function AppRoutes() {
 
           <Route element={<PermissionRoute permission="manageIntegrations" />}>
             <Route path="/integracoes" element={<IntegrationsPage />} />
+          </Route>
+
+          <Route element={<PermissionRoute permission="manageUsers" />}>
+            <Route path="/configuracoes/assinatura" element={<SubscriptionPage />} />
+            <Route path="/minha-empresa" element={<LazyPage><BusinessProfilePage /></LazyPage>} />
           </Route>
         </Route>
       </Route>

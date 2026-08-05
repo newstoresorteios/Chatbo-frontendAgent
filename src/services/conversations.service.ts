@@ -23,10 +23,12 @@ export const conversationsService = {
       await delay(300);
       return messagesStore[conversationId] ?? [];
     }
-    const { data } = await api.get<Message[]>(
+    const { data } = await api.get<Message[] | { items?: Message[] }>(
       `/conversas/${conversationId}/mensagens`,
     );
-    return data;
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.items)) return data.items;
+    return [];
   },
 
   sendMessage: async (

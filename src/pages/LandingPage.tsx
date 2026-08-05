@@ -6,6 +6,7 @@ import { ScrollProgress } from '@/components/landing/ScrollProgress';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
+import { defaultAppHome } from '@/utils/appHome';
 import { motion } from 'framer-motion';
 import {
   ArrowRight,
@@ -156,7 +157,7 @@ const statIcons = {
 };
 
 export function LandingPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
@@ -165,7 +166,7 @@ export function LandingPage() {
     return () => document.documentElement.classList.remove('dark');
   }, []);
 
-  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
+  if (isAuthenticated) return <Navigate to={defaultAppHome(user)} replace />;
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">

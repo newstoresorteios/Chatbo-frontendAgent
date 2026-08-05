@@ -149,8 +149,11 @@ export function SystemAdminPage() {
     return <PageState error="Não foi possível carregar as empresas." />;
   }
 
+  const cardClass =
+    'border-slate-700/80 bg-slate-900 text-slate-100 shadow-none [&_h3]:text-slate-50';
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-slate-100">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-white">
@@ -160,8 +163,9 @@ export function SystemAdminPage() {
             {tab === 'assinaturas' && 'Assinaturas'}
             {tab === 'uso' && 'Uso'}
           </h1>
-          <p className="mt-2 max-w-3xl text-slate-400">
-            Área exclusiva do superadmin (<strong className="text-slate-200">admin@chatbo.com.br</strong>
+          <p className="mt-2 max-w-3xl text-slate-300">
+            Área exclusiva do superadmin (
+            <strong className="text-white">admin@chatbo.com.br</strong>
             ). Cadastre empresas, defina o workspace/company_id e crie os admins que acessam o ChatBô
             daquela empresa.
           </p>
@@ -176,8 +180,8 @@ export function SystemAdminPage() {
       {tab === 'empresas' && (
         <div className="grid gap-4 md:grid-cols-4">
           {overviewCards.map(({ label, value, icon: Icon }) => (
-            <Card key={label} title={label} icon={Icon}>
-              <p className="text-3xl font-bold">{value}</p>
+            <Card key={label} title={label} icon={Icon} className={cardClass}>
+              <p className="text-3xl font-bold text-white">{value}</p>
             </Card>
           ))}
         </div>
@@ -185,7 +189,7 @@ export function SystemAdminPage() {
 
       {(tab === 'empresas' || tab === 'workspaces') && (
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-          <Card title="Empresas cadastradas">
+          <Card title="Empresas cadastradas" className={cardClass}>
             <div className="space-y-2">
               {companies.map((company) => {
                 const active = selectedCompany?.id === company.id;
@@ -196,20 +200,21 @@ export function SystemAdminPage() {
                     onClick={() => setSelectedCompany(company)}
                     className={`flex w-full flex-col gap-1 rounded-xl border p-3 text-left transition ${
                       active
-                        ? 'border-cyan-400/50 bg-cyan-500/10'
-                        : 'border-gray-200 hover:border-cyan-300/40 dark:border-gray-700'
+                        ? 'border-cyan-400/60 bg-cyan-500/15'
+                        : 'border-slate-600 bg-slate-950/40 hover:border-cyan-400/40'
                     }`}
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="font-semibold">{company.name}</p>
+                      <p className="font-semibold text-white">{company.name}</p>
                       <Badge variant={company.status === 'active' ? 'success' : 'default'}>
                         {company.status}
                       </Badge>
                     </div>
-                    <p className="text-xs text-gray-500">
-                      companyId / workspaceId: <span className="font-mono">{company.companyId}</span>
+                    <p className="text-xs text-slate-300">
+                      companyId / workspaceId:{' '}
+                      <span className="font-mono text-slate-200">{company.companyId}</span>
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-slate-300">
                       {company.adminsCount} admin(s) · {company.membersCount} membro(s)
                       {company.brandName ? ` · marca ${company.brandName}` : ''}
                     </p>
@@ -217,26 +222,29 @@ export function SystemAdminPage() {
                 );
               })}
               {companies.length === 0 && (
-                <p className="text-sm text-gray-500">Nenhuma empresa cadastrada ainda.</p>
+                <p className="text-sm text-slate-300">Nenhuma empresa cadastrada ainda.</p>
               )}
             </div>
           </Card>
 
-          <Card title={selectedCompany ? `Acessos — ${selectedCompany.name}` : 'Acessos da empresa'}>
+          <Card
+            title={selectedCompany ? `Acessos — ${selectedCompany.name}` : 'Acessos da empresa'}
+            className={cardClass}
+          >
             {!selectedCompany ? (
-              <p className="text-sm text-gray-500">Selecione uma empresa à esquerda.</p>
+              <p className="text-sm text-slate-300">Selecione uma empresa à esquerda.</p>
             ) : (
               <div className="space-y-4">
-                <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-3 text-xs text-slate-300">
+                <div className="rounded-xl border border-cyan-400/30 bg-slate-950/60 p-3 text-xs text-slate-200">
                   <p>
-                    <strong>companyId:</strong>{' '}
-                    <span className="font-mono">{selectedCompany.companyId}</span>
+                    <strong className="text-white">companyId:</strong>{' '}
+                    <span className="font-mono text-cyan-100">{selectedCompany.companyId}</span>
                   </p>
                   <p className="mt-1">
-                    <strong>workspaceId:</strong>{' '}
-                    <span className="font-mono">{selectedCompany.workspaceId}</span>
+                    <strong className="text-white">workspaceId:</strong>{' '}
+                    <span className="font-mono text-cyan-100">{selectedCompany.workspaceId}</span>
                   </p>
-                  <p className="mt-2 text-slate-400">
+                  <p className="mt-2 text-slate-300">
                     Neste modelo, companyId e workspaceId são o mesmo UUID da empresa.
                   </p>
                 </div>
@@ -249,28 +257,30 @@ export function SystemAdminPage() {
                   <UserPlus className="h-4 w-4" /> Cadastrar admin da empresa
                 </Button>
 
-                {membersQuery.isLoading && <p className="text-sm text-gray-500">Carregando membros...</p>}
+                {membersQuery.isLoading && (
+                  <p className="text-sm text-slate-300">Carregando membros...</p>
+                )}
                 <div className="space-y-2">
                   {selectedMembers.map((member) => (
                     <div
                       key={member.membershipId}
-                      className="rounded-xl border border-gray-200 p-3 text-sm dark:border-gray-700"
+                      className="rounded-xl border border-slate-600 bg-slate-950/40 p-3 text-sm"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <p className="font-semibold">{member.name || member.email}</p>
+                        <p className="font-semibold text-white">{member.name || member.email}</p>
                         <Badge variant={member.role === 'owner' ? 'primary' : 'info'}>
                           {member.role}
                         </Badge>
                       </div>
-                      <p className="text-xs text-gray-500">{member.email}</p>
-                      <p className="mt-1 text-[11px] text-gray-400">
+                      <p className="text-xs text-slate-300">{member.email}</p>
+                      <p className="mt-1 text-[11px] text-slate-400">
                         account_type: {member.accountType} ·{' '}
                         {member.active ? 'ativo' : 'inativo'}
                       </p>
                     </div>
                   ))}
                   {!membersQuery.isLoading && selectedMembers.length === 0 && (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-slate-300">
                       Nenhum usuário nesta empresa. Cadastre o admin para liberar o acesso ao ChatBô.
                     </p>
                   )}
@@ -282,7 +292,7 @@ export function SystemAdminPage() {
       )}
 
       {tab === 'planos' && (
-        <Card title="Planos SaaS">
+        <Card title="Planos SaaS" className={cardClass}>
           {plansQuery.isLoading ? (
             <PageState />
           ) : (
@@ -290,14 +300,16 @@ export function SystemAdminPage() {
               {(plansQuery.data ?? []).map((plan) => (
                 <div
                   key={String(plan.id)}
-                  className="rounded-xl border border-gray-200 p-3 text-sm dark:border-gray-700"
+                  className="rounded-xl border border-slate-600 bg-slate-950/40 p-3 text-sm"
                 >
-                  <p className="font-semibold">{String(plan.name ?? plan.code ?? plan.id)}</p>
-                  <p className="text-xs text-gray-500">{String(plan.code ?? '')}</p>
+                  <p className="font-semibold text-white">
+                    {String(plan.name ?? plan.code ?? plan.id)}
+                  </p>
+                  <p className="text-xs text-slate-300">{String(plan.code ?? '')}</p>
                 </div>
               ))}
               {(plansQuery.data?.length ?? 0) === 0 && (
-                <p className="text-sm text-gray-500">Nenhum plano cadastrado.</p>
+                <p className="text-sm text-slate-300">Nenhum plano cadastrado.</p>
               )}
             </div>
           )}
@@ -305,7 +317,7 @@ export function SystemAdminPage() {
       )}
 
       {tab === 'assinaturas' && (
-        <Card title="Assinaturas">
+        <Card title="Assinaturas" className={cardClass}>
           {subscriptionsQuery.isLoading ? (
             <PageState />
           ) : (
@@ -313,14 +325,16 @@ export function SystemAdminPage() {
               {(subscriptionsQuery.data ?? []).map((sub) => (
                 <div
                   key={String(sub.id)}
-                  className="rounded-xl border border-gray-200 p-3 text-sm dark:border-gray-700"
+                  className="rounded-xl border border-slate-600 bg-slate-950/40 p-3 text-sm"
                 >
-                  <p className="font-semibold">Workspace {String(sub.workspace_id ?? sub.workspaceId ?? '—')}</p>
-                  <p className="text-xs text-gray-500">Status: {String(sub.status ?? '—')}</p>
+                  <p className="font-semibold text-white">
+                    Workspace {String(sub.workspace_id ?? sub.workspaceId ?? '—')}
+                  </p>
+                  <p className="text-xs text-slate-300">Status: {String(sub.status ?? '—')}</p>
                 </div>
               ))}
               {(subscriptionsQuery.data?.length ?? 0) === 0 && (
-                <p className="text-sm text-gray-500">Nenhuma assinatura encontrada.</p>
+                <p className="text-sm text-slate-300">Nenhuma assinatura encontrada.</p>
               )}
             </div>
           )}
@@ -328,7 +342,7 @@ export function SystemAdminPage() {
       )}
 
       {tab === 'uso' && (
-        <Card title="Contadores de uso">
+        <Card title="Contadores de uso" className={cardClass}>
           {usageQuery.isLoading ? (
             <PageState />
           ) : (
@@ -336,16 +350,16 @@ export function SystemAdminPage() {
               {(usageQuery.data ?? []).map((row, index) => (
                 <div
                   key={`${row.workspace_id}-${row.metric}-${row.period_key}-${index}`}
-                  className="rounded-xl border border-gray-200 p-3 text-sm dark:border-gray-700"
+                  className="rounded-xl border border-slate-600 bg-slate-950/40 p-3 text-sm"
                 >
-                  <p className="font-semibold">{row.metric}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="font-semibold text-white">{row.metric}</p>
+                  <p className="text-xs text-slate-300">
                     {row.workspace_id} · {row.period_key} · {row.used_value}
                   </p>
                 </div>
               ))}
               {(usageQuery.data?.length ?? 0) === 0 && (
-                <p className="text-sm text-gray-500">Nenhum registro de uso.</p>
+                <p className="text-sm text-slate-300">Nenhum registro de uso.</p>
               )}
             </div>
           )}
