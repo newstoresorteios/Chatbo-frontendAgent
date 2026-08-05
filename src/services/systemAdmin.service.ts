@@ -48,6 +48,23 @@ export interface UsageRow {
   used_value: number;
 }
 
+export interface CompanyDataSource {
+  provider: 'tray' | string;
+  enabled: boolean;
+  adapterBaseUrl: string;
+  hasToken: boolean;
+  status: string;
+  lastSyncAt?: string | null;
+  lastError?: string | null;
+}
+
+export interface SaveCompanyDataSourcePayload {
+  provider?: 'tray';
+  adapterBaseUrl: string;
+  adapterToken?: string;
+  enabled?: boolean;
+}
+
 export const systemAdminService = {
   companies: async (): Promise<SystemCompany[]> =>
     (await api.get<{ items: SystemCompany[] }>('/system/companies')).data.items,
@@ -73,6 +90,33 @@ export const systemAdminService = {
     payload: CreateCompanyAdminPayload,
   ): Promise<SystemCompanyMember> =>
     (await api.post<SystemCompanyMember>(`/system/companies/${companyId}/admins`, payload)).data,
+
+  getDataSource: async (companyId: string): Promise<CompanyDataSource> =>
+    (await api.get<CompanyDataSource>(`/system/companies/${companyId}/data-source`)).data,
+
+  saveDataSource: async (
+    companyId: string,
+    payload: SaveCompanyDataSourcePayload,
+  ): Promise<CompanyDataSource> =>
+    (
+      await api.put<CompanyDataSource>(`/system/companies/${companyId}/data-source`, {
+        provider: 'tray',
+        enabled: true,
+        ...payload,
+      })
+    ).data,
+
+  testDataSource: async (
+    companyId: string,
+    payload?: Partial<SaveCompanyDataSourcePayload>,
+  ): Promise<{ ok: boolean; sampleProducts?: number }> =>
+    (await api.post<{ ok: boolean; sampleProducts?: number }>(
+      `/system/companies/${companyId}/data-source/test`,
+      payload ?? {},
+    )).data,
+
+  analyzeCommercialBi: async (companyId: string) =>
+    (await api.post(`/system/companies/${companyId}/commercial-bi/analyze`)).data,
 
   plans: async () =>
     (await api.get<{ items: Record<string, unknown>[] }>('/system/billing/plans')).data.items,

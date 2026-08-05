@@ -14,7 +14,7 @@ import {
 import { extractApiErrorMessage } from '@/utils/apiErrors';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Building2, CreditCard, Gauge, Layers3, Plus, UserPlus } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 type Tab = 'empresas' | 'workspaces' | 'planos' | 'assinaturas' | 'uso';
@@ -62,12 +62,26 @@ export function SystemAdminPage() {
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
   const [adminRole, setAdminRole] = useState<'owner' | 'admin'>('admin');
+  const [adapterBaseUrl, setAdapterBaseUrl] = useState('');
+  const [adapterToken, setAdapterToken] = useState('');
 
   const membersQuery = useQuery({
     queryKey: ['system', 'company-members', selectedCompany?.id],
     queryFn: () => systemAdminService.listMembers(selectedCompany!.id),
     enabled: !!selectedCompany?.id,
   });
+
+  const dataSourceQuery = useQuery({
+    queryKey: ['system', 'data-source', selectedCompany?.id],
+    queryFn: () => systemAdminService.getDataSource(selectedCompany!.id),
+    enabled: !!selectedCompany?.id,
+  });
+
+  useEffect(() => {
+    if (!dataSourceQuery.data) return;
+    setAdapterBaseUrl(dataSourceQuery.data.adapterBaseUrl || '');
+    setAdapterToken('');
+  }, [dataSourceQuery.data, selectedCompany?.id]);
 
   const createCompanyMutation = useMutation({
     mutationFn: () =>
@@ -124,6 +138,73 @@ export function SystemAdminPage() {
       addToast({
         title: 'Não foi possível criar o admin',
         message: extractApiErrorMessage(error, 'Tente novamente.'),
+        type: 'error',
+      });
+    },
+  });
+
+  const saveDataSourceMutation = useMutation({
+    mutationFn: () =>
+      systemAdminService.saveDataSource(selectedCompany!.id, {
+        adapterBaseUrl: adapterBaseUrl.trim(),
+        adapterToken: adapterToken.trim(),
+        enabled: true,
+      }),
+    onSuccess: async () => {
+      addToast({
+        title: 'Fonte de dados salva',
+        message: 'TRAYadaptor apontado para esta empresa.',
+        type: 'success',
+      });
+      setAdapterToken('');
+      await queryClient.invalidateQueries({ queryKey: ['system', 'data-source', selectedCompany?.id] });
+    },
+    onError: (error) => {
+      addToast({
+        title: 'Falha ao salvar fonte',
+        message: extractApiErrorMessage(error, 'Verifique URL e token.'),
+        type: 'error',
+      });
+    },
+  });
+
+  const testDataSourceMutation = useMutation({
+    mutationFn: () =>
+      systemAdminService.testDataSource(
+        selectedCompany!.id,
+        adapterBaseUrl.trim() && adapterToken.trim()
+          ? { adapterBaseUrl: adapterBaseUrl.trim(), adapterToken: adapterToken.trim() }
+          : undefined,
+      ),
+    onSuccess: (result) => {
+      addToast({
+        title: 'Conexão OK',
+        message: `TRAYadaptor respondeu${typeof result.sampleProducts === 'number' ? ` · ${result.sampleProducts} produto(s) amostra` : ''}.`,
+        type: 'success',
+      });
+    },
+    onError: (error) => {
+      addToast({
+        title: 'Falha no teste',
+        message: extractApiErrorMessage(error, 'Não foi possível falar com o TRAYadaptor.'),
+        type: 'error',
+      });
+    },
+  });
+
+  const analyzeBiMutation = useMutation({
+    mutationFn: () => systemAdminService.analyzeCommercialBi(selectedCompany!.id),
+    onSuccess: () => {
+      addToast({
+        title: 'Análise BI concluída',
+        message: 'Snapshot comercial gerado. Abra o Painel Comercial da empresa.',
+        type: 'success',
+      });
+    },
+    onError: (error) => {
+      addToast({
+        title: 'Falha na análise BI',
+        message: extractApiErrorMessage(error, 'Verifique o TRAYadaptor e a OpenAI.'),
         type: 'error',
       });
     },
@@ -256,6 +337,59 @@ export function SystemAdminPage() {
                 >
                   <UserPlus className="h-4 w-4" /> Cadastrar admin da empresa
                 </Button>
+
+                <div className="rounded-xl border border-slate-600 bg-slate-950/50 p-3 space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-sm font-semibold text-white">Fonte de dados · TRAYadaptor</p>
+                    <Badge variant={dataSourceQuery.data?.enabled ? 'success' : 'default'}>
+                      {dataSourceQuery.data?.status || 'disconnected'}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-slate-300">
+                    A config Tray fica no adaptor. Aqui só apontamos a URL + token interno.
+                  </p>
+                  <Input
+                    label="URL do TRAYadaptor"
+                    placeholder="https://tray-adapter.onrender.com"
+                    value={adapterBaseUrl}
+                    onChange={(e) => setAdapterBaseUrl(e.target.value)}
+                  />
+                  <Input
+                    label={dataSourceQuery.data?.hasToken ? 'Token interno (deixe em branco para manter)' : 'Token interno'}
+                    type="password"
+                    placeholder="TRAY_ADAPTER_TOKEN"
+                    value={adapterToken}
+                    onChange={(e) => setAdapterToken(e.target.value)}
+                  />
+                  {dataSourceQuery.data?.lastError ? (
+                    <p className="text-xs text-red-300">{dataSourceQuery.data.lastError}</p>
+                  ) : null}
+                  <div className="grid gap-2 sm:grid-cols-3">
+                    <Button
+                      variant="outline"
+                      disabled={!selectedCompany || !adapterBaseUrl.trim() || (!adapterToken.trim() && !dataSourceQuery.data?.hasToken)}
+                      loading={saveDataSourceMutation.isPending}
+                      onClick={() => saveDataSourceMutation.mutate()}
+                    >
+                      Salvar
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      disabled={!selectedCompany}
+                      loading={testDataSourceMutation.isPending}
+                      onClick={() => testDataSourceMutation.mutate()}
+                    >
+                      Testar
+                    </Button>
+                    <Button
+                      disabled={!selectedCompany || !dataSourceQuery.data?.enabled}
+                      loading={analyzeBiMutation.isPending}
+                      onClick={() => analyzeBiMutation.mutate()}
+                    >
+                      Rodar BI
+                    </Button>
+                  </div>
+                </div>
 
                 {membersQuery.isLoading && (
                   <p className="text-sm text-slate-300">Carregando membros...</p>

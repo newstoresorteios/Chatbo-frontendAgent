@@ -25,6 +25,10 @@ export function DashboardExecutiveHeader({
   isFetching,
   onRefresh,
   onTogglePresentation,
+  biSourceLabel,
+  biUpdatedAt,
+  analyzingBi,
+  onAnalyzeBi,
 }: DashboardExecutiveHeaderProps) {
   return (
     <motion.header
@@ -42,6 +46,12 @@ export function DashboardExecutiveHeader({
             <span className={cn('rounded-full px-3 py-1 text-xs font-semibold ring-1', statusToneClass(operationTone))}>
               Operação {operationStatus}
             </span>
+            {biSourceLabel ? (
+              <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-blue-50">
+                Fonte: {biSourceLabel}
+                {biUpdatedAt ? ` · ${biUpdatedAt}` : ''}
+              </span>
+            ) : null}
             <span className="text-sm capitalize text-blue-100">{formatToday()}</span>
           </div>
           <h1 className="mt-5 font-display text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">Painel Comercial ChatBô</h1>
@@ -60,6 +70,11 @@ export function DashboardExecutiveHeader({
           <Button type="button" variant="outline" className="border-white/25 bg-white/10 text-white hover:bg-white/15" onClick={onRefresh} loading={isFetching}>
             <RefreshCw className="h-4 w-4" /> Atualizar
           </Button>
+          {onAnalyzeBi ? (
+            <Button type="button" variant="outline" className="border-white/25 bg-white/10 text-white hover:bg-white/15" onClick={onAnalyzeBi} loading={analyzingBi}>
+              <Sparkles className="h-4 w-4" /> Atualizar análise
+            </Button>
+          ) : null}
           <Button type="button" variant="outline" className="border-white/25 bg-white/10 text-white hover:bg-white/15" onClick={onTogglePresentation}>
             <Gauge className="h-4 w-4" /> {presentationMode ? 'Modo completo' : 'Modo apresentação'}
           </Button>

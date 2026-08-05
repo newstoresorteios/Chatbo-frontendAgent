@@ -54,6 +54,10 @@ export interface DashboardExecutiveHeaderProps {
   isFetching: boolean;
   onRefresh: () => void;
   onTogglePresentation: () => void;
+  biSourceLabel?: string | null;
+  biUpdatedAt?: string | null;
+  analyzingBi?: boolean;
+  onAnalyzeBi?: () => void;
 }
 
 export interface DashboardInternalNavProps {
@@ -83,6 +87,11 @@ export interface DashboardInternalNavProps {
 export interface BusinessSummarySectionProps {
   metrics: ExecutiveKpi[];
   presentationMode: boolean;
+  bySource?: {
+    tray?: number;
+    chatbo?: number;
+    ecommerce?: number;
+  } | null;
 }
 export interface NitrosExecutiveSummaryProps {
   diagnosis: string;

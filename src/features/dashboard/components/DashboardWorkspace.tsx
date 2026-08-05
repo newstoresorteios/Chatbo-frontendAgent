@@ -2,17 +2,11 @@ import { SetupChecklist } from '@/components/dashboard/SetupChecklist';
 import { Loading, Skeleton } from '@/components/ui/EmptyState';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChannels } from '@/hooks/usePlatform';
-import {
-  useAgentStatus,
-  useConversations,
-  useCustomers,
-  useDashboard,
-  useMercosStatus,
-  useOrders,
-  useProducts,
-  useSalesMetrics,
-  useSystemStatus,
-} from '@/hooks/useQueries';
+import { useAgentStatus, useConversations, useCustomers, useDashboard, useMercosStatus, useOrders, useProducts, useSalesMetrics, useSystemStatus } from '@/hooks/useQueries';
+import { commercialBiService } from '@/services/commercialBi.service';
+import { useNotification } from '@/contexts/NotificationContext';
+import { extractApiErrorMessage } from '@/utils/apiErrors';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn, formatCurrency, formatDateTime } from '@/utils';
 import type { ChannelType } from '@/types';
 import {
@@ -96,6 +90,8 @@ function buildChannelVolume(
 
 export function DashboardWorkspace() {
   const { user } = useAuth();
+  const { addToast } = useNotification();
+  const queryClient = useQueryClient();
   const { data, isLoading, refetch, isFetching } = useDashboard();
   const { data: conversations } = useConversations();
   const { data: customersData } = useCustomers({ page: 1, pageSize: 100 });
@@ -106,6 +102,28 @@ export function DashboardWorkspace() {
   const { data: agentStatus } = useAgentStatus();
   const { data: mercosStatus } = useMercosStatus();
   const { data: systemStatus } = useSystemStatus();
+
+  const analyzeBiMutation = useMutation({
+    mutationFn: () => commercialBiService.analyze(30),
+    onSuccess: async () => {
+      addToast({
+        title: 'Análise BI atualizada',
+        message: 'Snapshot comercial gerado a partir do TRAYadaptor.',
+        type: 'success',
+      });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+        queryClient.invalidateQueries({ queryKey: ['sales-metrics'] }),
+      ]);
+    },
+    onError: (error) => {
+      addToast({
+        title: 'Falha ao atualizar análise',
+        message: extractApiErrorMessage(error, 'Verifique a fonte TRAYadaptor no superadmin.'),
+        type: 'error',
+      });
+    },
+  });
 
   const [period, setPeriod] = useState<PeriodFilter>('30d');
   const [productFilter, setProductFilter] = useState('');
@@ -158,6 +176,11 @@ export function DashboardWorkspace() {
   const revenueSold = salesMetrics?.valorTotalVendido ?? filteredOrders.reduce((sum, order) => sum + order.total, 0);
   const retainedRevenue = salesMetrics?.valorRetido ?? filteredOrders.filter((o) => o.status === 'delivered').reduce((sum, order) => sum + order.total, 0);
   const pipelineValue = salesMetrics?.pipelineValor ?? salesMetrics?.valorPipeline ?? 0;
+  const commercialBi = data?.commercialBi ?? salesMetrics?.commercialBi ?? null;
+  const bySource = salesMetrics?.bySource ?? commercialBi?.kpis?.bySource ?? null;
+  const biUpdatedLabel = commercialBi?.completedAt || commercialBi?.createdAt
+    ? formatDateTime(String(commercialBi.completedAt || commercialBi.createdAt))
+    : null;
   const ticketMedio = salesMetrics?.ticketMedio ?? (filteredOrders.length ? revenueSold / filteredOrders.length : 0);
   const retentionRate = salesMetrics?.taxaRetencao ?? (revenueSold > 0 ? (retainedRevenue / revenueSold) * 100 : 0);
   const conversionRate = salesMetrics?.taxaConversao ?? (stats.totalMessages ? (stats.totalOrders / stats.totalMessages) * 100 : 0);
@@ -487,6 +510,10 @@ export function DashboardWorkspace() {
           isFetching={isFetching}
           onRefresh={() => refetch()}
           onTogglePresentation={togglePresentationMode}
+          biSourceLabel={commercialBi ? 'Tray' : null}
+          biUpdatedAt={biUpdatedLabel}
+          analyzingBi={analyzeBiMutation.isPending}
+          onAnalyzeBi={() => analyzeBiMutation.mutate()}
         />
 
         <DashboardInternalNav
@@ -513,7 +540,7 @@ export function DashboardWorkspace() {
           onToggleFilters={() => setFiltersOpen((value) => !value)}
         />
 
-        <BusinessSummarySection metrics={kpis} presentationMode={presentationMode} />
+        <BusinessSummarySection metrics={kpis} presentationMode={presentationMode} bySource={bySource} />
 
         <NitrosExecutiveSummary
           diagnosis={executiveDiagnosis}

@@ -31,7 +31,7 @@ function KpiCard({ item }: { item: ExecutiveKpi }) {
   );
 }
 
-export function BusinessSummarySection({ metrics, presentationMode }: BusinessSummarySectionProps) {
+export function BusinessSummarySection({ metrics, presentationMode, bySource }: BusinessSummarySectionProps) {
   return (
     <section id="visao-geral" className="scroll-mt-32 space-y-4">
       <div className="flex items-start justify-between gap-4">
@@ -43,6 +43,28 @@ export function BusinessSummarySection({ metrics, presentationMode }: BusinessSu
           <p className="mt-1 max-w-3xl text-sm text-gray-500 dark:text-gray-400">KPIs executivos com contexto comercial e status operacional.</p>
         </div>
       </div>
+      {bySource ? (
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="rounded-xl border border-gray-200 bg-white/80 px-4 py-3 text-sm dark:border-white/10 dark:bg-slate-900/70">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Tray / Ecommerce</p>
+            <p className="mt-1 text-lg font-bold text-gray-950 dark:text-white">
+              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(bySource.tray || bySource.ecommerce || 0))}
+            </p>
+          </div>
+          <div className="rounded-xl border border-gray-200 bg-white/80 px-4 py-3 text-sm dark:border-white/10 dark:bg-slate-900/70">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">ChatBô</p>
+            <p className="mt-1 text-lg font-bold text-gray-950 dark:text-white">
+              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(bySource.chatbo || 0))}
+            </p>
+          </div>
+          <div className="rounded-xl border border-gray-200 bg-white/80 px-4 py-3 text-sm dark:border-white/10 dark:bg-slate-900/70">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Ecommerce (alias)</p>
+            <p className="mt-1 text-lg font-bold text-gray-950 dark:text-white">
+              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(bySource.ecommerce || bySource.tray || 0))}
+            </p>
+          </div>
+        </div>
+      ) : null}
       <div className={cn('grid gap-4 sm:grid-cols-2 xl:grid-cols-5', presentationMode && 'xl:grid-cols-5')}>
         {metrics.map((item) => <KpiCard key={item.title} item={item} />)}
       </div>

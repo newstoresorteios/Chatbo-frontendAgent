@@ -79,6 +79,41 @@ export interface DashboardData {
   conversationsChart: ChartDataPoint[];
   ordersChart: ChartDataPoint[];
   responseTimeChart: ChartDataPoint[];
+  commercialBi?: CommercialBiSnapshot | null;
+}
+
+export interface CommercialBiBySource {
+  tray?: number;
+  chatbo?: number;
+  ecommerce?: number;
+}
+
+export interface CommercialBiSnapshot {
+  id: string;
+  workspaceId: string;
+  periodDays: number;
+  status: string;
+  kpis?: {
+    receitaVendida?: number;
+    receitaRetida?: number;
+    pipelineEmAberto?: number;
+    pedidosConfirmados?: number;
+    conversasAtivas?: number;
+    bySource?: CommercialBiBySource;
+    [key: string]: unknown;
+  };
+  entities?: Record<string, unknown>;
+  insights?: {
+    summary?: string;
+    actions?: string[];
+    risks?: string[];
+    opportunities?: string[];
+    [key: string]: unknown;
+  };
+  attribution?: Record<string, unknown>;
+  sourceMeta?: Record<string, unknown>;
+  createdAt?: string;
+  completedAt?: string;
 }
 
 export interface SalesFunnelStep {
@@ -122,6 +157,8 @@ export interface SalesMetrics {
   funil: SalesFunnelStep[];
   porStatus: SalesStatusBreakdown[];
   vendasPorDia: SalesDayPoint[];
+  bySource?: CommercialBiBySource;
+  commercialBi?: CommercialBiSnapshot | null;
 }
 
 export interface ProductRankingItem {
