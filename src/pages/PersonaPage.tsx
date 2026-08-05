@@ -181,9 +181,14 @@ export function PersonaPage() {
       setDraft(updated);
       setSavedDraft(updated);
       await invalidatePersonaQueries(updated.id);
+      const publish = (updated as AgentPersona & {
+        nsAgentPublish?: { published?: boolean; version?: number };
+      }).nsAgentPublish;
       addToast({
         title: 'Persona ativada',
-        message: 'Esta persona passa a orientar o atendimento automático do agente neste workspace.',
+        message: publish?.published
+          ? `Publicada no NSAgent (v${publish.version}). O agente automático já pode usar esta persona.`
+          : 'Esta persona passa a orientar o atendimento automático do agente neste workspace.',
         type: 'success',
       });
     },
