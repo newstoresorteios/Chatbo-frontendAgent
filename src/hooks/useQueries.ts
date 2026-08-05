@@ -98,22 +98,33 @@ export function useSystemStatus() {
   });
 }
 
-export function useConversations() {
+export function useConversations(options?: { live?: boolean }) {
+  const live = Boolean(options?.live);
   return useQuery({
     queryKey: ['conversations'],
     queryFn: conversationsService.getConversations,
-    refetchInterval: 5000,
+    // Central de Conversão: polling curto para novas threads do NSAgent.
+    staleTime: live ? 0 : 30_000,
+    refetchInterval: live ? 2_000 : 8_000,
+    refetchIntervalInBackground: live,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
     // Garante array mesmo se o backend devolver envelope inesperado.
     select: (data) => (Array.isArray(data) ? data : []),
   });
 }
 
-export function useMessages(conversationId: string | null) {
+export function useMessages(conversationId: string | null, options?: { live?: boolean }) {
+  const live = Boolean(options?.live);
   return useQuery({
     queryKey: ['messages', conversationId],
     queryFn: () => conversationsService.getMessages(conversationId!),
     enabled: !!conversationId,
-    refetchInterval: conversationId ? 4000 : false,
+    staleTime: live ? 0 : 30_000,
+    refetchInterval: conversationId ? (live ? 2_000 : 5_000) : false,
+    refetchIntervalInBackground: live,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
     select: (data) => (Array.isArray(data) ? data : []),
   });
 }
@@ -123,7 +134,9 @@ export function useConversationAgentContext(conversationId: string | null) {
     queryKey: ['conversation-agent-context', conversationId],
     queryFn: () => agentRuntimeService.getConversationAgentContext(conversationId!),
     enabled: !!conversationId,
-    refetchInterval: conversationId ? 10_000 : false,
+    staleTime: 5_000,
+    refetchInterval: conversationId ? 8_000 : false,
+    refetchOnWindowFocus: true,
     retry: (failureCount, error) => {
       const status = (error as { response?: { status?: number } })?.response?.status;
       if (status === 404 || status === 501) return false;
