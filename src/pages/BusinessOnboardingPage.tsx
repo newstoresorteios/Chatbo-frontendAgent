@@ -174,7 +174,7 @@ export function BusinessOnboardingPage() {
       }
       addToast({
         title: 'Onboarding concluído',
-        message: 'ChatBô foi ativado. Configure a Persona depois em Configurações, se quiser.',
+        message: 'ChatBô foi ativado. Configure a Persona depois no menu Agente → Persona do agente.',
         type: 'success',
       });
       navigate('/dashboard', { replace: true });
@@ -261,7 +261,7 @@ export function BusinessOnboardingPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Onboarding empresarial</h1>
         <p className="text-gray-500 dark:text-gray-400">
-          Configure o essencial da empresa e ative o ChatBô. Persona e testes ficam em Configurações.
+          Configure o essencial da empresa e ative o ChatBô. Persona e testes ficam no menu Agente.
         </p>
       </div>
 
@@ -396,7 +396,7 @@ export function BusinessOnboardingPage() {
               </div>
             ))}
             <p className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-800 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-200">
-              Persona do agente e testes ficam em Configurações → Persona do agente — você pode
+              Persona do agente e testes ficam em Agente → Persona do agente — você pode
               configurar depois de ativar o sistema.
             </p>
             {!req.catalogAvailable && (

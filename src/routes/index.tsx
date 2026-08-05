@@ -17,6 +17,7 @@ import { SystemAdminRoute } from '@/routes/SystemAdminRoute';
 import { SystemAdminLayout } from '@/layouts/SystemAdminLayout';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { SettingsPage } from '@/pages/SettingsPage';
+import { PersonaPage } from '@/pages/PersonaPage';
 import { PermissionRoute } from '@/routes/PermissionRoute';
 import { ProtectedRoute, PublicRoute } from '@/routes/ProtectedRoute';
 import { lazy, Suspense } from 'react';
@@ -82,7 +83,7 @@ export function AppRoutes() {
             <Route path="/copiloto" element={<LazyPage><CopilotPage /></LazyPage>} />
             <Route path="/robo" element={<ChatbotPage />} />
             <Route path="/agente-ia" element={<Navigate to="/copiloto" replace />} />
-            <Route path="/persona" element={<Navigate to="/configuracoes?tab=persona" replace />} />
+            <Route path="/persona" element={<PersonaPage />} />
           </Route>
 
           <Route element={<PermissionRoute permission="viewReports" />}>

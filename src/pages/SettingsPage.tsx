@@ -20,10 +20,8 @@ import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { aiSettingsStore } from '@/store/aiSettingsStore';
 import { motion } from 'framer-motion';
-import { PersonaPage } from '@/pages/PersonaPage';
 import {
   Bell,
-  Brain,
   Building2,
   DatabaseZap,
   IdCard,
@@ -39,7 +37,7 @@ import {
   Users,
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type ComponentType } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 
 interface SettingsTab {
   id: string;
@@ -69,7 +67,6 @@ export function SettingsPage() {
 
   const canManageCompany = ['owner', 'admin'].includes(workspace.role) || can('manageUsers');
   const canManageIntegrations = can('manageIntegrations');
-  const canManagePersona = can('managePlatform') || ['owner', 'admin'].includes(workspace.role);
   const isSystemAdmin = workspace.accountType === 'system_admin';
 
   const visibleTabs = useMemo<SettingsTab[]>(() => {
@@ -89,10 +86,6 @@ export function SettingsPage() {
       );
     }
 
-    if (canManagePersona) {
-      tabs.push({ id: 'persona', label: 'Persona do agente', group: 'company', icon: Brain });
-    }
-
     if (canManageIntegrations) {
       tabs.push(
         { id: 'fontes', label: 'Canais e fontes de dados', group: 'integrations', icon: DatabaseZap },
@@ -110,7 +103,7 @@ export function SettingsPage() {
     }
 
     return tabs;
-  }, [canManageCompany, canManageIntegrations, canManagePersona, isSystemAdmin]);
+  }, [canManageCompany, canManageIntegrations, isSystemAdmin]);
 
   useEffect(() => {
     if (tabFromUrl && visibleTabs.some((tab) => tab.id === tabFromUrl)) {
@@ -123,6 +116,11 @@ export function SettingsPage() {
       setActiveTab(visibleTabs[0].id);
     }
   }, [activeTab, visibleTabs]);
+
+  // Persona saiu das Configurações → rota dedicada /persona
+  if (tabFromUrl === 'persona') {
+    return <Navigate to="/persona" replace />;
+  }
 
   const handleSaveOpenAi = () => {
     aiSettingsStore.save(aiSettings);
@@ -141,9 +139,9 @@ export function SettingsPage() {
       <div>
         <h1 className="font-display text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Configurações</h1>
         <p className="mt-1 text-gray-500 dark:text-gray-400">
-          {canManageCompany || canManagePersona
-            ? 'Preferências pessoais, equipe, fontes comerciais e controles técnicos conforme seu acesso.'
-            : 'Preferências pessoais da sua conta. Gestão da empresa e persona ficam restritas a administradores.'}
+          {canManageCompany
+            ? 'Perfil, equipe, empresa, canais e preferências da conta em um só lugar. A Persona do agente fica no menu Agente.'
+            : 'Preferências pessoais da sua conta. Gestão da empresa fica restrita a administradores.'}
         </p>
       </div>
 
@@ -178,9 +176,6 @@ export function SettingsPage() {
         </nav>
 
         <div className="flex-1">
-          {activeTab === 'persona' ? (
-            <PersonaPage />
-          ) : (
           <Card title={activeLabel}>
             {activeTab === 'perfil' && (
               <div className="space-y-4">
@@ -286,7 +281,6 @@ export function SettingsPage() {
               </div>
             )}
           </Card>
-          )}
         </div>
       </div>
     </motion.div>

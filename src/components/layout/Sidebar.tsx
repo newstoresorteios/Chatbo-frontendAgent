@@ -6,21 +6,19 @@ import {
   BarChart3,
   Bot,
   Brain,
-  Building2,
   ChevronLeft,
   DollarSign,
   Flame,
   Gauge,
   GitBranch,
   Headphones,
-  Link2,
   LogOut,
   Megaphone,
   Package,
+  Settings,
   Shield,
   ShoppingCart,
   Sparkles,
-  UserCircle,
   Users,
   X,
 } from 'lucide-react';
@@ -43,14 +41,12 @@ const navSections: NavSection[] = [
   { title: 'AGENTE', items: [
     { to: '/copiloto', icon: Sparkles, label: 'Assistente ChatBô', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
     { to: '/robo', icon: Bot, label: 'Agente Automático', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
+    { to: '/persona', icon: Brain, label: 'Persona do agente', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
   ] },
   { title: 'GESTÃO', items: [
     { to: '/campanhas', icon: Megaphone, label: 'Campanhas', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
     { to: '/relatorios', icon: BarChart3, label: 'Relatórios', permission: 'viewReports', roles: ['owner', 'admin', 'supervisor'] },
-    { to: '/configuracoes', icon: UserCircle, label: 'Equipe e acessos', permission: 'manageUsers', roles: ['owner', 'admin'] },
-    { to: '/configuracoes?tab=persona', icon: Brain, label: 'Persona do agente', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
-    { to: '/integracoes', icon: Link2, label: 'Canais e integrações', permission: 'manageIntegrations', roles: ['owner', 'admin', 'supervisor'] },
-    { to: '/minha-empresa', icon: Building2, label: 'Minha empresa', permission: 'manageUsers', roles: ['owner', 'admin'] },
+    { to: '/configuracoes', icon: Settings, label: 'Configurações' },
   ] },
 ];
 
@@ -126,6 +122,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
                 <li key={to}>
                   <NavLink
                     to={to}
+                    end={to === '/configuracoes'}
                     onClick={onMobileClose}
                     className={({ isActive }) =>
                       cn(
