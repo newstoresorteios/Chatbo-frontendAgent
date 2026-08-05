@@ -24,6 +24,7 @@ import {
 import { useConversationSuggestion } from '@/hooks/useConversationSuggestion';
 import { conversationsService } from '@/services/conversations.service';
 import { roleLabel, usersService } from '@/services/users.service';
+import { extractApiErrorMessage } from '@/utils/apiErrors';
 import { formatCurrency, formatDateTime } from '@/utils';
 import type { Conversation } from '@/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -165,6 +166,7 @@ export function ConversationsPage() {
   }, [filtered, conversations, activeConversationId]);
   const isClosed = activeConversation?.status === 'closed';
   const isAssignedToMe = !!user?.id && activeConversation?.assignedTo === user.id;
+  const canReply = Boolean(user?.id) && isAssignedToMe && !isClosed;
 
   const invalidateConversation = () => {
     queryClient.invalidateQueries({ queryKey: ['conversations'] });
@@ -200,11 +202,19 @@ export function ConversationsPage() {
     onSuccess: (message) => {
       addLocalMessage(activeConversationId!, message);
       invalidateConversation();
+      addToast({
+        title: 'Mensagem enviada',
+        message: 'A resposta foi entregue ao cliente pelo canal da conversa.',
+        type: 'success',
+      });
     },
-    onError: () => {
+    onError: (error) => {
       addToast({
         title: 'Erro ao enviar',
-        message: 'Não foi possível enviar a mensagem. Verifique se a conversa está aberta.',
+        message: extractApiErrorMessage(
+          error,
+          'Assuma a conversa e verifique se o Brevo está configurado no backend.',
+        ),
         type: 'error',
       });
     },
@@ -229,8 +239,13 @@ export function ConversationsPage() {
 
   const assumeMutation = useMutation({
     mutationFn: () => conversationsService.assume(activeConversationId!),
-    onSuccess: () => {
-      addToast({ title: 'Atendimento assumido', message: 'Você é o responsável agora', type: 'success' });
+    onSuccess: (updated) => {
+      patchConversationCache(updated);
+      addToast({
+        title: 'Atendimento assumido',
+        message: 'Agora você pode responder o cliente por esta tela.',
+        type: 'success',
+      });
       invalidateConversation();
     },
     onError: () => {
@@ -291,7 +306,14 @@ export function ConversationsPage() {
   });
 
   const handleSend = (content: string) => {
-    if (!activeConversationId || isClosed) return;
+    if (!activeConversationId || !canReply) {
+      addToast({
+        title: 'Assuma a conversa',
+        message: 'Clique em Assumir antes de enviar mensagens ao cliente.',
+        type: 'warning',
+      });
+      return;
+    }
     sendMutation.mutate(content);
     setIsTyping(true);
     setTimeout(() => setIsTyping(false), 2000);
@@ -303,8 +325,15 @@ export function ConversationsPage() {
       addToast({ title: 'Aguarde', message: 'A IA ainda está analisando a conversa', type: 'warning' });
       return;
     }
+    if (!canReply) {
+      addToast({
+        title: 'Assuma a conversa',
+        message: 'Clique em Assumir para usar a sugestão e enviar ao cliente.',
+        type: 'warning',
+      });
+      return;
+    }
     handleSend(text);
-    addToast({ title: 'Sugestão enviada', message: 'Mensagem contextual inserida no chat', type: 'success' });
   };
 
   const handleOpenFunnel = () => {
@@ -486,11 +515,36 @@ export function ConversationsPage() {
                   {isTyping && <div className="text-sm text-gray-400">Digitando...</div>}
                   <div ref={messagesEndRef} />
                 </div>
+                {!canReply && !isClosed && (
+                  <div className="border-t border-amber-200/60 bg-amber-50 px-4 py-3 dark:border-amber-900/40 dark:bg-amber-950/30">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <p className="text-sm text-amber-800 dark:text-amber-200">
+                        Assuma a conversa para liberar o envio de mensagens ao cliente.
+                      </p>
+                      {user && (
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={() => assumeMutation.mutate()}
+                          disabled={assumeMutation.isPending}
+                        >
+                          <UserCheck className="h-4 w-4" /> Assumir
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                )}
                 <div className="border-t border-blue-200/40 bg-white/90 dark:border-blue-900/40 dark:bg-gray-950/80">
                   <MessageInput
                     onSend={handleSend}
-                    disabled={sendMutation.isPending || isClosed}
-                    placeholder={isClosed ? 'Conversa encerrada' : 'Digite sua resposta comercial...'}
+                    disabled={!canReply || sendMutation.isPending}
+                    placeholder={
+                      isClosed
+                        ? 'Conversa encerrada'
+                        : canReply
+                          ? 'Digite sua resposta comercial...'
+                          : 'Assuma a conversa para responder o cliente...'
+                    }
                   />
                 </div>
               </div>
@@ -517,7 +571,12 @@ export function ConversationsPage() {
                       <RefreshCw className="h-4 w-4" /> Reabrir
                     </Button>
                   ) : (
-                    <Button variant="outline" size="sm" onClick={() => setCloseOpen(true)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCloseOpen(true)}
+                      disabled={!canReply}
+                    >
                       <CheckCircle2 className="h-4 w-4" /> Concluir
                     </Button>
                   )}
@@ -525,7 +584,7 @@ export function ConversationsPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => setTransferOpen(true)}
-                    disabled={isClosed || teamLoading || agentOptions.length === 0}
+                    disabled={isClosed || teamLoading || agentOptions.length === 0 || !canReply}
                   >
                     <RefreshCw className="h-4 w-4" /> Transferir
                   </Button>
@@ -536,7 +595,7 @@ export function ConversationsPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => setReserveOpen(true)}
-                    disabled={isClosed || productOptions.length === 0}
+                    disabled={!canReply || productOptions.length === 0}
                   >
                     <Package className="h-4 w-4" /> Reservar produto
                   </Button>
@@ -581,7 +640,7 @@ export function ConversationsPage() {
                     size="sm"
                     className="mt-3"
                     onClick={handleUseSuggestion}
-                    disabled={aiLoading || !aiSuggestion?.suggestion || isClosed}
+                    disabled={aiLoading || !aiSuggestion?.suggestion || !canReply}
                   >
                     <Wand2 className="h-3.5 w-3.5" /> Usar resposta sugerida
                   </Button>
