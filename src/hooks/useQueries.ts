@@ -8,7 +8,7 @@ import { rankingsService } from '@/services/rankings.service';
 import { systemService } from '@/services/system.service';
 import { conversationsService } from '@/services/conversations.service';
 import { agentRuntimeService } from '@/services/agentRuntime.service';
-import type { ListParams } from '@/types';
+import type { Conversation, ListParams, Message } from '@/types';
 
 export function useDashboard() {
   return useQuery({
@@ -111,13 +111,13 @@ export function useConversations(options?: { live?: boolean }) {
     refetchOnReconnect: true,
     placeholderData: (previous) => previous,
     // Garante array mesmo se o backend devolver envelope inesperado.
-    select: (data) => (Array.isArray(data) ? data : []),
+    select: (data): Conversation[] => (Array.isArray(data) ? data : []),
   });
 }
 
 export function useMessages(conversationId: string | null, options?: { live?: boolean }) {
   const live = Boolean(options?.live);
-  return useQuery({
+  return useQuery<Message[], Error, Message[]>({
     queryKey: ['messages', conversationId],
     queryFn: () => conversationsService.getMessages(conversationId!),
     enabled: !!conversationId,

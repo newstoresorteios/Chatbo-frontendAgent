@@ -13,6 +13,7 @@ export interface NavItem {
   icon: LucideIcon;
   label: string;
   description?: string;
+  group?: string;
   permission?: NavPermission;
   roles?: WorkspaceRole[];
   children?: NavItem[];

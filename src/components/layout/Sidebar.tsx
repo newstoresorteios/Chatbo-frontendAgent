@@ -3,8 +3,10 @@ import { cn } from '@/utils';
 import { filterNavSections, type NavItem, type NavSection } from '@/utils/navPermissions';
 import {
   filterSettingsNavItems,
+  SETTINGS_GROUP_LABELS,
   SETTINGS_NAV_ITEMS,
   settingsTabPath,
+  type SettingsTabGroup,
 } from '@/features/settings/settingsNav';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -102,6 +104,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
       to: settingsTabPath(item.id),
       icon: item.icon,
       label: item.label,
+      group: SETTINGS_GROUP_LABELS[item.group as SettingsTabGroup],
       permission: item.permission,
       roles: item.roles,
     }));
@@ -171,29 +174,45 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.18 }}
-                className="mt-1 space-y-0.5 overflow-hidden border-l border-gray-200 pl-3 ml-5 dark:border-slate-700"
+                className="mt-1 space-y-2 overflow-hidden border-l border-gray-200 pl-3 ml-5 dark:border-slate-700"
               >
-                {children.map((child) => {
-                  const ChildIcon = child.icon;
-                  const active = isSettingsChildActive(location.pathname, location.search, child.to);
-                  return (
-                    <li key={child.to}>
-                      <NavLink
-                        to={child.to}
-                        onClick={onMobileClose}
-                        className={cn(
-                          'flex items-center gap-2 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors',
-                          active
-                            ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300'
-                            : 'text-gray-600 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-white',
-                        )}
-                      >
-                        <ChildIcon className="h-3.5 w-3.5 shrink-0" />
-                        <span className="truncate">{child.label}</span>
-                      </NavLink>
-                    </li>
-                  );
-                })}
+                {Array.from(
+                  children.reduce((acc, child) => {
+                    const key = child.group || 'Outros';
+                    if (!acc.has(key)) acc.set(key, []);
+                    acc.get(key)!.push(child);
+                    return acc;
+                  }, new Map<string, NavItem[]>()),
+                ).map(([groupLabel, groupItems]) => (
+                  <li key={groupLabel} className="space-y-0.5">
+                    <p className="px-2.5 pt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-400 dark:text-slate-500">
+                      {groupLabel}
+                    </p>
+                    <ul className="space-y-0.5">
+                      {groupItems.map((child) => {
+                        const ChildIcon = child.icon;
+                        const active = isSettingsChildActive(location.pathname, location.search, child.to);
+                        return (
+                          <li key={child.to}>
+                            <NavLink
+                              to={child.to}
+                              onClick={onMobileClose}
+                              className={cn(
+                                'flex items-center gap-2 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors',
+                                active
+                                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300'
+                                  : 'text-gray-600 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-white',
+                              )}
+                            >
+                              <ChildIcon className="h-3.5 w-3.5 shrink-0" />
+                              <span className="truncate">{child.label}</span>
+                            </NavLink>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </li>
+                ))}
               </motion.ul>
             )}
           </AnimatePresence>
