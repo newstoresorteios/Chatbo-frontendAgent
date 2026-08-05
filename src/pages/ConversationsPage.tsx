@@ -83,7 +83,10 @@ export function ConversationsPage() {
     dataUpdatedAt,
     refetch: refetchConversations,
   } = useConversations({ live: true });
-  const { data: messages, isLoading: messagesLoading } = useMessages(activeConversationId, { live: true });
+  const { data: messages, isLoading: messagesLoading, isFetching: messagesFetching } = useMessages(
+    activeConversationId,
+    { live: true },
+  );
   const knownConversationIdsRef = useRef<Set<string> | null>(null);
   const activeConversation = conversations?.find((c) => c.id === activeConversationId);
   const { data: customerDetail } = useCustomerDetail(activeConversation?.customerId);
@@ -515,7 +518,10 @@ export function ConversationsPage() {
                         {STATUS_LABELS[activeConversation.status]}
                       </Badge>
                       <span className="text-xs text-gray-500">
-                        {messagesLoading ? '...' : `${allMessages.length} msgs`}
+                        {messagesLoading && !messages?.length
+                          ? '...'
+                          : `${allMessages.length} msgs`}
+                        {messagesFetching && messages?.length ? ' · sync' : ''}
                       </span>
                     </div>
                     <div className="mt-0.5 flex flex-wrap items-center gap-2">
@@ -580,7 +586,7 @@ export function ConversationsPage() {
                       Conversa encerrada. Reabra para enviar novas mensagens.
                     </div>
                   )}
-                  {messagesLoading ? (
+                  {messagesLoading && !messages?.length ? (
                     <Loading text="Carregando mensagens..." />
                   ) : allMessages.length === 0 ? (
                     <EmptyState

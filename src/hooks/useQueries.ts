@@ -103,12 +103,13 @@ export function useConversations(options?: { live?: boolean }) {
   return useQuery({
     queryKey: ['conversations'],
     queryFn: conversationsService.getConversations,
-    // Central de Conversão: polling curto para novas threads do NSAgent.
-    staleTime: live ? 0 : 30_000,
-    refetchInterval: live ? 2_000 : 8_000,
-    refetchIntervalInBackground: live,
+    // Live sem martelar o Render: cache curto + poll moderado.
+    staleTime: live ? 4_000 : 30_000,
+    refetchInterval: live ? 5_000 : 12_000,
+    refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
+    placeholderData: (previous) => previous,
     // Garante array mesmo se o backend devolver envelope inesperado.
     select: (data) => (Array.isArray(data) ? data : []),
   });
@@ -120,11 +121,14 @@ export function useMessages(conversationId: string | null, options?: { live?: bo
     queryKey: ['messages', conversationId],
     queryFn: () => conversationsService.getMessages(conversationId!),
     enabled: !!conversationId,
-    staleTime: live ? 0 : 30_000,
-    refetchInterval: conversationId ? (live ? 2_000 : 5_000) : false,
-    refetchIntervalInBackground: live,
+    staleTime: live ? 3_000 : 30_000,
+    refetchInterval: conversationId ? (live ? 5_000 : 10_000) : false,
+    refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
+    // Mantém bolhas só da MESMA conversa (evita flash de histórico alheio).
+    placeholderData: (previous, previousQuery) =>
+      previousQuery?.queryKey?.[1] === conversationId ? previous : undefined,
     select: (data) => (Array.isArray(data) ? data : []),
   });
 }
@@ -134,9 +138,10 @@ export function useConversationAgentContext(conversationId: string | null) {
     queryKey: ['conversation-agent-context', conversationId],
     queryFn: () => agentRuntimeService.getConversationAgentContext(conversationId!),
     enabled: !!conversationId,
-    staleTime: 5_000,
-    refetchInterval: conversationId ? 8_000 : false,
-    refetchOnWindowFocus: true,
+    staleTime: 20_000,
+    refetchInterval: conversationId ? 20_000 : false,
+    refetchOnWindowFocus: false,
+    placeholderData: (previous) => previous,
     retry: (failureCount, error) => {
       const status = (error as { response?: { status?: number } })?.response?.status;
       if (status === 404 || status === 501) return false;
