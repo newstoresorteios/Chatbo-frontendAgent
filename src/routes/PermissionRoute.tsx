@@ -1,5 +1,6 @@
 import { Loading } from '@/components/ui/EmptyState';
 import { useAuth } from '@/contexts/AuthContext';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { defaultAppHome } from '@/utils/appHome';
 import { Navigate, Outlet } from 'react-router-dom';
@@ -10,13 +11,30 @@ interface PermissionRouteProps {
 
 export function PermissionRoute({ permission }: PermissionRouteProps) {
   const { user } = useAuth();
-  const { can, isLoading, isFetching } = usePermissions();
+  const workspace = useWorkspace();
+  const { can, role, isLoading, isFetching } = usePermissions();
 
   if (isLoading || isFetching) {
     return <Loading className="min-h-[50vh]" />;
   }
 
-  if (!can(permission)) {
+  const isCompanyAdmin =
+    role === 'admin'
+    || user?.role === 'admin'
+    || workspace.role === 'owner'
+    || workspace.role === 'admin';
+
+  const isElevated = isCompanyAdmin || role === 'supervisor' || workspace.role === 'supervisor';
+
+  const allowed =
+    can(permission)
+    || (permission === 'manageUsers' && isCompanyAdmin)
+    || (
+      isElevated
+      && ['viewFinancial', 'viewReports', 'managePlatform', 'manageIntegrations'].includes(permission)
+    );
+
+  if (!allowed) {
     return <Navigate to={defaultAppHome(user)} replace />;
   }
 

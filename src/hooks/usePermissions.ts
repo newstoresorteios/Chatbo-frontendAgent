@@ -12,13 +12,35 @@ export function usePermissions() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const can = (permission: string) => Boolean(query.data?.permissions?.[permission]);
+  const role = query.data?.role ?? 'user';
+  const permissions = query.data?.permissions ?? {};
+
+  const can = (permission: string) => {
+    if (Boolean(permissions[permission])) return true;
+    // Admin/supervisor nunca ficam sem áreas comerciais se o backend ainda
+    // não devolver a chave viewFinancial (deploy desalinhado).
+    if (permission === 'viewFinancial') {
+      return Boolean(
+        permissions.manageUsers
+        || permissions.managePlatform
+        || permissions.manageIntegrations
+        || role === 'admin'
+        || role === 'supervisor',
+      );
+    }
+    if (role === 'admin') {
+      return ['viewReports', 'manageUsers', 'manageIntegrations', 'managePlatform', 'exportData'].includes(
+        permission,
+      );
+    }
+    return false;
+  };
 
   return {
     ...query,
     can,
-    role: query.data?.role ?? 'user',
-    permissions: query.data?.permissions ?? {},
+    role,
+    permissions,
     labels: query.data?.labels ?? {},
   };
 }

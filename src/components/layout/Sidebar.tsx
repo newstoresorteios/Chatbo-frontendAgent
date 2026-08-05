@@ -33,23 +33,23 @@ import { isSystemAdmin } from '@/utils/sessionScope';
 
 const navSections: NavSection[] = [
   { title: 'OPERAÇÃO', items: [
-    { to: '/dashboard', icon: Gauge, label: 'Painel Comercial', permission: 'viewFinancial' },
+    { to: '/dashboard', icon: Gauge, label: 'Painel Comercial', permission: 'viewFinancial', roles: ['owner', 'admin', 'supervisor'] },
     { to: '/atendimento', icon: Headphones, label: 'Central de Conversão' },
     { to: '/contatos', icon: Users, label: 'Clientes' },
     { to: '/produtos', icon: Package, label: 'Produtos' },
-    { to: '/pedidos', icon: ShoppingCart, label: 'Pedidos', permission: 'viewFinancial' },
-    { to: '/funil', icon: GitBranch, label: 'Funil de Vendas', permission: 'viewFinancial' },
+    { to: '/pedidos', icon: ShoppingCart, label: 'Pedidos', permission: 'viewFinancial', roles: ['owner', 'admin', 'supervisor'] },
+    { to: '/funil', icon: GitBranch, label: 'Funil de Vendas', permission: 'viewFinancial', roles: ['owner', 'admin', 'supervisor'] },
   ] },
   { title: 'AGENTE', items: [
-    { to: '/copiloto', icon: Sparkles, label: 'Assistente ChatBô', permission: 'managePlatform' },
-    { to: '/robo', icon: Bot, label: 'Agente Automático', permission: 'managePlatform' },
+    { to: '/copiloto', icon: Sparkles, label: 'Assistente ChatBô', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
+    { to: '/robo', icon: Bot, label: 'Agente Automático', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
   ] },
   { title: 'GESTÃO', items: [
-    { to: '/campanhas', icon: Megaphone, label: 'Campanhas', permission: 'managePlatform' },
-    { to: '/relatorios', icon: BarChart3, label: 'Relatórios', permission: 'viewReports' },
-    { to: '/configuracoes', icon: UserCircle, label: 'Equipe e acessos', permission: 'manageUsers' },
-    { to: '/configuracoes?tab=persona', icon: Brain, label: 'Persona do agente', permission: 'managePlatform' },
-    { to: '/integracoes', icon: Link2, label: 'Canais e integrações', permission: 'manageIntegrations' },
+    { to: '/campanhas', icon: Megaphone, label: 'Campanhas', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
+    { to: '/relatorios', icon: BarChart3, label: 'Relatórios', permission: 'viewReports', roles: ['owner', 'admin', 'supervisor'] },
+    { to: '/configuracoes', icon: UserCircle, label: 'Equipe e acessos', permission: 'manageUsers', roles: ['owner', 'admin'] },
+    { to: '/configuracoes?tab=persona', icon: Brain, label: 'Persona do agente', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
+    { to: '/integracoes', icon: Link2, label: 'Canais e integrações', permission: 'manageIntegrations', roles: ['owner', 'admin', 'supervisor'] },
     { to: '/minha-empresa', icon: Building2, label: 'Minha empresa', permission: 'manageUsers', roles: ['owner', 'admin'] },
   ] },
 ];
