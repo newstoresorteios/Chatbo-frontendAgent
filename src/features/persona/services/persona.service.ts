@@ -1,5 +1,13 @@
 import { api } from '@/services/api';
-import type { AgentPersona, PersonaExample, PersonaStatus, PersonaTone, PersonaVersion, PersonaVersionSnapshot } from '@/features/persona/types';
+import type {
+  AgentPersona,
+  PersonaAttachment,
+  PersonaExample,
+  PersonaStatus,
+  PersonaTone,
+  PersonaVersion,
+  PersonaVersionSnapshot,
+} from '@/features/persona/types';
 
 type ObjectionPayload = {
   items?: string[];
@@ -85,6 +93,7 @@ export const personaKeys = {
   detail: (workspaceId: string, personaId: string) => ['persona', workspaceId, personaId] as const,
   versions: (workspaceId: string, personaId: string) => ['persona-versions', workspaceId, personaId] as const,
   version: (workspaceId: string, personaId: string, version: number) => ['persona-version', workspaceId, personaId, version] as const,
+  attachments: (workspaceId: string, personaId: string) => ['persona-attachments', workspaceId, personaId] as const,
 };
 
 function compact(values: Array<string | undefined | null>): string[] {
@@ -265,5 +274,26 @@ export const personaService = {
       optionalContext: payload.optionalContext,
     });
     return data;
+  },
+  listAttachments: async (personaId: string): Promise<PersonaAttachment[]> => {
+    const { data } = await api.get<{ items: PersonaAttachment[]; total: number }>(
+      `/personas/${personaId}/attachments`,
+    );
+    return data.items ?? [];
+  },
+  uploadAttachment: async (personaId: string, file: File): Promise<PersonaAttachment> => {
+    const form = new FormData();
+    form.append('file', file);
+    const { data } = await api.post<PersonaAttachment>(
+      `/personas/${personaId}/attachments`,
+      form,
+      {
+        headers: { 'Content-Type': undefined as unknown as string },
+      },
+    );
+    return data;
+  },
+  deleteAttachment: async (personaId: string, attachmentId: string): Promise<void> => {
+    await api.delete(`/personas/${personaId}/attachments/${attachmentId}`);
   },
 };

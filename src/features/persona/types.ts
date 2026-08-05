@@ -108,3 +108,20 @@ export type PersonaTone =
   | 'technical'
   | 'informal'
   | 'custom';
+
+export type PersonaAttachmentStatus = 'uploaded' | 'processed' | 'failed';
+
+export interface PersonaAttachment {
+  id: string;
+  personaId: string;
+  workspaceId: string;
+  filename: string;
+  contentType?: string | null;
+  byteSize: number;
+  status: PersonaAttachmentStatus;
+  errorMessage?: string | null;
+  hasExtractedText: boolean;
+  extractedChars: number;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}

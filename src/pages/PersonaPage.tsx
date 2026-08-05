@@ -5,6 +5,7 @@ import { EmptyState, Loading } from '@/components/ui/EmptyState';
 import { useNotification } from '@/contexts/NotificationContext';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import {
+  PersonaAttachmentsPanel,
   PersonaAudienceForm,
   PersonaEscalationForm,
   PersonaExamplesEditor,
@@ -22,7 +23,7 @@ import {
 import { personaKeys, personaService } from '@/features/persona/services/persona.service';
 import type { AgentPersona, PersonaStatus, PersonaVersion } from '@/features/persona/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AlertCircle, Bot, Clock3, Eye, History, MessageSquareText, Plus, Save, ShieldAlert, SlidersHorizontal, Target, UserRoundCog, Wand2 } from 'lucide-react';
+import { AlertCircle, Bot, Clock3, Eye, FileText, History, MessageSquareText, Plus, Save, ShieldAlert, SlidersHorizontal, Target, UserRoundCog, Wand2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 const statusLabels: Record<PersonaStatus, string> = {
@@ -126,6 +127,12 @@ export function PersonaPage() {
     enabled: Boolean(selectedId && selectedVersion && showVersions),
   });
 
+  const attachmentsQuery = useQuery({
+    queryKey: selectedId ? personaKeys.attachments(workspace.id, selectedId) : ['persona-attachments', workspace.id, 'none'],
+    queryFn: () => personaService.listAttachments(selectedId ?? ''),
+    enabled: Boolean(selectedId && canView),
+  });
+
   const dirty = JSON.stringify(draft) !== JSON.stringify(savedDraft);
   const isReadOnly = !canManage;
 
@@ -149,6 +156,7 @@ export function PersonaPage() {
     if (personaId) {
       await queryClient.invalidateQueries({ queryKey: personaKeys.detail(workspace.id, personaId) });
       await queryClient.invalidateQueries({ queryKey: personaKeys.versions(workspace.id, personaId) });
+      await queryClient.invalidateQueries({ queryKey: personaKeys.attachments(workspace.id, personaId) });
     }
   };
 
@@ -204,6 +212,34 @@ export function PersonaPage() {
       addToast({ title: 'Persona desativada', message: 'O registro foi preservado como inativo.', type: 'success' });
     },
     onError: (error) => addToast({ title: 'Nao foi possivel desativar', message: errorMessage(error), type: 'error' }),
+  });
+
+  const uploadAttachmentMutation = useMutation({
+    mutationFn: (file: File) => personaService.uploadAttachment(selectedId ?? '', file),
+    onSuccess: async () => {
+      if (selectedId) {
+        await queryClient.invalidateQueries({ queryKey: personaKeys.attachments(workspace.id, selectedId) });
+      }
+      addToast({
+        title: 'Arquivo anexado',
+        message: draft.status === 'active'
+          ? 'Texto extraído e republicado no agente automático.'
+          : 'Texto extraído. Ative a persona para o agente usar este documento.',
+        type: 'success',
+      });
+    },
+    onError: (error) => addToast({ title: 'Falha no anexo', message: errorMessage(error), type: 'error' }),
+  });
+
+  const deleteAttachmentMutation = useMutation({
+    mutationFn: (attachmentId: string) => personaService.deleteAttachment(selectedId ?? '', attachmentId),
+    onSuccess: async () => {
+      if (selectedId) {
+        await queryClient.invalidateQueries({ queryKey: personaKeys.attachments(workspace.id, selectedId) });
+      }
+      addToast({ title: 'Anexo removido', message: 'Documento removido da persona.', type: 'success' });
+    },
+    onError: (error) => addToast({ title: 'Falha ao remover', message: errorMessage(error), type: 'error' }),
   });
 
   const testMutation = useMutation({
@@ -425,6 +461,26 @@ export function PersonaPage() {
               onChange={(examples) => setDraft({ ...draft, examples })}
               disabled={busy || isReadOnly}
             />
+          </Card>
+          <Card title="11. Documentos de conhecimento" icon={FileText} className={sectionClass}>
+            {!selectedId ? (
+              <p className="text-sm text-gray-500">
+                Salve o rascunho da persona antes de anexar arquivos.
+              </p>
+            ) : attachmentsQuery.isLoading ? (
+              <Loading text="Carregando anexos..." />
+            ) : attachmentsQuery.isError ? (
+              <p className="text-sm text-red-600 dark:text-red-300">{errorMessage(attachmentsQuery.error)}</p>
+            ) : (
+              <PersonaAttachmentsPanel
+                items={attachmentsQuery.data ?? []}
+                disabled={busy || isReadOnly}
+                uploading={uploadAttachmentMutation.isPending}
+                deletingId={deleteAttachmentMutation.isPending ? deleteAttachmentMutation.variables : null}
+                onUpload={(file) => uploadAttachmentMutation.mutate(file)}
+                onRemove={(attachmentId) => deleteAttachmentMutation.mutate(attachmentId)}
+              />
+            )}
           </Card>
         </div>
 

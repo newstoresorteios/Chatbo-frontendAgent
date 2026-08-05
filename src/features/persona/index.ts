@@ -1,3 +1,4 @@
+export * from './components/PersonaAttachmentsPanel';
 export * from './components/PersonaAudienceForm';
 export * from './components/PersonaEscalationForm';
 export * from './components/PersonaExamplesEditor';
