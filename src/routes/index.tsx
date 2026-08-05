@@ -18,6 +18,7 @@ import { SystemAdminLayout } from '@/layouts/SystemAdminLayout';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { SettingsPage } from '@/pages/SettingsPage';
 import { PersonaPage } from '@/pages/PersonaPage';
+import { AgentLearningPage } from '@/pages/AgentLearningPage';
 import { PermissionRoute } from '@/routes/PermissionRoute';
 import { ProtectedRoute, PublicRoute } from '@/routes/ProtectedRoute';
 import { lazy, Suspense } from 'react';
@@ -84,6 +85,7 @@ export function AppRoutes() {
             <Route path="/robo" element={<ChatbotPage />} />
             <Route path="/agente-ia" element={<Navigate to="/copiloto" replace />} />
             <Route path="/persona" element={<PersonaPage />} />
+            <Route path="/agente/aprendizado" element={<AgentLearningPage />} />
           </Route>
 
           <Route element={<PermissionRoute permission="viewReports" />}>

@@ -19,6 +19,7 @@ import {
   Flame,
   Gauge,
   GitBranch,
+  GraduationCap,
   Headphones,
   LogOut,
   Megaphone,
@@ -51,6 +52,7 @@ function buildNavSections(settingsChildren: NavItem[]): NavSection[] {
       { to: '/copiloto', icon: Sparkles, label: 'Assistente ChatBô', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
       { to: '/robo', icon: Bot, label: 'Agente Automático', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
       { to: '/persona', icon: Brain, label: 'Persona do agente', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
+      { to: '/agente/aprendizado', icon: GraduationCap, label: 'Aprendizado', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
     ] },
     { title: 'GESTÃO', items: [
       { to: '/campanhas', icon: Megaphone, label: 'Campanhas', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },
