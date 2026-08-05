@@ -605,7 +605,7 @@ export function ConversationsPage() {
                   <div className="shrink-0 border-t border-amber-200/60 bg-amber-50 px-3 py-2.5 dark:border-amber-900/40 dark:bg-amber-950/30">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <p className="text-sm text-amber-800 dark:text-amber-200">
-                        Assuma a conversa para falar com o cliente.
+                        Assuma a conversa para pausar o agente e falar com o cliente.
                       </p>
                       {user && (
                         <Button
