@@ -145,12 +145,28 @@ export function ConversationsPage() {
 
   const mergedForAi = useMemo(() => {
     if (!activeConversationId) return [];
-    return [
+    const combined = [
       ...(messages ?? []),
       ...(localMessages[activeConversationId] ?? []),
-    ].filter(
-      (msg, index, self) => self.findIndex((m) => m.id === msg.id) === index,
-    );
+    ];
+    const seen = new Set<string>();
+    return combined.filter((msg) => {
+      const external = (msg as { externalId?: string }).externalId;
+      const content = String(msg.content || '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase()
+        .slice(0, 180);
+      const ts = String(msg.timestamp || '').slice(0, 16);
+      const keys = [
+        msg.id ? `id:${msg.id}` : '',
+        external ? `ext:${external}` : '',
+        content ? `fp:${msg.sender}:${ts}:${content}` : '',
+      ].filter(Boolean);
+      if (keys.some((k) => seen.has(k))) return false;
+      keys.forEach((k) => seen.add(k));
+      return true;
+    });
   }, [messages, localMessages, activeConversationId]);
 
   const { data: aiSuggestion, isLoading: aiLoading } = useConversationSuggestion(
