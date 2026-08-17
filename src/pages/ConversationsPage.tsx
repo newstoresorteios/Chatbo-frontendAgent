@@ -79,11 +79,19 @@ export function ConversationsPage() {
     data: conversations,
     isLoading,
     isError: conversationsError,
+    error: conversationsLoadError,
     isFetching: conversationsFetching,
     dataUpdatedAt,
     refetch: refetchConversations,
   } = useConversations({ live: true });
-  const { data: messages, isLoading: messagesLoading, isFetching: messagesFetching } = useMessages(
+  const {
+    data: messages,
+    isLoading: messagesLoading,
+    isFetching: messagesFetching,
+    isError: messagesError,
+    error: messagesLoadError,
+    refetch: refetchMessages,
+  } = useMessages(
     activeConversationId,
     { live: true },
   );
@@ -399,7 +407,10 @@ export function ConversationsPage() {
       <EmptyState
         icon={XCircle}
         title="Não foi possível carregar as conversas"
-        description="Verifique a conexão com o backend e tente novamente."
+        description={extractApiErrorMessage(
+          conversationsLoadError,
+          'Verifique a conexão com o backend e tente novamente.',
+        )}
         action={
           <Button variant="outline" onClick={() => { void refetchConversations(); }}>
             Tentar novamente
@@ -514,8 +525,8 @@ export function ConversationsPage() {
                       <h3 className="truncate text-sm font-semibold text-gray-900 dark:text-white sm:text-base">
                         {activeConversation.customerName}
                       </h3>
-                      <Badge variant={STATUS_VARIANTS[activeConversation.status]}>
-                        {STATUS_LABELS[activeConversation.status]}
+                      <Badge variant={STATUS_VARIANTS[activeConversation.status] ?? STATUS_VARIANTS.active}>
+                        {STATUS_LABELS[activeConversation.status] ?? activeConversation.status}
                       </Badge>
                       <span className="text-xs text-gray-500">
                         {messagesLoading && allMessages.length === 0
@@ -588,6 +599,20 @@ export function ConversationsPage() {
                   )}
                   {messagesLoading && allMessages.length === 0 ? (
                     <Loading text="Carregando mensagens..." />
+                  ) : messagesError && allMessages.length === 0 ? (
+                    <EmptyState
+                      icon={XCircle}
+                      title="Não foi possível carregar as mensagens"
+                      description={extractApiErrorMessage(
+                        messagesLoadError,
+                        'Tente abrir a conversa novamente.',
+                      )}
+                      action={
+                        <Button variant="outline" onClick={() => { void refetchMessages(); }}>
+                          Tentar novamente
+                        </Button>
+                      }
+                    />
                   ) : allMessages.length === 0 ? (
                     <EmptyState
                       icon={User}

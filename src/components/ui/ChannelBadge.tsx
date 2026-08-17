@@ -10,7 +10,7 @@ interface ChannelBadgeProps {
 }
 
 export function ChannelBadge({ channel, showLabel = true, size = 'sm', className }: ChannelBadgeProps) {
-  const config = channelConfig[channel];
+  const config = channelConfig[channel] ?? channelConfig.whatsapp;
   const Icon = config.icon;
   const iconSize = size === 'sm' ? 'h-3 w-3' : 'h-4 w-4';
 

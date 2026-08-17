@@ -27,7 +27,7 @@ const senderConfig = {
 };
 
 export function ChatBubble({ message, customerName }: ChatBubbleProps) {
-  const config = senderConfig[message.sender];
+  const config = senderConfig[message.sender] ?? senderConfig.agent;
   const isCustomer = message.sender === 'customer';
 
   return (

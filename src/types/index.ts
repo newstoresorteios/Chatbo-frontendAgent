@@ -204,6 +204,7 @@ export interface Message {
   timestamp: string;
   status: MessageStatus;
   aiSource?: 'openai' | 'intelligent';
+  externalId?: string;
 }
 
 export interface Conversation {

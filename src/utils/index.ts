@@ -30,6 +30,7 @@ export function formatDateTime(date: string | Date): string {
 export function formatRelativeTime(date: string | Date): string {
   const now = new Date();
   const target = new Date(date);
+  if (Number.isNaN(target.getTime())) return '';
   const diffMs = now.getTime() - target.getTime();
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);
@@ -47,8 +48,12 @@ export function delay(ms: number): Promise<void> {
 }
 
 export function getInitials(name: string): string {
-  return name
-    .split(' ')
+  const parts = String(name || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (!parts.length) return '?';
+  return parts
     .map((n) => n[0])
     .slice(0, 2)
     .join('')

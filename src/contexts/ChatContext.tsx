@@ -44,10 +44,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const filterConversations = useCallback(
     (conversations: Conversation[]) => {
       return conversations.filter((c) => {
-        const matchesSearch =
-          !searchQuery ||
-          c.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          c.lastMessage.toLowerCase().includes(searchQuery.toLowerCase());
+        const name = (c.customerName || '').toLowerCase();
+        const last = (c.lastMessage || '').toLowerCase();
+        const query = searchQuery.toLowerCase();
+        const matchesSearch = !searchQuery || name.includes(query) || last.includes(query);
         const matchesStatus = statusFilter === 'all' || c.status === statusFilter;
         const matchesChannel = filter === 'all' || c.channel === filter;
         return matchesSearch && matchesStatus && matchesChannel;

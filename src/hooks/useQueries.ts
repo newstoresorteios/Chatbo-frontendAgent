@@ -103,14 +103,17 @@ export function useConversations(options?: { live?: boolean }) {
   return useQuery({
     queryKey: ['conversations'],
     queryFn: conversationsService.getConversations,
-    // Live sem martelar o Render: cache curto + poll moderado.
-    staleTime: live ? 4_000 : 30_000,
-    refetchInterval: live ? 5_000 : 12_000,
+    staleTime: live ? 6_000 : 30_000,
+    refetchInterval: live ? 8_000 : false,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
+    retry: (failureCount, error) => {
+      const status = (error as { response?: { status?: number } })?.response?.status;
+      if (status === 401 || status === 403) return false;
+      return failureCount < 2;
+    },
     placeholderData: (previous) => previous,
-    // Garante array mesmo se o backend devolver envelope inesperado.
     select: (data): Conversation[] => (Array.isArray(data) ? data : []),
   });
 }
@@ -121,12 +124,16 @@ export function useMessages(conversationId: string | null, options?: { live?: bo
     queryKey: ['messages', conversationId],
     queryFn: () => conversationsService.getMessages(conversationId!),
     enabled: !!conversationId,
-    staleTime: live ? 3_000 : 30_000,
-    refetchInterval: conversationId ? (live ? 5_000 : 10_000) : false,
+    staleTime: live ? 5_000 : 30_000,
+    refetchInterval: conversationId ? (live ? 8_000 : false) : false,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
-    // Mantém bolhas só da MESMA conversa (evita flash de histórico alheio).
+    retry: (failureCount, error) => {
+      const status = (error as { response?: { status?: number } })?.response?.status;
+      if (status === 401 || status === 403 || status === 404) return false;
+      return failureCount < 2;
+    },
     placeholderData: (previous, previousQuery) =>
       previousQuery?.queryKey?.[1] === conversationId ? previous : undefined,
     select: (data) => (Array.isArray(data) ? data : []),

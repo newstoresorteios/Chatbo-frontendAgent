@@ -24,6 +24,7 @@ const statusLabel = {
 };
 
 export function ConversationCard({ conversation, active, pinned, onClick }: ConversationCardProps) {
+  const status = statusVariant[conversation.status] ? conversation.status : 'active';
   return (
     <button
       onClick={onClick}
@@ -35,22 +36,22 @@ export function ConversationCard({ conversation, active, pinned, onClick }: Conv
         pinned && !active && 'border-l-2 border-l-amber-400 bg-amber-50/50 dark:bg-amber-900/10',
       )}
     >
-      <Avatar name={conversation.customerName} size="md" />
+      <Avatar name={conversation.customerName || 'Cliente'} size="md" />
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
           <span className="truncate font-medium text-gray-900 dark:text-gray-100">
-            {conversation.customerName}
+            {conversation.customerName || 'Cliente'}
           </span>
           <span className="shrink-0 text-xs text-gray-400">
             {formatRelativeTime(conversation.lastMessageAt)}
           </span>
         </div>
         <p className="mt-0.5 truncate text-sm text-gray-500 dark:text-gray-400">
-          {conversation.lastMessage}
+          {conversation.lastMessage || 'Sem mensagens ainda'}
         </p>
         <div className="mt-2 flex items-center gap-2">
-          <Badge variant={statusVariant[conversation.status]}>
-            {statusLabel[conversation.status]}
+          <Badge variant={statusVariant[status]}>
+            {statusLabel[status]}
           </Badge>
           <span className="text-xs text-gray-400">{conversation.department}</span>
           {conversation.assignedName && (
