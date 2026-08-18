@@ -30,7 +30,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 const channels = [
   { icon: MessageCircle, name: 'WhatsApp', color: 'text-green-400' },
@@ -159,12 +159,21 @@ const statIcons = {
 export function LandingPage() {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   useEffect(() => {
     document.documentElement.classList.add('dark');
     return () => document.documentElement.classList.remove('dark');
   }, []);
+
+  useEffect(() => {
+    if (!location.hash) return;
+    const el = document.querySelector(location.hash);
+    if (el) {
+      window.setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 50);
+    }
+  }, [location.hash]);
 
   if (isAuthenticated) return <Navigate to={defaultAppHome(user)} replace />;
 

@@ -189,7 +189,10 @@ export function LoginPage() {
 
         <p className="mt-6 flex items-center justify-center gap-2 text-center text-xs text-gray-600">
           <Mail className="h-3.5 w-3.5" />
-          Protegido com criptografia - Conformidade LGPD
+          Protegido com criptografia ·{' '}
+          <Link to="/politica-privacidade" className="text-gray-500 hover:text-blue-400 hover:underline">
+            Política de Privacidade
+          </Link>
         </p>
       </motion.div>
 

@@ -4,19 +4,10 @@ import { ArrowLeft } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
 const pages = {
-  privacidade: {
-    title: 'Política de Privacidade',
-    content: [
-      'A Tironi Tech, responsável pelo ChatBô, trata seus dados pessoais em conformidade com a LGPD (Lei nº 13.709/2018).',
-      'Coletamos informações de cadastro, uso da plataforma e comunicações para prestar o serviço, melhorar a experiência e cumprir obrigações legais.',
-      'Seus dados não são vendidos a terceiros. Compartilhamos informações apenas com provedores essenciais (hospedagem, mensageria, IA) sob contratos de proteção.',
-      'Você pode solicitar acesso, correção ou exclusão dos seus dados pelo e-mail privacidade@tironitech.com.br.',
-    ],
-  },
   termos: {
     title: 'Termos de Uso',
     content: [
-      'Ao utilizar o ChatBô, você concorda com estes termos e com nossa política de privacidade.',
+      'Ao utilizar o ChatBô, você concorda com estes termos e com a Política de Privacidade.',
       'O serviço é oferecido em modelo SaaS, sujeito ao plano contratado. O uso indevido, incluindo spam ou violação de leis, pode resultar em suspensão da conta.',
       'A Tironitech não se responsabiliza por indisponibilidade causada por integrações de terceiros ou força maior.',
       'Alterações nestes termos serão comunicadas por e-mail ou aviso na plataforma com antecedência mínima de 15 dias.',

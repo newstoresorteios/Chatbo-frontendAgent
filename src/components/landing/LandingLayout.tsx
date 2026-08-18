@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/Button';
 import { cn } from '@/utils';
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const navLinks = [
   { href: '#recursos', label: 'IA comercial' },
@@ -16,9 +16,14 @@ const navLinks = [
 export function LandingNavbar() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const scrollTo = (href: string) => {
     setOpen(false);
+    if (location.pathname !== '/') {
+      navigate(`/${href}`);
+      return;
+    }
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -94,9 +99,9 @@ export function LandingFooter() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
           <Logo size="sm" full className="max-w-[180px]" />
-          <p className="text-sm text-gray-500">© 2024 Tironi Tech · ChatBô. Todos os direitos reservados.</p>
+          <p className="text-sm text-gray-500">© 2026 Tironi Tech · ChatBô. Todos os direitos reservados.</p>
           <div className="flex gap-6 text-sm text-gray-500">
-            <Link to="/legal/privacidade" className="hover:text-gray-300">Privacidade</Link>
+            <Link to="/politica-privacidade" className="hover:text-gray-300">Privacidade</Link>
             <Link to="/legal/termos" className="hover:text-gray-300">Termos</Link>
             <Link to="/legal/suporte" className="hover:text-gray-300">Suporte</Link>
           </div>

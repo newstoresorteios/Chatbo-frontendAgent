@@ -7,6 +7,7 @@ import { FunnelPage } from '@/pages/FunnelPage';
 import { IntegrationsPage } from '@/pages/IntegrationsPage';
 import { LandingPage } from '@/pages/LandingPage';
 import { LegalPage } from '@/pages/LegalPage';
+import { PrivacyPolicyPage } from '@/pages/PrivacyPolicyPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
 import { ResetPasswordPage } from '@/pages/ResetPasswordPage';
@@ -42,6 +43,8 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/politica-privacidade" element={<PrivacyPolicyPage />} />
+      <Route path="/legal/privacidade" element={<Navigate to="/politica-privacidade" replace />} />
       <Route path="/legal/:slug" element={<LegalPage />} />
       <Route path="/planos" element={<PlansPage />} />
 

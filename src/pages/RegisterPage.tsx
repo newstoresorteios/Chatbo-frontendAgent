@@ -146,6 +146,13 @@ export function RegisterPage() {
               <UserPlus className="h-4 w-4" />
               Criar conta
             </Button>
+            <p className="text-center text-xs leading-5 text-gray-500">
+              Ao criar a conta, você concorda com a{' '}
+              <Link to="/politica-privacidade" className="text-blue-400 hover:underline">
+                Política de Privacidade
+              </Link>
+              .
+            </p>
           </form>
 
           <div className="mt-6 border-t border-white/5 pt-6 text-center">
@@ -160,7 +167,10 @@ export function RegisterPage() {
 
         <p className="mt-6 flex items-center justify-center gap-2 text-center text-xs text-gray-600">
           <Building2 className="h-3.5 w-3.5" />
-          Seus dados ficam protegidos no Supabase - LGPD
+          Seus dados ficam protegidos no Supabase ·{' '}
+          <Link to="/politica-privacidade" className="text-gray-500 hover:text-blue-400 hover:underline">
+            LGPD
+          </Link>
         </p>
       </motion.div>
     </div>
