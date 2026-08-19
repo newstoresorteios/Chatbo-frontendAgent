@@ -1,7 +1,14 @@
-import { ListEditor, TextareaField, compactList } from '@/features/persona/components/PersonaFormPrimitives';
+import { ListEditor, TextareaField } from '@/features/persona/components/PersonaFormPrimitives';
 import type { AgentPersona } from '@/features/persona/types';
 
 const defaultObjections = ['Preço', 'Prazo', 'Confiança', 'Comparação', 'Necessidade de aprovação', 'Indisponibilidade'];
+
+function objectionDraft(items: string[], objection: string): string {
+  const prefix = `${objection}:`;
+  const raw = items.find((item) => item.startsWith(prefix));
+  if (!raw) return '';
+  return raw.slice(prefix.length).replace(/^\s/, '');
+}
 
 export function PersonaObjectionsForm({
   value,
@@ -19,17 +26,17 @@ export function PersonaObjectionsForm({
           <TextareaField
             key={objection}
             label={objection}
-            value={value.objectionHandling.find((item) => item.startsWith(`${objection}:`))?.replace(`${objection}:`, '').trim() ?? ''}
+            value={objectionDraft(value.objectionHandling, objection)}
             onChange={(text) => {
               const otherItems = value.objectionHandling.filter((item) => !item.startsWith(`${objection}:`));
-              onChange({ ...value, objectionHandling: compactList([...otherItems, `${objection}: ${text}`]) });
+              onChange({ ...value, objectionHandling: [...otherItems, `${objection}: ${text}`] });
             }}
             disabled={disabled}
             rows={2}
           />
         ))}
       </div>
-      <ListEditor label="Objeções personalizadas" values={value.customObjections ?? []} onChange={(customObjections) => onChange({ ...value, customObjections: compactList(customObjections) })} disabled={disabled} />
+      <ListEditor label="Objeções personalizadas" values={value.customObjections ?? []} onChange={(customObjections) => onChange({ ...value, customObjections })} disabled={disabled} />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { ListEditor, compactList } from '@/features/persona/components/PersonaFormPrimitives';
+import { ListEditor } from '@/features/persona/components/PersonaFormPrimitives';
 import type { AgentPersona } from '@/features/persona/types';
 import { PERSONA_TRANSFER_TRIGGERS } from '@/features/persona/types';
 
@@ -29,7 +29,7 @@ export function PersonaEscalationForm({
           </label>
         ))}
       </div>
-      <ListEditor label="Regras adicionais de transferência" values={value.escalationRules.filter((item) => !transferTriggers.includes(item))} onChange={(rules) => onChange({ ...value, escalationRules: [...triggers, ...compactList(rules)] })} disabled={disabled} />
+      <ListEditor label="Regras adicionais de transferência" values={value.escalationRules.filter((item) => !transferTriggers.includes(item))} onChange={(rules) => onChange({ ...value, escalationRules: [...triggers, ...rules] })} disabled={disabled} />
     </div>
   );
 }
