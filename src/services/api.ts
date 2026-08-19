@@ -95,21 +95,29 @@ api.interceptors.response.use(
     const method = (original?.method ?? 'get').toUpperCase();
     const fullUrl = original ? `${original.baseURL ?? ''}${original.url ?? ''}` : url;
 
-    logger.error('API error', {
-      method,
-      url: fullUrl,
-      status,
-      code: error.code,
-      message: error.message,
-      data: error.response?.data,
-    });
+    const canRefresh =
+      status === 401
+      && original
+      && !original._retry
+      && !AUTH_PATHS.some((path) => url.includes(path));
 
-    if (
-      status !== 401
-      || !original
-      || original._retry
-      || AUTH_PATHS.some((path) => url.includes(path))
-    ) {
+    if (!canRefresh) {
+      logger.error('API error', {
+        method,
+        url: fullUrl,
+        status,
+        code: error.code,
+        message: error.message,
+        data: error.response?.data,
+      });
+    } else {
+      logger.info('Access token expired, refreshing before retry', {
+        method,
+        url: fullUrl,
+      });
+    }
+
+    if (!canRefresh) {
       if (status === 401 && !AUTH_PATHS.some((path) => url.includes(path))) {
         logger.warn('Session expired, redirecting to login', { url: fullUrl });
         clearAuthStorage();
