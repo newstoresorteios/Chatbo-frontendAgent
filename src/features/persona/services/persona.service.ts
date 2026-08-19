@@ -182,7 +182,7 @@ export function personaToPayload(persona: AgentPersona): PersonaApiPayload {
     closingMessage: persona.defaultClosing?.trim() || null,
     targetAudience: persona.targetAudience.trim() || null,
     customerProfile: persona.customerType?.trim() || null,
-    salesGoals: compactList(persona.salesGoals),
+    salesGoals: mergeUnique(persona.salesGoals, persona.commercialPriorities),
     qualificationRules,
     opportunityCriteria: compactList(persona.opportunityCriteria),
     humanHandoffCriteria,

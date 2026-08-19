@@ -1,3 +1,5 @@
+import { PERSONA_ACTIVATION_FIELD_LABELS } from '@/features/persona/activationRequirements';
+
 const GENERIC_AXIOS_MESSAGE = /^Request failed with status code \d+$/;
 
 type ApiErrorShape = {
@@ -42,6 +44,22 @@ function detailToMessage(detail: unknown): string | null {
       })
       .filter(Boolean);
     if (messages.length > 0) return messages.join(' ');
+  }
+
+  if (detail && typeof detail === 'object') {
+    const row = detail as { message?: unknown; missingFields?: unknown };
+    const message = typeof row.message === 'string' ? row.message.trim() : '';
+    const fields = Array.isArray(row.missingFields)
+      ? row.missingFields.map((item) => PERSONA_ACTIVATION_FIELD_LABELS[String(item)] ?? String(item))
+      : [];
+    if (message && fields.length) {
+      const alreadyListsFields = fields.some((field) => message.includes(field));
+      return alreadyListsFields ? message : `${message} Preencha: ${fields.join(', ')}.`;
+    }
+    if (message) return message;
+    if (fields.length) {
+      return `A persona ainda não pode ser ativada. Preencha: ${fields.join(', ')}.`;
+    }
   }
 
   return null;

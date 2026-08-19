@@ -11,6 +11,7 @@ export * from './components/PersonaRestrictionsForm';
 export * from './components/PersonaTestPanel';
 export * from './components/PersonaToneForm';
 export * from './components/PersonaUpsellForm';
+export * from './activationRequirements';
 export * from './hooks/usePersonaDraft';
 export * from './services/persona.service';
 export * from './types';

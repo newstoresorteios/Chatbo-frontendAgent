@@ -19,6 +19,7 @@ import {
   PersonaToneForm,
   PersonaUpsellForm,
   createEmptyPersonaDraft,
+  personaActivationGapLabels,
 } from '@/features/persona';
 import { personaKeys, personaService } from '@/features/persona/services/persona.service';
 import { extractApiErrorMessage } from '@/utils/apiErrors';
@@ -126,6 +127,7 @@ export function PersonaPage() {
 
   const dirty = JSON.stringify(draft) !== JSON.stringify(savedDraft);
   const isReadOnly = !canManage;
+  const activationGaps = useMemo(() => personaActivationGapLabels(savedDraft), [savedDraft]);
 
   useEffect(() => {
     if (!selectedId && personas.length > 0) {
@@ -502,13 +504,18 @@ export function PersonaPage() {
                 className="w-full"
                 onClick={handleActivate}
                 loading={activateMutation.isPending}
-                disabled={!selectedId || isReadOnly || draft.status === 'active' || dirty}
+                disabled={!selectedId || isReadOnly || draft.status === 'active' || dirty || activationGaps.length > 0}
               >
                 Ativar no agente
               </Button>
               {dirty && selectedId ? (
                 <p className="text-xs text-amber-600 dark:text-amber-300">
                   Há alterações não salvas. Salve antes de ativar.
+                </p>
+              ) : null}
+              {!dirty && selectedId && draft.status !== 'active' && activationGaps.length > 0 ? (
+                <p className="text-xs text-amber-600 dark:text-amber-300">
+                  Para ativar, preencha: {activationGaps.join(', ')}.
                 </p>
               ) : null}
               <Button
