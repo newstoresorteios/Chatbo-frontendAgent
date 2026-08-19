@@ -21,6 +21,7 @@ import {
   createEmptyPersonaDraft,
 } from '@/features/persona';
 import { personaKeys, personaService } from '@/features/persona/services/persona.service';
+import { extractApiErrorMessage } from '@/utils/apiErrors';
 import type { AgentPersona, PersonaStatus, PersonaVersion } from '@/features/persona/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AlertCircle, Bot, Clock3, Eye, FileText, History, MessageSquareText, Plus, Save, ShieldAlert, SlidersHorizontal, Target, UserRoundCog, Wand2 } from 'lucide-react';
@@ -58,17 +59,7 @@ function formatDate(value?: string): string {
 }
 
 function errorMessage(error: unknown): string {
-  if (typeof error === 'object' && error && 'response' in error) {
-    const response = (error as { response?: { data?: { detail?: string | { message?: string; missingFields?: string[] } } } }).response;
-    const detail = response?.data?.detail;
-    if (typeof detail === 'string') return detail;
-    if (detail?.message) {
-      const missing = detail.missingFields?.length ? ` Campos pendentes: ${detail.missingFields.join(', ')}.` : '';
-      return `${detail.message}${missing}`;
-    }
-  }
-  if (error instanceof Error) return error.message;
-  return 'Nao foi possivel concluir a operacao.';
+  return extractApiErrorMessage(error, 'Não foi possível concluir a operação.');
 }
 
 function snapshotSummary(version?: PersonaVersion): string {

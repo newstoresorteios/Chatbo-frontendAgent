@@ -99,7 +99,14 @@ export interface PersonaVersion {
   createdAt?: string;
 }
 
-export type PersonaTone =
+export const PERSONA_TRANSFER_TRIGGERS = [
+  'Pedido explícito do cliente',
+  'Risco de conflito',
+  'Negociação especial',
+  'Dúvida sem informação confiável',
+  'Falha de integração',
+  'Cliente de alta prioridade',
+] as const;
   | 'professional'
   | 'consultative'
   | 'objective'

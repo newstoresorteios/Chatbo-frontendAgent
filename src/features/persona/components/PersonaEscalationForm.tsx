@@ -1,14 +1,8 @@
 import { ListEditor, compactList } from '@/features/persona/components/PersonaFormPrimitives';
 import type { AgentPersona } from '@/features/persona/types';
+import { PERSONA_TRANSFER_TRIGGERS } from '@/features/persona/types';
 
-const transferTriggers = [
-  'Pedido explícito do cliente',
-  'Risco de conflito',
-  'Negociação especial',
-  'Dúvida sem informação confiável',
-  'Falha de integração',
-  'Cliente de alta prioridade',
-];
+const transferTriggers = [...PERSONA_TRANSFER_TRIGGERS];
 
 export function PersonaEscalationForm({
   value,

@@ -1,3 +1,4 @@
+import { PERSONA_TRANSFER_TRIGGERS } from '@/features/persona/types';
 import { api } from '@/services/api';
 import type {
   AgentPersona,
@@ -97,11 +98,38 @@ export const personaKeys = {
 };
 
 function compact(values: Array<string | undefined | null>): string[] {
-  return values.map((item) => item?.trim() ?? '').filter(Boolean);
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const item of values) {
+    const text = item?.trim() ?? '';
+    if (!text) continue;
+    const key = text.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    result.push(text);
+  }
+  return result;
 }
 
 function compactList(values: string[] | undefined): string[] {
   return compact(values ?? []);
+}
+
+function mergeUnique(...groups: Array<string[] | undefined | string | null>): string[] {
+  return compact(groups.flatMap((group) => (Array.isArray(group) ? group : [group])));
+}
+
+function normalizeExamples(value: unknown): PersonaExample[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((raw) => {
+      const row = (raw ?? {}) as Record<string, unknown>;
+      return {
+        customerMessage: String(row.customerMessage ?? row.customer_message ?? '').trim(),
+        expectedResponse: String(row.expectedResponse ?? row.expected_response ?? '').trim(),
+      };
+    })
+    .filter((example) => example.customerMessage && example.expectedResponse);
 }
 
 function parseTone(value: string | null | undefined): PersonaTone {
@@ -117,29 +145,29 @@ function parseObjections(value: ObjectionPayload | undefined): { objectionHandli
 }
 
 export function personaToPayload(persona: AgentPersona): PersonaApiPayload {
-  const qualificationRules = compact([
-    ...compactList(persona.qualificationRules),
-    ...compactList(persona.requiredQuestions),
-    ...compactList(persona.discoveryFields),
-    ...compactList(persona.opportunityCriteria),
-  ]);
-  const humanHandoffCriteria = compact([
-    ...compactList(persona.sellerHandoffCriteria),
-    ...compactList(persona.humanTransferTriggers),
-  ]);
-  const upsellRules = compact([
-    ...compactList(persona.upsellRules),
-    ...compactList(persona.complementaryProductRules),
-    ...compactList(persona.premiumOptionRules),
+  const qualificationRules = mergeUnique(
+    persona.qualificationRules,
+    persona.requiredQuestions,
+    persona.discoveryFields,
+    persona.opportunityCriteria,
+  );
+  const humanHandoffCriteria = mergeUnique(
+    persona.sellerHandoffCriteria,
+    persona.humanTransferTriggers,
+  );
+  const upsellRules = mergeUnique(
+    persona.upsellRules,
+    persona.complementaryProductRules,
+    persona.premiumOptionRules,
     persona.insistenceLimit,
-  ]);
-  const restrictions = compact([
-    ...compactList(persona.restrictions),
-    ...compactList(persona.forbiddenSubjects),
-    ...compactList(persona.forbiddenPromises),
-    ...compactList(persona.nonInventableInformation),
-    ...compactList(persona.humanOnlyCommercialTerms),
-  ]);
+  );
+  const restrictions = mergeUnique(
+    persona.restrictions,
+    persona.forbiddenSubjects,
+    persona.forbiddenPromises,
+    persona.nonInventableInformation,
+    persona.humanOnlyCommercialTerms,
+  );
 
   return {
     name: persona.name.trim() || null,
@@ -166,12 +194,15 @@ export function personaToPayload(persona: AgentPersona): PersonaApiPayload {
     recommendationRules: compactList(persona.recommendationRules),
     escalationRules: compactList(persona.escalationRules),
     restrictions,
-    examples: (persona.examples ?? []).filter((example) => example.customerMessage.trim() && example.expectedResponse.trim()),
+    examples: normalizeExamples(persona.examples),
   };
 }
 
 export function personaFromResponse(value: PersonaApiResponse): AgentPersona {
   const objections = parseObjections(value.objectionHandling);
+  const triggerSet = new Set<string>(PERSONA_TRANSFER_TRIGGERS);
+  const handoff = compactList(value.humanHandoffCriteria);
+  const restrictions = compactList(value.restrictions);
   return {
     id: value.id,
     workspaceId: value.workspaceId,
@@ -186,29 +217,29 @@ export function personaFromResponse(value: PersonaApiResponse): AgentPersona {
     customerAddressing: value.customerAddressStyle ?? '',
     defaultClosing: value.closingMessage ?? '',
     targetAudience: value.targetAudience ?? '',
-    salesGoals: value.salesGoals ?? [],
+    salesGoals: compactList(value.salesGoals),
     customerType: value.customerProfile ?? '',
     commercialPriorities: [],
-    qualificationRules: value.qualificationRules ?? [],
+    qualificationRules: compactList(value.qualificationRules),
     requiredQuestions: [],
     discoveryFields: [],
-    opportunityCriteria: value.opportunityCriteria ?? [],
-    sellerHandoffCriteria: value.humanHandoffCriteria ?? [],
+    opportunityCriteria: compactList(value.opportunityCriteria),
+    sellerHandoffCriteria: handoff.filter((item) => !triggerSet.has(item)),
     objectionHandling: objections.objectionHandling,
     customObjections: objections.customObjections,
-    upsellRules: value.upsellRules ?? [],
+    upsellRules: compactList(value.upsellRules),
     complementaryProductRules: [],
     premiumOptionRules: [],
     insistenceLimit: '',
-    recommendationRules: value.recommendationRules ?? [],
-    escalationRules: value.escalationRules ?? [],
-    humanTransferTriggers: value.humanHandoffCriteria ?? [],
-    restrictions: value.restrictions ?? [],
+    recommendationRules: compactList(value.recommendationRules),
+    escalationRules: compactList(value.escalationRules),
+    humanTransferTriggers: handoff.filter((item) => triggerSet.has(item)),
+    restrictions,
     forbiddenSubjects: [],
     forbiddenPromises: [],
-    nonInventableInformation: value.restrictions ?? [],
+    nonInventableInformation: restrictions,
     humanOnlyCommercialTerms: [],
-    examples: value.examples ?? [],
+    examples: normalizeExamples(value.examples),
     status: value.status,
     version: value.version,
     createdAt: value.createdAt ?? undefined,

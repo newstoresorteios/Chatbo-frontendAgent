@@ -13,6 +13,12 @@ type ApiErrorShape = {
   message?: string;
 };
 
+function fieldLabel(loc: unknown): string {
+  if (!Array.isArray(loc)) return '';
+  const parts = loc.filter((part) => part !== 'body' && part !== 'query');
+  return parts.map(String).join('.');
+}
+
 function detailToMessage(detail: unknown): string | null {
   if (typeof detail === 'string' && detail.trim()) {
     return detail;
@@ -22,7 +28,15 @@ function detailToMessage(detail: unknown): string | null {
     const messages = detail
       .map((item) => {
         if (typeof item === 'object' && item && 'msg' in item) {
-          return String((item as { msg: string }).msg);
+          const row = item as { loc?: unknown; msg: string; type?: string };
+          const field = fieldLabel(row.loc);
+          const msg = String(row.msg);
+          if (row.type === 'too_long' || msg.toLowerCase().includes('at most')) {
+            return field
+              ? `O campo ${field} ultrapassou o limite permitido.`
+              : 'Um dos campos da persona ultrapassou o limite permitido.';
+          }
+          return field ? `${field}: ${msg}` : msg;
         }
         return String(item);
       })
