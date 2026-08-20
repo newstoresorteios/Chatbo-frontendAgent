@@ -191,11 +191,21 @@ export function ConversationsPage() {
     filter !== 'all' || statusFilter !== 'all' || Boolean(searchQuery.trim());
   const isInboxEmpty = (conversations?.length ?? 0) === 0;
   const displayList = useMemo(() => {
-    if (!activeConversationId || !conversations?.length) return filtered;
-    if (filtered.some((c) => c.id === activeConversationId)) return filtered;
-    const selected = conversations.find((c) => c.id === activeConversationId);
-    return selected ? [selected, ...filtered] : filtered;
-  }, [filtered, conversations, activeConversationId]);
+    let list = filtered;
+    if (activeConversationId && conversations?.length) {
+      if (!filtered.some((c) => c.id === activeConversationId)) {
+        const selected = conversations.find((c) => c.id === activeConversationId);
+        list = selected ? [selected, ...filtered] : filtered;
+      }
+    }
+    const mine = user?.id;
+    return [...list].sort((a, b) => {
+      const aMine = mine && a.assignedTo === mine ? 0 : 1;
+      const bMine = mine && b.assignedTo === mine ? 0 : 1;
+      if (aMine !== bMine) return aMine - bMine;
+      return new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime();
+    });
+  }, [filtered, conversations, activeConversationId, user?.id]);
   const isClosed = activeConversation?.status === 'closed';
   const isAssignedToMe = !!user?.id && activeConversation?.assignedTo === user.id;
   const canReply = Boolean(user?.id) && isAssignedToMe && !isClosed;
@@ -299,6 +309,7 @@ export function ConversationsPage() {
     mutationFn: () => conversationsService.assume(activeConversationId!),
     onSuccess: (updated) => {
       patchConversationCache(updated);
+      setStatusFilter('all');
       addToast({
         title: 'Atendimento assumido',
         message: 'Agora você pode responder o cliente por esta tela.',
