@@ -1,5 +1,15 @@
 export type PersonaStatus = 'draft' | 'active' | 'inactive';
 
+export type PersonaTone =
+  | 'professional'
+  | 'consultative'
+  | 'objective'
+  | 'friendly'
+  | 'sophisticated'
+  | 'technical'
+  | 'informal'
+  | 'custom';
+
 export interface PersonaExample {
   id?: string;
   customerMessage: string;
@@ -80,6 +90,10 @@ export interface PersonaVersionSnapshot {
   recommendationRules?: string[];
   escalationRules?: string[];
   restrictions?: string[];
+  forbiddenSubjects?: string[];
+  forbiddenPromises?: string[];
+  nonInventableInformation?: string[];
+  humanOnlyCommercialTerms?: string[];
   examples?: PersonaExample[];
   status?: PersonaStatus;
   version?: number;
@@ -107,14 +121,6 @@ export const PERSONA_TRANSFER_TRIGGERS = [
   'Falha de integração',
   'Cliente de alta prioridade',
 ] as const;
-  | 'professional'
-  | 'consultative'
-  | 'objective'
-  | 'friendly'
-  | 'sophisticated'
-  | 'technical'
-  | 'informal'
-  | 'custom';
 
 export type PersonaAttachmentStatus = 'uploaded' | 'processed' | 'failed';
 

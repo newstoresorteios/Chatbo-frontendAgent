@@ -1,4 +1,9 @@
 import { PERSONA_TRANSFER_TRIGGERS } from '@/features/persona/types';
+import {
+  decodeRestrictions,
+  encodeRestrictionGroups,
+  hasRestrictionGroupItems,
+} from '@/features/persona/restrictionGroups';
 import { api } from '@/services/api';
 import type {
   AgentPersona,
@@ -37,6 +42,10 @@ interface PersonaApiPayload {
   recommendationRules?: string[];
   escalationRules?: string[];
   restrictions?: string[];
+  forbiddenSubjects?: string[];
+  forbiddenPromises?: string[];
+  nonInventableInformation?: string[];
+  humanOnlyCommercialTerms?: string[];
   examples?: PersonaExample[];
 }
 
@@ -161,13 +170,15 @@ export function personaToPayload(persona: AgentPersona): PersonaApiPayload {
     persona.premiumOptionRules,
     persona.insistenceLimit,
   );
-  const restrictions = mergeUnique(
-    persona.restrictions,
-    persona.forbiddenSubjects,
-    persona.forbiddenPromises,
-    persona.nonInventableInformation,
-    persona.humanOnlyCommercialTerms,
-  );
+  const restrictionGroups = {
+    forbiddenSubjects: compactList(persona.forbiddenSubjects),
+    forbiddenPromises: compactList(persona.forbiddenPromises),
+    nonInventableInformation: compactList(persona.nonInventableInformation),
+    humanOnlyCommercialTerms: compactList(persona.humanOnlyCommercialTerms),
+  };
+  const restrictions = hasRestrictionGroupItems(restrictionGroups)
+    ? encodeRestrictionGroups(restrictionGroups)
+    : compactList(persona.restrictions);
 
   return {
     name: persona.name.trim() || null,
@@ -194,6 +205,10 @@ export function personaToPayload(persona: AgentPersona): PersonaApiPayload {
     recommendationRules: compactList(persona.recommendationRules),
     escalationRules: compactList(persona.escalationRules),
     restrictions,
+    forbiddenSubjects: restrictionGroups.forbiddenSubjects,
+    forbiddenPromises: restrictionGroups.forbiddenPromises,
+    nonInventableInformation: restrictionGroups.nonInventableInformation,
+    humanOnlyCommercialTerms: restrictionGroups.humanOnlyCommercialTerms,
     examples: normalizeExamples(persona.examples),
   };
 }
@@ -203,6 +218,15 @@ export function personaFromResponse(value: PersonaApiResponse): AgentPersona {
   const triggerSet = new Set<string>(PERSONA_TRANSFER_TRIGGERS);
   const handoff = compactList(value.humanHandoffCriteria);
   const restrictions = compactList(value.restrictions);
+  const groupedFromApi = {
+    forbiddenSubjects: compactList(value.forbiddenSubjects),
+    forbiddenPromises: compactList(value.forbiddenPromises),
+    nonInventableInformation: compactList(value.nonInventableInformation),
+    humanOnlyCommercialTerms: compactList(value.humanOnlyCommercialTerms),
+  };
+  const grouped = hasRestrictionGroupItems(groupedFromApi)
+    ? groupedFromApi
+    : decodeRestrictions(restrictions);
   return {
     id: value.id,
     workspaceId: value.workspaceId,
@@ -235,10 +259,10 @@ export function personaFromResponse(value: PersonaApiResponse): AgentPersona {
     escalationRules: compactList(value.escalationRules),
     humanTransferTriggers: handoff.filter((item) => triggerSet.has(item)),
     restrictions,
-    forbiddenSubjects: [],
-    forbiddenPromises: [],
-    nonInventableInformation: restrictions,
-    humanOnlyCommercialTerms: [],
+    forbiddenSubjects: grouped.forbiddenSubjects,
+    forbiddenPromises: grouped.forbiddenPromises,
+    nonInventableInformation: grouped.nonInventableInformation,
+    humanOnlyCommercialTerms: grouped.humanOnlyCommercialTerms,
     examples: normalizeExamples(value.examples),
     status: value.status,
     version: value.version,

@@ -14,7 +14,7 @@ export function PersonaRestrictionsForm({
     <div className="space-y-4">
       <ListEditor label="Assuntos proibidos" values={value.forbiddenSubjects ?? []} onChange={(forbiddenSubjects) => onChange({ ...value, forbiddenSubjects })} disabled={disabled} />
       <ListEditor label="Promessas que não pode fazer" values={value.forbiddenPromises ?? []} onChange={(forbiddenPromises) => onChange({ ...value, forbiddenPromises })} disabled={disabled} />
-      <ListEditor label="Informações que não pode inventar" values={value.nonInventableInformation ?? []} onChange={(nonInventableInformation) => onChange({ ...value, nonInventableInformation, restrictions: nonInventableInformation })} disabled={disabled} />
+      <ListEditor label="Informações que não pode inventar" values={value.nonInventableInformation ?? []} onChange={(nonInventableInformation) => onChange({ ...value, nonInventableInformation })} disabled={disabled} />
       <ListEditor label="Condições comerciais que exigem humano" values={value.humanOnlyCommercialTerms ?? []} onChange={(humanOnlyCommercialTerms) => onChange({ ...value, humanOnlyCommercialTerms })} disabled={disabled} />
     </div>
   );
