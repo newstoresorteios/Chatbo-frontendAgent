@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { cn } from '@/utils';
 import { Plus, Trash2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 export function TextareaField({
   label,
@@ -41,6 +42,17 @@ export function TextareaField({
   );
 }
 
+type ListRow = { id: number; value: string };
+
+function filledKey(values: string[]): string {
+  return values.map((item) => item.trim()).filter(Boolean).join('\n');
+}
+
+function toRows(values: string[], startId: number): ListRow[] {
+  const source = values.length > 0 ? values : [''];
+  return source.map((value, index) => ({ id: startId + index, value }));
+}
+
 export function ListEditor({
   label,
   values,
@@ -54,28 +66,58 @@ export function ListEditor({
   disabled?: boolean;
   placeholder?: string;
 }) {
-  const visibleValues = values.length > 0 ? values : [''];
-  const update = (index: number, nextValue: string) => {
-    onChange(visibleValues.map((item, itemIndex) => (itemIndex === index ? nextValue : item)));
-  };
+  const idRef = useRef(1);
+  const [rows, setRows] = useState<ListRow[]>(() => toRows(values, 1));
+  const parentKey = filledKey(values);
 
-  const add = () => onChange([...visibleValues, '']);
-  const remove = (index: number) => onChange(visibleValues.filter((_, itemIndex) => itemIndex !== index));
+  useEffect(() => {
+    setRows((current) => {
+      if (filledKey(current.map((row) => row.value)) === parentKey && current.length >= Math.max(values.length, 1)) {
+        return current;
+      }
+      idRef.current += Math.max(values.length, 1) + 1;
+      return toRows(values, idRef.current);
+    });
+  }, [parentKey, values]);
+
+  const commit = (updater: (current: ListRow[]) => ListRow[]) => {
+    setRows((current) => {
+      const next = updater(current);
+      const normalized = next.length > 0 ? next : [{ id: ++idRef.current, value: '' }];
+      onChange(normalized.map((row) => row.value));
+      return normalized;
+    });
+  };
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</p>
-        <Button type="button" size="sm" variant="outline" onClick={add} disabled={disabled}>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            commit((current) => [...current, { id: ++idRef.current, value: '' }]);
+          }}
+          disabled={disabled}
+        >
           <Plus className="h-4 w-4" /> Adicionar
         </Button>
       </div>
       <div className="space-y-2">
-        {visibleValues.map((item, index) => (
-          <div key={`${label}-${index}`} className="flex gap-2">
+        {rows.map((row) => (
+          <div key={row.id} className="flex gap-2">
             <Input
-              value={item}
-              onChange={(event) => update(index, event.target.value)}
+              value={row.value}
+              onChange={(event) => {
+                const nextValue = event.target.value;
+                commit((current) =>
+                  current.map((item) => (item.id === row.id ? { ...item, value: nextValue } : item)),
+                );
+              }}
               placeholder={placeholder}
               disabled={disabled}
             />
@@ -83,8 +125,11 @@ export function ListEditor({
               type="button"
               size="icon"
               variant="ghost"
-              onClick={() => remove(index)}
-              disabled={disabled || (visibleValues.length === 1 && !visibleValues[0])}
+              onClick={(event) => {
+                event.preventDefault();
+                commit((current) => current.filter((item) => item.id !== row.id));
+              }}
+              disabled={disabled || (rows.length === 1 && !rows[0]?.value)}
               title="Remover"
             >
               <Trash2 className="h-4 w-4" />
