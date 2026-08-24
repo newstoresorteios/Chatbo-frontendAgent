@@ -1,5 +1,6 @@
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
+import { UnclaimedConversationAlert } from '@/components/layout/UnclaimedConversationAlert';
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 
@@ -9,6 +10,7 @@ export function AppLayout() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50 text-gray-900 dark:bg-chatbo-background dark:text-slate-100">
+      <UnclaimedConversationAlert />
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}

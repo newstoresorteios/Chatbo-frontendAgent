@@ -36,6 +36,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { usePermissions } from '@/hooks/usePermissions';
+import { useUnclaimedConversationAlert } from '@/hooks/useUnclaimedConversationAlert';
 import { isSystemAdmin } from '@/utils/sessionScope';
 
 function buildNavSections(settingsChildren: NavItem[]): NavSection[] {
@@ -88,6 +89,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
   const navigate = useNavigate();
   const location = useLocation();
   const systemAdmin = isSystemAdmin(user);
+  const { count: handoffWaitingCount } = useUnclaimedConversationAlert();
   const [settingsOpen, setSettingsOpen] = useState(() => location.pathname.startsWith('/configuracoes'));
 
   useEffect(() => {
@@ -223,7 +225,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
     }
 
     return (
-      <li key={to}>
+      <li key={to} className={cn(to === '/atendimento' && handoffWaitingCount > 0 && collapsed && 'relative')}>
         <NavLink
           to={to}
           end={to === '/configuracoes'}
@@ -241,6 +243,16 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
         >
           <Icon className="h-[19px] w-[19px] shrink-0 transition-transform group-hover:scale-105" />
           {!collapsed && <span className="min-w-0 flex-1 truncate">{label}</span>}
+          {to === '/atendimento' && handoffWaitingCount > 0 && (
+            <span
+              className={cn(
+                'flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-[11px] font-bold text-white',
+                collapsed && 'absolute -right-0.5 -top-0.5 h-4 min-w-4 px-1 text-[10px]',
+              )}
+            >
+              {handoffWaitingCount}
+            </span>
+          )}
         </NavLink>
       </li>
     );

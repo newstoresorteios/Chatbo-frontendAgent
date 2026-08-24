@@ -2,6 +2,7 @@ import { ChannelBadge } from '@/components/ui/ChannelBadge';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { cn, formatRelativeTime } from '@/utils';
+import { isHandoffWaiting } from '@/utils/conversationAlerts';
 import type { Conversation } from '@/types';
 
 interface ConversationCardProps {
@@ -25,6 +26,7 @@ const statusLabel = {
 
 export function ConversationCard({ conversation, active, pinned, onClick }: ConversationCardProps) {
   const status = statusVariant[conversation.status] ? conversation.status : 'active';
+  const handoffWaiting = isHandoffWaiting(conversation);
   return (
     <button
       onClick={onClick}
@@ -34,6 +36,8 @@ export function ConversationCard({ conversation, active, pinned, onClick }: Conv
           ? 'bg-primary-50 dark:bg-primary-900/20'
           : 'hover:bg-gray-50 dark:hover:bg-gray-800/50',
         pinned && !active && 'border-l-2 border-l-amber-400 bg-amber-50/50 dark:bg-amber-900/10',
+        handoffWaiting && !active && 'animate-handoff-card border-l-2 border-l-red-500 bg-red-50/70 dark:bg-red-950/20',
+        handoffWaiting && active && 'border-l-2 border-l-red-500',
       )}
     >
       <Avatar name={conversation.customerName || 'Cliente'} size="md" />
@@ -50,8 +54,8 @@ export function ConversationCard({ conversation, active, pinned, onClick }: Conv
           {conversation.lastMessage || 'Sem mensagens ainda'}
         </p>
         <div className="mt-2 flex items-center gap-2">
-          <Badge variant={statusVariant[status]}>
-            {statusLabel[status]}
+          <Badge variant={handoffWaiting ? 'danger' : statusVariant[status]}>
+            {handoffWaiting ? 'Aguardando humano' : statusLabel[status]}
           </Badge>
           <span className="text-xs text-gray-400">{conversation.department}</span>
           {conversation.assignedName && (
