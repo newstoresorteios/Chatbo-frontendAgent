@@ -34,6 +34,7 @@ const ProductsPage = lazy(() => import('@/pages/ProductsPage').then((m) => ({ de
 const OrdersPage = lazy(() => import('@/pages/OrdersPage').then((m) => ({ default: m.OrdersPage })));
 const CopilotPage = lazy(() => import('@/pages/CopilotPage').then((m) => ({ default: m.CopilotPage })));
 const BusinessProfilePage = lazy(() => import('@/pages/BusinessProfilePage').then((m) => ({ default: m.BusinessProfilePage })));
+const AgentTracesPage = lazy(() => import('@/pages/AgentTracesPage').then((m) => ({ default: m.AgentTracesPage })));
 
 function LazyPage({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<RouteLoadingFallback />}>{children}</Suspense>;
@@ -89,6 +90,7 @@ export function AppRoutes() {
             <Route path="/agente-ia" element={<Navigate to="/copiloto" replace />} />
             <Route path="/persona" element={<PersonaPage />} />
             <Route path="/agente/aprendizado" element={<AgentLearningPage />} />
+            <Route path="/agente/execucoes" element={<LazyPage><AgentTracesPage /></LazyPage>} />
           </Route>
 
           <Route element={<PermissionRoute permission="viewReports" />}>
