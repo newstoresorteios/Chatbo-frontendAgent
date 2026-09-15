@@ -207,16 +207,18 @@ export function PersonaPage() {
 
   const uploadAttachmentMutation = useMutation({
     mutationFn: (file: File) => personaService.uploadAttachment(selectedId ?? '', file),
-    onSuccess: async () => {
+    onSuccess: async (attachment) => {
       if (selectedId) {
         await queryClient.invalidateQueries({ queryKey: personaKeys.attachments(workspace.id, selectedId) });
       }
       addToast({
-        title: 'Arquivo anexado',
-        message: draft.status === 'active'
-          ? 'Texto extraído e republicado no agente automático.'
-          : 'Texto extraído. Ative a persona para o agente usar este documento.',
-        type: 'success',
+        title: attachment.status === 'failed' ? 'Arquivo salvo com falha de leitura' : 'Arquivo anexado',
+        message: attachment.status === 'failed'
+          ? 'Não foi possível extrair o texto. Confira o erro do anexo e envie uma versão legível.'
+          : draft.status === 'active'
+            ? 'Texto extraído. O documento está disponível para consultas da persona ativa.'
+            : 'Texto extraído. Ative a persona para o agente usar este documento.',
+        type: attachment.status === 'failed' ? 'error' : 'success',
       });
     },
     onError: (error) => addToast({ title: 'Falha no anexo', message: errorMessage(error), type: 'error' }),
