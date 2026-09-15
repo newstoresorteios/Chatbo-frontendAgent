@@ -102,7 +102,17 @@ export function AgentAdvancedSettingsPanel() {
           <div className="grid gap-4 md:grid-cols-2">
             {fields.map((field) => (
               <div key={field.key} className="rounded-xl border border-slate-200 p-4 dark:border-slate-700">
-                {field.type === 'select' ? (
+                {field.type === 'boolean' ? (
+                  <label className="flex cursor-pointer items-center justify-between gap-4">
+                    <span className="text-sm font-medium text-slate-800 dark:text-slate-100">{field.label}</span>
+                    <input
+                      type="checkbox"
+                      className="h-5 w-5 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
+                      checked={Boolean(values[field.key])}
+                      onChange={(event) => setValues((current) => ({ ...current, [field.key]: event.target.checked }))}
+                    />
+                  </label>
+                ) : field.type === 'select' ? (
                   <Select
                     label={field.label}
                     options={field.options ?? []}

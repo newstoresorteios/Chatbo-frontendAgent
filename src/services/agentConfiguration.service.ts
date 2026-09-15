@@ -1,12 +1,12 @@
 import { api } from './api';
 
-export type AgentConfigurationValue = string | number;
+export type AgentConfigurationValue = string | number | boolean;
 
 export interface AgentConfigurationField {
   key: string;
   label: string;
   description: string;
-  type: 'integer' | 'select';
+  type: 'integer' | 'number' | 'select' | 'boolean';
   group: string;
   min?: number;
   max?: number;

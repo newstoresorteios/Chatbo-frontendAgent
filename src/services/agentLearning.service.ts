@@ -53,15 +53,45 @@ export interface LearningExtension {
   updatedAt?: string;
 }
 
+export interface LearningReview {
+  id: number;
+  responseId?: number | null;
+  channel?: string | null;
+  outcome: string;
+  failureCodes: string[];
+  customerExcerpt: string;
+  agentExcerpt: string;
+  createdAt?: string;
+}
+
+export interface LearningCase {
+  id: number;
+  caseKey: string;
+  failureCodes: string[];
+  customerExcerpt: string;
+  badReply: string;
+  correction: string;
+  status: 'active' | 'retired' | 'rejected';
+  importance: number;
+  insightId?: number | null;
+  updatedAt?: string;
+}
+
 export interface LearningOverview {
   tenantId: string;
+  workspaceId: string;
   pendingInsights: LearningInsight[];
   pendingExtensions: LearningExtension[];
   activeExtensions: LearningExtension[];
+  recentReviews: LearningReview[];
+  activeCases: LearningCase[];
   counts: {
     pendingInsights: number;
     pendingExtensions: number;
     activeExtensions: number;
+    reviewsLast24h: number;
+    failuresLast24h: number;
+    activeCases: number;
   };
 }
 
@@ -103,6 +133,14 @@ export const agentLearningService = {
   rejectExtension: async (extensionId: number, reason?: string) => {
     const { data } = await api.post<{ extension: LearningExtension }>(
       `/agent-learning/extensions/${extensionId}/reject`,
+      { reason: reason || null },
+    );
+    return data;
+  },
+
+  retireExtension: async (extensionId: number, reason?: string) => {
+    const { data } = await api.post<{ extension: LearningExtension }>(
+      `/agent-learning/extensions/${extensionId}/retire`,
       { reason: reason || null },
     );
     return data;

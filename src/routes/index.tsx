@@ -19,7 +19,6 @@ import { SystemAdminLayout } from '@/layouts/SystemAdminLayout';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { SettingsPage } from '@/pages/SettingsPage';
 import { PersonaPage } from '@/pages/PersonaPage';
-import { AgentLearningPage } from '@/pages/AgentLearningPage';
 import { PermissionRoute } from '@/routes/PermissionRoute';
 import { ProtectedRoute, PublicRoute } from '@/routes/ProtectedRoute';
 import { lazy, Suspense } from 'react';
@@ -35,6 +34,7 @@ const OrdersPage = lazy(() => import('@/pages/OrdersPage').then((m) => ({ defaul
 const CopilotPage = lazy(() => import('@/pages/CopilotPage').then((m) => ({ default: m.CopilotPage })));
 const BusinessProfilePage = lazy(() => import('@/pages/BusinessProfilePage').then((m) => ({ default: m.BusinessProfilePage })));
 const AgentTracesPage = lazy(() => import('@/pages/AgentTracesPage').then((m) => ({ default: m.AgentTracesPage })));
+const AgentLearningPage = lazy(() => import('@/pages/AgentLearningPage').then((m) => ({ default: m.AgentLearningPage })));
 
 function LazyPage({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<RouteLoadingFallback />}>{children}</Suspense>;
@@ -89,7 +89,7 @@ export function AppRoutes() {
             <Route path="/robo" element={<ChatbotPage />} />
             <Route path="/agente-ia" element={<Navigate to="/copiloto" replace />} />
             <Route path="/persona" element={<PersonaPage />} />
-            <Route path="/agente/aprendizado" element={<AgentLearningPage />} />
+            <Route path="/agente/aprendizado" element={<LazyPage><AgentLearningPage /></LazyPage>} />
             <Route path="/agente/execucoes" element={<LazyPage><AgentTracesPage /></LazyPage>} />
           </Route>
 

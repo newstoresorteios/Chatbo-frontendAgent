@@ -12,6 +12,8 @@ import { extractApiErrorMessage } from '@/utils/apiErrors';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
+  Activity,
+  BrainCircuit,
   BookOpenCheck,
   CheckCircle2,
   GraduationCap,
@@ -185,7 +187,8 @@ export function AgentLearningPage() {
   });
 
   const rejectInsightMutation = useMutation({
-    mutationFn: (insightId: number) => agentLearningService.rejectInsight(insightId),
+    mutationFn: ({ insightId, reason }: { insightId: number; reason?: string }) =>
+      agentLearningService.rejectInsight(insightId, reason),
     onSuccess: async () => {
       addToast({ title: 'Insight rejeitado', message: 'O aprendizado foi descartado.', type: 'success' });
       await invalidate();
@@ -219,7 +222,8 @@ export function AgentLearningPage() {
   });
 
   const rejectExtMutation = useMutation({
-    mutationFn: (extensionId: number) => agentLearningService.rejectExtension(extensionId),
+    mutationFn: ({ extensionId, reason }: { extensionId: number; reason?: string }) =>
+      agentLearningService.rejectExtension(extensionId, reason),
     onSuccess: async () => {
       addToast({ title: 'Extensão rejeitada', message: 'A proposta foi descartada.', type: 'success' });
       await invalidate();
@@ -232,6 +236,31 @@ export function AgentLearningPage() {
       });
     },
   });
+
+  const retireExtMutation = useMutation({
+    mutationFn: ({ extensionId, reason }: { extensionId: number; reason?: string }) =>
+      agentLearningService.retireExtension(extensionId, reason),
+    onSuccess: async () => {
+      addToast({
+        title: 'Instrução desativada',
+        message: 'Ela não será mais aplicada nas próximas respostas do agente.',
+        type: 'success',
+      });
+      await invalidate();
+    },
+    onError: (err) => {
+      addToast({
+        title: 'Falha ao desativar',
+        message: extractApiErrorMessage(err, 'Não foi possível desativar a instrução.'),
+        type: 'error',
+      });
+    },
+  });
+
+  const askReason = (message: string): string | null => {
+    const reason = window.prompt(message);
+    return reason === null ? null : reason.trim();
+  };
 
   if (isLoading) return <Loading />;
 
@@ -254,6 +283,8 @@ export function AgentLearningPage() {
   const pendingInsights = data?.pendingInsights ?? [];
   const pendingExtensions = data?.pendingExtensions ?? [];
   const activeExtensions = data?.activeExtensions ?? [];
+  const recentReviews = data?.recentReviews ?? [];
+  const activeCases = data?.activeCases ?? [];
   const counts = data?.counts;
 
   return (
@@ -280,7 +311,7 @@ export function AgentLearningPage() {
         </Button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4 dark:border-amber-900/40 dark:bg-amber-950/20">
           <p className="text-xs uppercase tracking-wide text-amber-800 dark:text-amber-200">Insights pendentes</p>
           <p className="mt-1 font-display text-3xl font-semibold text-amber-950 dark:text-amber-100">
@@ -297,6 +328,18 @@ export function AgentLearningPage() {
           <p className="text-xs uppercase tracking-wide text-emerald-800 dark:text-emerald-200">Ativas na persona</p>
           <p className="mt-1 font-display text-3xl font-semibold text-emerald-950 dark:text-emerald-100">
             {counts?.activeExtensions ?? 0}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-violet-200 bg-violet-50/70 p-4 dark:border-violet-900/40 dark:bg-violet-950/20">
+          <p className="text-xs uppercase tracking-wide text-violet-800 dark:text-violet-200">Revisões em 24h</p>
+          <p className="mt-1 font-display text-3xl font-semibold text-violet-950 dark:text-violet-100">
+            {counts?.reviewsLast24h ?? 0}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-rose-200 bg-rose-50/70 p-4 dark:border-rose-900/40 dark:bg-rose-950/20">
+          <p className="text-xs uppercase tracking-wide text-rose-800 dark:text-rose-200">Falhas em 24h</p>
+          <p className="mt-1 font-display text-3xl font-semibold text-rose-950 dark:text-rose-100">
+            {counts?.failuresLast24h ?? 0}
           </p>
         </div>
       </div>
@@ -321,9 +364,12 @@ export function AgentLearningPage() {
                 key={insight.id}
                 insight={insight}
                 promoting={promoteMutation.isPending && promoteMutation.variables === insight.id}
-                rejecting={rejectInsightMutation.isPending && rejectInsightMutation.variables === insight.id}
+                rejecting={rejectInsightMutation.isPending && rejectInsightMutation.variables?.insightId === insight.id}
                 onPromote={() => promoteMutation.mutate(insight.id)}
-                onReject={() => rejectInsightMutation.mutate(insight.id)}
+                onReject={() => {
+                  const reason = askReason('Por que este aprendizado deve ser rejeitado?');
+                  if (reason !== null) rejectInsightMutation.mutate({ insightId: insight.id, reason });
+                }}
               />
             ))}
           </div>
@@ -348,9 +394,12 @@ export function AgentLearningPage() {
                 tone="pending"
                 actionLabel="Ativar na persona"
                 loading={approveExtMutation.isPending && approveExtMutation.variables === extension.id}
-                rejecting={rejectExtMutation.isPending && rejectExtMutation.variables === extension.id}
+                rejecting={rejectExtMutation.isPending && rejectExtMutation.variables?.extensionId === extension.id}
                 onAction={() => approveExtMutation.mutate(extension.id)}
-                onReject={() => rejectExtMutation.mutate(extension.id)}
+                onReject={() => {
+                  const reason = askReason('Informe o motivo da rejeição desta instrução.');
+                  if (reason !== null) rejectExtMutation.mutate({ extensionId: extension.id, reason });
+                }}
               />
             ))}
           </div>
@@ -369,11 +418,80 @@ export function AgentLearningPage() {
         ) : (
           <div className="grid gap-4 xl:grid-cols-2">
             {activeExtensions.map((extension) => (
-              <ExtensionCard key={extension.id} extension={extension} tone="active" />
+              <ExtensionCard
+                key={extension.id}
+                extension={extension}
+                tone="active"
+                actionLabel="Desativar"
+                loading={retireExtMutation.isPending && retireExtMutation.variables?.extensionId === extension.id}
+                onAction={() => {
+                  const reason = askReason('Por que esta instrução deve ser desativada?');
+                  if (reason !== null) retireExtMutation.mutate({ extensionId: extension.id, reason });
+                }}
+              />
             ))}
           </div>
         )}
       </section>
+
+      <div className="grid gap-6 xl:grid-cols-2">
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <BrainCircuit className="h-5 w-5 text-violet-500" />
+            <h2 className="font-display text-lg font-semibold text-gray-900 dark:text-white">
+              Casos que o agente já aprendeu
+            </h2>
+            <Badge variant="default">{counts?.activeCases ?? 0}</Badge>
+          </div>
+          {activeCases.length === 0 ? (
+            <p className="text-sm text-gray-500">Nenhum caso aprendido ativo para este workspace.</p>
+          ) : (
+            <div className="space-y-3">
+              {activeCases.map((item) => (
+                <article key={item.id} className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+                  <div className="mb-3 flex flex-wrap items-center gap-2">
+                    <Badge variant="success">Aplicado ao prompt</Badge>
+                    {item.failureCodes.map((code) => <Badge key={code} variant="default">{code}</Badge>)}
+                    <span className="ml-auto text-xs text-gray-500">Importância {formatPct(item.importance)}</span>
+                  </div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Correção aprendida</p>
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-gray-800 dark:text-gray-200">{item.correction}</p>
+                  {item.customerExcerpt ? <p className="mt-3 text-xs text-gray-500">Exemplo do cliente: “{item.customerExcerpt}”</p> : null}
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Activity className="h-5 w-5 text-sky-500" />
+            <h2 className="font-display text-lg font-semibold text-gray-900 dark:text-white">
+              Revisões recentes
+            </h2>
+          </div>
+          {recentReviews.length === 0 ? (
+            <p className="text-sm text-gray-500">Nenhum atendimento revisado recentemente.</p>
+          ) : (
+            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+              {recentReviews.slice(0, 12).map((review) => (
+                <article key={review.id} className="border-b border-gray-100 p-4 last:border-0 dark:border-gray-800">
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <Badge variant={review.failureCodes.length ? 'warning' : 'success'}>
+                      {review.failureCodes.length ? 'Atenção' : 'Sem falha detectada'}
+                    </Badge>
+                    <span className="text-xs text-gray-500">{review.channel || 'canal'} · {formatDate(review.createdAt)}</span>
+                  </div>
+                  <p className="line-clamp-2 text-sm text-gray-700 dark:text-gray-300">Cliente: {review.customerExcerpt || '—'}</p>
+                  {review.failureCodes.length ? (
+                    <p className="mt-1 text-xs text-amber-700 dark:text-amber-300">Sinais: {review.failureCodes.join(', ')}</p>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
     </motion.div>
   );
 }
