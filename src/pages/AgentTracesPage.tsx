@@ -1,4 +1,5 @@
 import { Badge } from '@/components/ui/Badge';
+import { TraceQualityDetails } from '../components/agents/TraceQualityDetails';
 import { Button } from '@/components/ui/Button';
 import { EmptyState, Loading } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
@@ -166,6 +167,7 @@ export function AgentTracesPage() {
                 </div>
 
                 <section><h2 className="mb-3 font-semibold text-slate-900 dark:text-white">Tempo por etapa</h2><StageTimeline stages={detail.data.stages} /></section>
+                <TraceQualityDetails trace={detail.data} />
                 <section className="space-y-3">
                   <h2 className="font-semibold text-slate-900 dark:text-white">Consultas realizadas</h2>
                   {(detail.data.catalogQueries ?? []).map((query, index) => <div key={`catalog-${index}`} className="rounded-lg border border-slate-200 p-3 text-sm dark:border-slate-700">

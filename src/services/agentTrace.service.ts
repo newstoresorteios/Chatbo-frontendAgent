@@ -41,6 +41,12 @@ export interface AgentTraceDetail extends AgentTraceSummary {
   qualityJudge: Record<string, unknown>;
   factualValidation: Record<string, unknown>;
   personaRuntime: Record<string, unknown>;
+  responseCritique?: Record<string, unknown>;
+  finalResponseValidation?: Record<string, unknown>;
+  technicalRequirements?: Record<string, string>;
+  technicalEvidence?: Array<Record<string, unknown>>;
+  llmBudget?: { max_calls?: number; used_calls?: number; enforce?: boolean };
+  avoidedCalls?: Array<Record<string, unknown>>;
 }
 
 export interface AgentTracePage {

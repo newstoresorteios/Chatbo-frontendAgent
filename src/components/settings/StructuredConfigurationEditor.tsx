@@ -4,6 +4,7 @@ import { Select } from '@/components/ui/Select';
 import { Plus, Trash2 } from 'lucide-react';
 
 type Knowledge = { title: string; body: string; cues: string[]; policyKey?: string | null; [key: string]: unknown };
+type TechnicalFeature = { field: string; value: string; label: string; query: string; aliases: string[]; evidenceFields: string[] };
 const textClass = 'w-full rounded-lg border border-gray-300 bg-white p-3 text-sm leading-6 text-gray-900 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100';
 
 export function StructuredConfigurationEditor({ id, schema, value, disabled, onChange }: {
@@ -20,6 +21,25 @@ export function StructuredConfigurationEditor({ id, schema, value, disabled, onC
   const remove = (index: number) => save(items.filter((_, i) => i !== index));
   const removeButton = (index: number) => <Button type="button" variant="ghost" disabled={disabled || items.length <= 1}
     aria-label={`Remover item ${index + 1}`} onClick={() => remove(index)}><Trash2 className="h-4 w-4" />Remover</Button>;
+
+  if (schema === 'featurePhrases' && items.every((item) => typeof item === 'string')) {
+    return <div id={id} className="space-y-4"><p className="text-sm text-gray-500">Use {'{feature}'} no lugar da característica mencionada pelo cliente.</p>
+      {(items as string[]).map((item, index) => <div key={index} className="flex items-end gap-3"><Input label={`Expressão ${index + 1}`} value={item} disabled={disabled} onChange={(e) => update(index, e.target.value)} />{removeButton(index)}</div>)}
+      <Button type="button" variant="outline" disabled={disabled} onClick={() => save([...items, ''])}><Plus className="h-4 w-4" />Adicionar expressão</Button></div>;
+  }
+  if (schema === 'technicalFeatures' && items.every((item) => item && typeof item === 'object' && 'aliases' in item && Array.isArray(item.aliases))) {
+    return <div id={id} className="space-y-5">{(items as TechnicalFeature[]).map((item, index) => <fieldset key={index} className="space-y-3 rounded-lg border border-gray-200 p-4 dark:border-slate-700">
+      <legend className="px-2 text-sm font-medium">{item.label || `Característica ${index + 1}`}</legend>
+      <div className="grid gap-3 md:grid-cols-2">
+        <Select label="Característica" value={item.field} disabled={disabled} options={[{value:'mechanism',label:'Mecanismo'},{value:'crystal',label:'Cristal'}]} onChange={(e) => update(index, {...item,field:e.target.value})} />
+        <Input label="Código do valor" value={item.value} disabled={disabled} onChange={(e) => update(index, {...item,value:e.target.value})} />
+        <Input label="Nome usado no atendimento" value={item.label} disabled={disabled} onChange={(e) => update(index, {...item,label:e.target.value})} />
+        <Input label="Termo de busca no catálogo" value={item.query} disabled={disabled} onChange={(e) => update(index, {...item,query:e.target.value})} />
+      </div>
+      <Input label="Sinônimos, separados por vírgula" value={item.aliases.join(', ')} disabled={disabled} onChange={(e) => update(index, {...item,aliases:e.target.value.split(',').map((v) => v.trim())})} />
+      <Input label="Campos da ficha, separados por vírgula" value={(item.evidenceFields ?? []).join(', ')} disabled={disabled} onChange={(e) => update(index, {...item,evidenceFields:e.target.value.split(',').map((v) => v.trim())})} />
+      {removeButton(index)}</fieldset>)}<Button type="button" variant="outline" disabled={disabled} onClick={() => save([...items, {field:'mechanism',value:'',label:'',query:'',aliases:[],evidenceFields:['mechanism']}])}><Plus className="h-4 w-4" />Adicionar valor técnico</Button></div>;
+  }
 
   if (schema === 'creditBands' && items.every((item) => Array.isArray(item) && item.length === 3 && item.every((n) => n === null || typeof n === 'number'))) {
     return <div id={id} className="space-y-5">

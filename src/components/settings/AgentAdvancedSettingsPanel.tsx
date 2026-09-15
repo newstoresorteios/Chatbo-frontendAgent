@@ -166,6 +166,11 @@ export function AgentAdvancedSettingsPanel() {
 
       {!canEdit && <p className="rounded-lg bg-blue-50 p-3 text-sm text-blue-900 dark:bg-blue-950/30 dark:text-blue-200">Modo de consulta. A publicação de alterações é restrita ao proprietário e aos administradores da empresa.</p>}
 
+      {(configuration.data.diagnostics?.length ?? 0) > 0 && <section aria-label="Comportamento da configuração publicada" className="space-y-2 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
+        <h2 className="font-semibold">Como a configuração publicada será aplicada</h2>
+        <ul className="list-disc space-y-2 pl-5">{configuration.data.diagnostics!.map((item) => <li key={item.code}>{item.message}</li>)}</ul>
+      </section>}
+
       <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <div className="grid gap-3 sm:grid-cols-2">
           <Input label="Buscar nas configurações" type="search" value={search} onChange={(event) => { setSearch(event.target.value); setGroupFilter(null); }} placeholder="Ex.: PIX, memória, modelo ou trecho de mensagem" />

@@ -26,6 +26,7 @@ export interface AgentConfiguration {
   values: Record<string, AgentConfigurationValue>;
   fields: AgentConfigurationField[];
   updatedAt?: string;
+  diagnostics?: Array<{ code: string; level: 'info' | 'error'; message: string }>;
 }
 
 export interface AgentConfigurationVersion {

@@ -4,6 +4,7 @@ import { getConfigurationGuidance } from './configurationGuidance';
 export type ConfigurationValues = Record<string, AgentConfigurationValue>;
 
 export const CATEGORY_DESCRIPTIONS: Record<string, string> = {
+  'Qualidade e critérios técnicos': 'Características obrigatórias dos produtos, evidências, revisão e mensagens de contingência.',
   'Políticas comerciais': 'Pagamento, checkout, permuta, links oficiais e informações da loja.',
   'Mensagens e instruções': 'Textos de orientação e respostas para situações específicas.',
   'Mensagens de atendimento': 'Mensagens usadas em cada etapa da conversa e nas consultas do agente.',
@@ -77,6 +78,20 @@ export function configurationFieldError(field: AgentConfigurationField, value: A
     try {
       const parsed: unknown = JSON.parse(String(value));
       if (!Array.isArray(parsed) || !parsed.length || parsed.length > 100) return 'Informe uma lista JSON com 1 a 100 itens.';
+      if (field.valueSchema === 'technicalFeatures') {
+        const seen = new Set<string>();
+        for (const item of parsed) {
+          if (!item || typeof item !== 'object' || !['mechanism', 'crystal'].includes(item.field)
+            || ['value', 'label', 'query'].some((key) => typeof item[key] !== 'string' || !item[key].trim() || item[key].length > 160)
+            || ['aliases', 'evidenceFields'].some((key) => !Array.isArray(item[key]) || !item[key].length || item[key].length > 40
+              || item[key].some((v: unknown) => typeof v !== 'string' || !v.trim() || v.length > 160))) return 'Preencha a característica, o valor, o nome, a busca, os sinônimos e os campos da ficha.';
+          const identity = `${item.field}:${item.value}`;
+          if (seen.has(identity)) return 'Cada valor técnico deve aparecer apenas uma vez por característica.';
+          seen.add(identity);
+        }
+      }
+      if (field.valueSchema === 'featurePhrases' && parsed.some((item) => typeof item !== 'string' || !item.trim() || item.length > 200
+        || (item.match(/\{feature\}/g) ?? []).length !== 1 || /[{}]/.test(item.replace('{feature}', '')))) return 'Cada expressão deve conter {feature} uma vez e ter até 200 caracteres.';
       if (field.valueSchema === 'creditBands') {
         let previous = -1;
         for (const band of parsed) {
