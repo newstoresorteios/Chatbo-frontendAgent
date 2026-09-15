@@ -13,6 +13,7 @@ export interface AgentConfigurationField {
   step?: number;
   options?: Array<{ value: string; label: string }>;
   readOnly?: boolean;
+  default?: AgentConfigurationValue;
   maxLength?: number;
   variables?: string[];
   valueSchema?: string;

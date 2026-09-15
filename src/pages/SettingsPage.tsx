@@ -11,7 +11,6 @@ import { MercosSettingsPanel } from '@/components/settings/MercosSettingsPanel';
 import { SystemStatusPanel } from '@/components/settings/SystemStatusPanel';
 import { UsersSettingsPanel } from '@/components/settings/UsersSettingsPanel';
 import { WhatsAppSettingsPanel } from '@/components/settings/WhatsAppSettingsPanel';
-import { AgentAdvancedSettingsPanel } from '@/components/settings/AgentAdvancedSettingsPanel';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { useAuth } from '@/contexts/AuthContext';
@@ -49,7 +48,7 @@ export function SettingsPage() {
   );
 
   useEffect(() => {
-    if (tabFromUrl === 'persona') return;
+    if (tabFromUrl === 'persona' || tabFromUrl === 'agente-avancado') return;
     if (!tabFromUrl && visibleTabs[0]) {
       navigate(settingsTabPath(visibleTabs[0].id), { replace: true });
       return;
@@ -61,6 +60,10 @@ export function SettingsPage() {
 
   if (tabFromUrl === 'persona') {
     return <Navigate to="/persona" replace />;
+  }
+
+  if (tabFromUrl === 'agente-avancado') {
+    return <Navigate to="/agente/configuracao-avancada" replace />;
   }
 
   const activeTab = visibleTabs.some((tab) => tab.id === tabFromUrl)
@@ -124,7 +127,6 @@ export function SettingsPage() {
         {activeTab === 'empresa' && <CompanySettingsPanel />}
         {activeTab === 'usuarios' && <UsersSettingsPanel />}
         {activeTab === 'permissoes' && <PermissionsSettingsPanel />}
-        {activeTab === 'agente-avancado' && <AgentAdvancedSettingsPanel />}
         {activeTab === 'fontes' && (
           <div className="space-y-4">
             <p className="text-sm text-gray-500">
