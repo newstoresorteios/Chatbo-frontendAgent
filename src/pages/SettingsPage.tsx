@@ -11,6 +11,7 @@ import { MercosSettingsPanel } from '@/components/settings/MercosSettingsPanel';
 import { SystemStatusPanel } from '@/components/settings/SystemStatusPanel';
 import { UsersSettingsPanel } from '@/components/settings/UsersSettingsPanel';
 import { WhatsAppSettingsPanel } from '@/components/settings/WhatsAppSettingsPanel';
+import { AgentAdvancedSettingsPanel } from '@/components/settings/AgentAdvancedSettingsPanel';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { useAuth } from '@/contexts/AuthContext';
@@ -123,6 +124,7 @@ export function SettingsPage() {
         {activeTab === 'empresa' && <CompanySettingsPanel />}
         {activeTab === 'usuarios' && <UsersSettingsPanel />}
         {activeTab === 'permissoes' && <PermissionsSettingsPanel />}
+        {activeTab === 'agente-avancado' && <AgentAdvancedSettingsPanel />}
         {activeTab === 'fontes' && (
           <div className="space-y-4">
             <p className="text-sm text-gray-500">

@@ -47,6 +47,7 @@ export const SETTINGS_NAV_ITEMS: SettingsNavItem[] = [
   { id: 'empresa', label: 'Minha empresa', group: 'company', icon: Building2, roles: ['owner', 'admin'], permission: 'manageUsers' },
   { id: 'usuarios', label: 'Equipe e acessos', group: 'company', icon: Users, roles: ['owner', 'admin'], permission: 'manageUsers' },
   { id: 'permissoes', label: 'Permissões', group: 'company', icon: Shield, roles: ['owner', 'admin'], permission: 'manageUsers' },
+  { id: 'agente-avancado', label: 'Configuração avançada do agente', group: 'company', icon: SlidersHorizontal, roles: ['owner', 'admin'] },
   { id: 'fontes', label: 'Canais e fontes de dados', group: 'integrations', icon: DatabaseZap, permission: 'manageIntegrations' },
   { id: 'integracoes', label: 'Integrações', group: 'integrations', icon: Link, permission: 'manageIntegrations' },
   { id: 'mercos', label: 'Atualização de catálogo', group: 'integrations', icon: Settings, permission: 'manageIntegrations' },
