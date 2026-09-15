@@ -74,6 +74,11 @@ function normalizeMessage(raw: Partial<Message> & Record<string, unknown>): Mess
     status: (raw.status as Message['status']) || 'sent',
     aiSource: raw.aiSource,
     externalId: externalId ? String(externalId) : undefined,
+    mediaType: raw.mediaType,
+    mediaFilename: raw.mediaFilename,
+    mediaContentType: raw.mediaContentType,
+    mediaByteSize: raw.mediaByteSize,
+    mediaUrl: raw.mediaUrl,
   };
 }
 
@@ -118,14 +123,25 @@ export const conversationsService = {
 
   getMessages: async (
     conversationId: string,
-    options?: { after?: string },
+    options?: { after?: string; before?: string; limit?: number },
   ): Promise<Message[]> => {
     if (USE_MOCK) {
       await delay(300);
-      return messagesStore[conversationId] ?? [];
+      const limit = options?.limit ?? 60;
+      const filtered = (messagesStore[conversationId] ?? []).filter((message) => {
+        const timestamp = new Date(message.timestamp).getTime();
+        if (options?.before && timestamp >= new Date(options.before).getTime()) return false;
+        if (options?.after && timestamp <= new Date(options.after).getTime()) return false;
+        return true;
+      });
+      return filtered.slice(-limit);
     }
     const { data } = await api.get<unknown>(`/conversas/${conversationId}/mensagens`, {
-      params: { limit: 60, after: options?.after },
+      params: {
+        limit: options?.limit ?? 60,
+        after: options?.after,
+        before: options?.before,
+      },
     });
     return unwrapList<Partial<Message> & Record<string, unknown>>(data).map(normalizeMessage);
   },
@@ -156,6 +172,27 @@ export const conversationsService = {
       { content, sender },
     );
     return data;
+  },
+
+  sendMedia: async (conversationId: string, file: File, caption = ''): Promise<Message> => {
+    if (USE_MOCK) {
+      await delay(200);
+      const mediaType = file.type.startsWith('image/') ? 'image'
+        : file.type.startsWith('audio/') ? 'audio' : 'document';
+      const message: Message = {
+        id: `media-${Date.now()}`, conversationId, content: caption || `[${mediaType}: ${file.name}]`,
+        sender: 'agent', timestamp: new Date().toISOString(), status: 'sent',
+        mediaType, mediaFilename: file.name, mediaContentType: file.type,
+        mediaByteSize: file.size, mediaUrl: URL.createObjectURL(file),
+      };
+      messagesStore = { ...messagesStore, [conversationId]: [...(messagesStore[conversationId] ?? []), message] };
+      return message;
+    }
+    const form = new FormData();
+    form.append('file', file);
+    form.append('caption', caption);
+    const { data } = await api.post<Message>(`/conversas/${conversationId}/midia`, form);
+    return normalizeMessage(data as Message & Record<string, unknown>);
   },
 
   transfer: async (conversationId: string, assigneeId: string): Promise<Conversation> => {

@@ -205,6 +205,11 @@ export interface Message {
   status: MessageStatus;
   aiSource?: 'openai' | 'intelligent';
   externalId?: string;
+  mediaType?: 'image' | 'audio' | 'document';
+  mediaFilename?: string;
+  mediaContentType?: string;
+  mediaByteSize?: number;
+  mediaUrl?: string;
 }
 
 export interface Conversation {

@@ -8,24 +8,30 @@ const EMOJIS = ['😀', '😊', '👍', '❤️', '🎉', '🔥', '✅', '🙏',
 
 interface MessageInputProps {
   onSend: (message: string) => void;
+  onSendFile?: (file: File, caption: string) => boolean | void;
   disabled?: boolean;
   placeholder?: string;
 }
 
 export function MessageInput({
   onSend,
+  onSendFile,
   disabled,
   placeholder = 'Digite sua mensagem...',
 }: MessageInputProps) {
   const [value, setValue] = useState('');
   const [showEmoji, setShowEmoji] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const { addToast } = useNotification();
 
   const handleSend = () => {
     const trimmed = value.trim();
-    if (!trimmed || disabled) return;
-    onSend(trimmed);
+    if ((!trimmed && !selectedFile) || disabled) return;
+    if (selectedFile && onSendFile) {
+      if (onSendFile(selectedFile, trimmed) === false) return;
+    } else onSend(trimmed);
+    setSelectedFile(null);
     setValue('');
     setShowEmoji(false);
   };
@@ -40,12 +46,13 @@ export function MessageInput({
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      addToast({
-        title: 'Arquivo anexado',
-        message: `${file.name} (${Math.round(file.size / 1024)} KB) pronto para envio`,
-        type: 'success',
-      });
-      setValue((v) => (v ? `${v}\n📎 ${file.name}` : `📎 ${file.name}`));
+      if (!onSendFile) {
+        addToast({ title: 'Anexos indisponíveis', message: 'Esta tela ainda não envia arquivos.', type: 'warning' });
+      } else if (file.size > 16 * 1024 * 1024) {
+        addToast({ title: 'Arquivo grande', message: 'Limite de 16 MB por anexo.', type: 'warning' });
+      } else {
+        setSelectedFile(file);
+      }
     }
     e.target.value = '';
   };
@@ -78,7 +85,14 @@ export function MessageInput({
           </button>
         </div>
       )}
-      <input ref={fileRef} type="file" className="hidden" onChange={handleFile} />
+      <input ref={fileRef} type="file" className="hidden" onChange={handleFile}
+        accept="image/jpeg,image/png,image/webp,audio/aac,audio/mp4,audio/mpeg,audio/ogg,audio/amr,application/pdf,text/plain,.docx" />
+      {selectedFile && (
+        <div className="mb-2 flex items-center justify-between rounded-lg bg-primary-50 px-3 py-2 text-xs text-primary-800 dark:bg-primary-900/30 dark:text-primary-200">
+          <span className="truncate">{selectedFile.name} · {Math.round(selectedFile.size / 1024)} KB</span>
+          <button type="button" onClick={() => setSelectedFile(null)} aria-label="Remover anexo"><X className="h-4 w-4" /></button>
+        </div>
+      )}
       <div className="flex items-end gap-2">
         <div className="flex gap-1">
           <Button
@@ -114,7 +128,7 @@ export function MessageInput({
             disabled && 'opacity-50',
           )}
         />
-        <Button onClick={handleSend} disabled={disabled || !value.trim()} size="icon" title="Enviar">
+        <Button onClick={handleSend} disabled={disabled || (!value.trim() && !selectedFile)} size="icon" title="Enviar">
           <Send className="h-4 w-4" />
         </Button>
       </div>

@@ -22,7 +22,7 @@ import {
   useProducts,
 } from '@/hooks/useQueries';
 import { useConversationSuggestion } from '@/hooks/useConversationSuggestion';
-import { conversationsService } from '@/services/conversations.service';
+import { conversationsService, mergeConversationMessages } from '@/services/conversations.service';
 import { roleLabel, usersService } from '@/services/users.service';
 import { extractApiErrorMessage } from '@/utils/apiErrors';
 import type { Conversation, Message } from '@/types';
@@ -57,6 +57,27 @@ const STATUS_VARIANTS = {
   closed: 'default' as const,
 };
 
+const MESSAGE_PAGE_SIZE = 60;
+
+function messageDayLabel(timestamp: string): string {
+  const date = new Date(timestamp);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  const sameDay = (left: Date, right: Date) =>
+    left.getFullYear() === right.getFullYear()
+    && left.getMonth() === right.getMonth()
+    && left.getDate() === right.getDate();
+
+  if (sameDay(date, today)) return 'Hoje';
+  if (sameDay(date, yesterday)) return 'Ontem';
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: 'long',
+    year: date.getFullYear() === today.getFullYear() ? undefined : 'numeric',
+  }).format(date);
+}
+
 export function ConversationsPage() {
   const {
     activeConversationId,
@@ -73,6 +94,8 @@ export function ConversationsPage() {
   const { user } = useAuth();
   const [transferOpen, setTransferOpen] = useState(false);
   const [reserveOpen, setReserveOpen] = useState(false);
+  const [loadingOlderMessages, setLoadingOlderMessages] = useState(false);
+  const [hasOlderMessages, setHasOlderMessages] = useState(true);
   const [closeOpen, setCloseOpen] = useState(false);
   const [contextOpen, setContextOpen] = useState(false);
   const [transferAgent, setTransferAgent] = useState('');
@@ -272,6 +295,55 @@ export function ConversationsPage() {
     }
   }, [messages, activeConversationId]);
 
+  useEffect(() => {
+    setHasOlderMessages(true);
+    setLoadingOlderMessages(false);
+  }, [activeConversationId]);
+
+  useEffect(() => {
+    if (!messagesLoading && messages && messages.length < MESSAGE_PAGE_SIZE) {
+      setHasOlderMessages(false);
+    }
+  }, [messagesLoading, messages, activeConversationId]);
+
+  const handleLoadOlderMessages = async () => {
+    if (!activeConversationId || loadingOlderMessages || !hasOlderMessages) return;
+    const earliest = allMessages.find((message) => !message.id.startsWith('pending-'));
+    if (!earliest) {
+      setHasOlderMessages(false);
+      return;
+    }
+
+    const viewport = messagesViewportRef.current;
+    const previousHeight = viewport?.scrollHeight ?? 0;
+    const previousTop = viewport?.scrollTop ?? 0;
+    setLoadingOlderMessages(true);
+    try {
+      const older = await conversationsService.getMessages(activeConversationId, {
+        before: earliest.timestamp,
+        limit: MESSAGE_PAGE_SIZE,
+      });
+      queryClient.setQueryData<Message[]>(['messages', activeConversationId], (current = []) =>
+        mergeConversationMessages(current, older),
+      );
+      if (older.length < MESSAGE_PAGE_SIZE) setHasOlderMessages(false);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (!viewport) return;
+          viewport.scrollTop = previousTop + viewport.scrollHeight - previousHeight;
+        });
+      });
+    } catch (error) {
+      addToast({
+        title: 'Histórico indisponível',
+        message: extractApiErrorMessage(error, 'Não foi possível carregar mensagens anteriores.'),
+        type: 'error',
+      });
+    } finally {
+      setLoadingOlderMessages(false);
+    }
+  };
+
   const sendMutation = useMutation({
     mutationFn: ({ conversationId, content }: { conversationId: string; content: string; tempId: string }) =>
       conversationsService.sendMessage(conversationId, content),
@@ -327,6 +399,42 @@ export function ConversationsPage() {
         ),
         type: 'error',
       });
+    },
+  });
+
+  const mediaMutation = useMutation({
+    mutationFn: ({ conversationId, file, caption }: {
+      conversationId: string; file: File; caption: string; tempId: string;
+    }) => conversationsService.sendMedia(conversationId, file, caption),
+    onMutate: async ({ conversationId, file, caption, tempId }) => {
+      await queryClient.cancelQueries({ queryKey: ['messages', conversationId] });
+      const mediaType = file.type.startsWith('image/') ? 'image'
+        : file.type.startsWith('audio/') ? 'audio' : 'document';
+      const optimistic: Message = {
+        id: tempId, conversationId, sender: 'agent', status: 'sending',
+        timestamp: new Date().toISOString(), content: caption || `[${mediaType}: ${file.name}]`,
+        mediaType, mediaFilename: file.name, mediaContentType: file.type,
+        mediaByteSize: file.size, mediaUrl: URL.createObjectURL(file),
+      };
+      queryClient.setQueryData<Message[]>(['messages', conversationId], (old = []) => [...old, optimistic]);
+      return optimistic.mediaUrl;
+    },
+    onSuccess: (message, { conversationId, tempId }, localUrl) => {
+      queryClient.setQueryData<Message[]>(['messages', conversationId], (old = []) =>
+        mergeConversationMessages(old.filter((item) => item.id !== tempId), [message]),
+      );
+      queryClient.setQueryData<Conversation[]>(['conversations'], (old = []) =>
+        old.map((conversation) => conversation.id === conversationId
+          ? { ...conversation, lastMessage: message.content, lastMessageAt: message.timestamp, unreadCount: 0 }
+          : conversation),
+      );
+      if (localUrl) URL.revokeObjectURL(localUrl);
+    },
+    onError: (error, { conversationId, tempId }) => {
+      queryClient.setQueryData<Message[]>((['messages', conversationId]), (old = []) =>
+        old.map((item) => item.id === tempId ? { ...item, status: 'failed' } : item),
+      );
+      addToast({ title: 'Anexo não enviado', message: extractApiErrorMessage(error), type: 'error' });
     },
   });
 
@@ -432,8 +540,26 @@ export function ConversationsPage() {
     });
   };
 
+  const handleSendFile = (file: File, caption: string) => {
+    if (!activeConversationId || !canReply) return false;
+    if (file.type.startsWith('audio/') && caption.trim()) {
+      addToast({ title: 'Áudio sem legenda', message: 'Envie o texto separadamente do áudio.', type: 'warning' });
+      return false;
+    }
+    if (activeConversation?.channel !== 'whatsapp' || !activeConversation.canalId) {
+      addToast({ title: 'Canal não suportado', message: 'Anexos exigem WhatsApp Meta conectado.', type: 'warning' });
+      return false;
+    }
+    mediaMutation.mutate({
+      conversationId: activeConversationId, file, caption,
+      tempId: `pending-media-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    });
+    return true;
+  };
+
   const handleRetryMessage = (message: Message) => {
     if (!activeConversationId || !canReply) return;
+    if (message.mediaType) return;
     queryClient.setQueryData<Message[]>(['messages', activeConversationId], (old = []) =>
       old.filter((item) => item.id !== message.id),
     );
@@ -666,6 +792,27 @@ export function ConversationsPage() {
                       Conversa encerrada. Reabra para enviar novas mensagens.
                     </div>
                   )}
+                  {allMessages.length > 0 && (
+                    <div className="flex justify-center pb-1">
+                      {hasOlderMessages ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => { void handleLoadOlderMessages(); }}
+                          disabled={loadingOlderMessages}
+                        >
+                          {loadingOlderMessages
+                            ? <RefreshCw className="h-4 w-4 animate-spin" />
+                            : <ChevronUp className="h-4 w-4" />}
+                          {loadingOlderMessages ? 'Carregando histórico...' : 'Carregar mensagens anteriores'}
+                        </Button>
+                      ) : (
+                        <span className="rounded-full bg-white/90 px-3 py-1 text-xs text-gray-500 shadow-sm dark:bg-gray-900/90 dark:text-gray-400">
+                          Início da conversa
+                        </span>
+                      )}
+                    </div>
+                  )}
                   {messagesLoading && allMessages.length === 0 ? (
                     <Loading text="Carregando mensagens..." />
                   ) : messagesError && allMessages.length === 0 ? (
@@ -689,14 +836,28 @@ export function ConversationsPage() {
                       description="Assim que o lead ou o agente enviarem mensagens, elas aparecem aqui."
                     />
                   ) : (
-                    allMessages.map((msg) => (
-                      <ChatBubble
-                        key={msg.id}
-                        message={msg}
-                        customerName={activeConversation.customerName}
-                        onRetry={handleRetryMessage}
-                      />
-                    ))
+                    allMessages.map((msg, index) => {
+                      const day = messageDayLabel(msg.timestamp);
+                      const previousDay = index > 0
+                        ? messageDayLabel(allMessages[index - 1].timestamp)
+                        : null;
+                      return (
+                        <div key={msg.id} className="space-y-3">
+                          {day !== previousDay && (
+                            <div className="flex items-center justify-center py-1">
+                              <span className="rounded-md bg-white/90 px-2.5 py-1 text-[11px] font-medium text-gray-500 shadow-sm dark:bg-gray-900/90 dark:text-gray-400">
+                                {day}
+                              </span>
+                            </div>
+                          )}
+                          <ChatBubble
+                            message={msg}
+                            customerName={activeConversation.customerName}
+                            onRetry={handleRetryMessage}
+                          />
+                        </div>
+                      );
+                    })
                   )}
                   <div ref={messagesEndRef} />
                 </div>
@@ -724,6 +885,7 @@ export function ConversationsPage() {
                 <div className="shrink-0 border-t border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
                   <MessageInput
                     onSend={handleSend}
+                    onSendFile={handleSendFile}
                     disabled={!canReply}
                     placeholder={
                       isClosed

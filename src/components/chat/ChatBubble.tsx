@@ -1,6 +1,6 @@
 import { cn, formatDateTime } from '@/utils';
 import type { Message } from '@/types';
-import { Bot, Check, CheckCheck, Clock3, RotateCcw, User } from 'lucide-react';
+import { Bot, Check, CheckCheck, Clock3, FileText, RotateCcw, User } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 
 interface ChatBubbleProps {
@@ -43,8 +43,27 @@ export function ChatBubble({ message, customerName, onRetry }: ChatBubbleProps) 
             {config.label}
           </span>
         )}
-        <div className={cn('rounded-2xl px-4 py-2.5 text-sm', config.bubble)}>
-          {message.content}
+        <div className={cn('min-w-0 rounded-2xl px-4 py-2.5 text-sm', config.bubble)}>
+          {message.mediaType === 'image' && message.mediaUrl && (
+            <a href={message.mediaUrl} target="_blank" rel="noopener noreferrer" aria-label="Abrir imagem">
+              <img src={message.mediaUrl} alt={message.mediaFilename || 'Imagem recebida'}
+                loading="lazy" className="mb-2 max-h-72 max-w-full rounded-lg object-contain" />
+            </a>
+          )}
+          {message.mediaType === 'audio' && message.mediaUrl && (
+            <audio controls preload="none" src={message.mediaUrl} className="mb-2 max-w-full" aria-label="Mensagem de áudio" />
+          )}
+          {message.mediaType === 'document' && message.mediaUrl && (
+            <a href={message.mediaUrl} target="_blank" rel="noopener noreferrer"
+              className="mb-2 flex items-center gap-2 rounded-lg border border-current/20 p-2 underline-offset-2 hover:underline">
+              <FileText className="h-5 w-5 shrink-0" />
+              <span className="truncate">{message.mediaFilename || 'Abrir documento'}</span>
+            </a>
+          )}
+          {(!message.mediaType || !message.content.startsWith(`[${message.mediaType}:`)) && message.content}
+          {message.mediaType && !message.mediaUrl && (
+            <span className="block text-xs opacity-70">Anexo temporariamente indisponível</span>
+          )}
         </div>
         <div className="mt-1 flex items-center gap-1.5 text-xs text-gray-400">
           <span>{formatDateTime(message.timestamp)}</span>
@@ -52,7 +71,10 @@ export function ChatBubble({ message, customerName, onRetry }: ChatBubbleProps) 
           {!isCustomer && message.status === 'sent' && <Check className="h-3 w-3" aria-label="Enviada" />}
           {!isCustomer && message.status === 'delivered' && <CheckCheck className="h-3 w-3" aria-label="Entregue" />}
           {!isCustomer && message.status === 'read' && <CheckCheck className="h-3 w-3 text-sky-500" aria-label="Visualizada" />}
-          {!isCustomer && message.status === 'failed' && (
+          {!isCustomer && message.status === 'failed' && message.mediaType && (
+            <span className="text-red-500">Anexo não enviado · selecione-o novamente</span>
+          )}
+          {!isCustomer && message.status === 'failed' && !message.mediaType && (
             <button
               type="button"
               className="flex items-center gap-1 text-red-500 hover:text-red-600"
