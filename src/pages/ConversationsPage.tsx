@@ -22,6 +22,7 @@ import {
   useProducts,
 } from '@/hooks/useQueries';
 import { useConversationSuggestion } from '@/hooks/useConversationSuggestion';
+import { useUnclaimedConversationAlert } from '@/hooks/useUnclaimedConversationAlert';
 import { conversationsService, mergeConversationMessages } from '@/services/conversations.service';
 import { roleLabel, usersService } from '@/services/users.service';
 import { extractApiErrorMessage } from '@/utils/apiErrors';
@@ -32,6 +33,7 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronUp,
+  Clock3,
   Package,
   RefreshCw,
   ShoppingCart,
@@ -89,9 +91,11 @@ export function ConversationsPage() {
     setStatusFilter,
     searchQuery,
     setSearchQuery,
+    showWaitingQueue,
   } = useChat();
 
   const { user } = useAuth();
+  const { count: waitingCount, shouldFlash, isAttending } = useUnclaimedConversationAlert();
   const [transferOpen, setTransferOpen] = useState(false);
   const [reserveOpen, setReserveOpen] = useState(false);
   const [loadingOlderMessages, setLoadingOlderMessages] = useState(false);
@@ -121,6 +125,7 @@ export function ConversationsPage() {
     { live: true },
   );
   const knownConversationIdsRef = useRef<Set<string> | null>(null);
+  const initialSelectionDone = useRef(false);
   const attemptedReadKeysRef = useRef(new Map<string, number>());
   const activeConversation = conversations?.find((c) => c.id === activeConversationId);
   const { data: customerDetail } = useCustomerDetail(activeConversation?.customerId, contextOpen);
@@ -178,28 +183,11 @@ export function ConversationsPage() {
     }
   }, [productOptions, reserveProduct]);
 
-  const mergedForAi = useMemo(() => {
-    if (!activeConversationId) return [];
-    const combined = messages ?? [];
-    const seen = new Set<string>();
-    return combined.filter((msg) => {
-      const external = (msg as { externalId?: string }).externalId;
-      const content = String(msg.content || '')
-        .replace(/\s+/g, ' ')
-        .trim()
-        .toLowerCase()
-        .slice(0, 180);
-      const ts = String(msg.timestamp || '').slice(0, 16);
-      const keys = [
-        msg.id ? `id:${msg.id}` : '',
-        external ? `ext:${external}` : '',
-        content ? `fp:${msg.sender}:${ts}:${content}` : '',
-      ].filter(Boolean);
-      if (keys.some((k) => seen.has(k))) return false;
-      keys.forEach((k) => seen.add(k));
-      return true;
-    });
-  }, [messages, activeConversationId]);
+  // Distinct persisted messages may have the same text and minute, especially across sessions.
+  const mergedForAi = useMemo(
+    () => activeConversationId ? mergeConversationMessages([], messages ?? []) : [],
+    [messages, activeConversationId],
+  );
 
   const { data: aiSuggestion, isLoading: aiLoading } = useConversationSuggestion(
     activeConversationId,
@@ -216,21 +204,14 @@ export function ConversationsPage() {
     filter !== 'all' || statusFilter !== 'all' || Boolean(searchQuery.trim());
   const isInboxEmpty = (conversations?.length ?? 0) === 0;
   const displayList = useMemo(() => {
-    let list = filtered;
-    if (activeConversationId && conversations?.length) {
-      if (!filtered.some((c) => c.id === activeConversationId)) {
-        const selected = conversations.find((c) => c.id === activeConversationId);
-        list = selected ? [selected, ...filtered] : filtered;
-      }
-    }
     const mine = user?.id;
-    return [...list].sort((a, b) => {
+    return [...filtered].sort((a, b) => {
       const aMine = mine && a.assignedTo === mine ? 0 : 1;
       const bMine = mine && b.assignedTo === mine ? 0 : 1;
       if (aMine !== bMine) return aMine - bMine;
       return new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime();
     });
-  }, [filtered, conversations, activeConversationId, user?.id]);
+  }, [filtered, user?.id]);
   const isClosed = activeConversation?.status === 'closed';
   const isAssignedToMe = !!user?.id && activeConversation?.assignedTo === user.id;
   const canReply = Boolean(user?.id) && isAssignedToMe && !isClosed;
@@ -265,22 +246,35 @@ export function ConversationsPage() {
     }
   };
 
-  const patchConversationCache = (updated: Conversation) => {
+  const patchConversationCache = async (updated: Conversation) => {
+    // An inbox poll started before the mutation must not restore its old status.
+    await queryClient.cancelQueries({ queryKey: ['conversations'] });
     queryClient.setQueryData<Conversation[]>(['conversations'], (old) =>
       old?.map((c) => (c.id === updated.id ? { ...c, ...updated } : c)) ?? [updated],
     );
   };
 
   useEffect(() => {
-    const fromQuery = searchParams.get('conversa');
-    if (fromQuery) {
-      setActiveConversationId(fromQuery);
+    if (searchParams.get('fila') === 'aguardando') {
+      initialSelectionDone.current = true;
+      showWaitingQueue();
+      navigate('/atendimento', { replace: true });
       return;
     }
-    if (conversations?.length && !activeConversationId) {
-      setActiveConversationId(conversations[0].id);
+    const fromQuery = searchParams.get('conversa');
+    if (fromQuery) {
+      initialSelectionDone.current = true;
+      const contact = conversations?.find((conversation) => conversation.id === fromQuery || conversation.sessionIds?.includes(fromQuery));
+      setActiveConversationId(contact?.id ?? fromQuery);
+      return;
     }
-  }, [conversations, activeConversationId, setActiveConversationId, searchParams]);
+    if (conversations && !initialSelectionDone.current) {
+      initialSelectionDone.current = true;
+      if (!activeConversationId && statusFilter !== 'waiting' && window.matchMedia('(min-width: 768px)').matches) {
+        setActiveConversationId(filtered[0]?.id ?? null);
+      }
+    }
+  }, [conversations, filtered, activeConversationId, statusFilter, setActiveConversationId, searchParams, showWaitingQueue, navigate]);
 
   // Avisa e mantém a fila atualizada quando o NSAgent cria novas conversas.
   useEffect(() => {
@@ -345,6 +339,7 @@ export function ConversationsPage() {
     try {
       const older = await conversationsService.getMessages(activeConversationId, {
         before: earliest.timestamp,
+        beforeId: /^[0-9a-f-]{36}$/i.test(earliest.id) ? earliest.id : undefined,
         limit: MESSAGE_PAGE_SIZE,
       });
       queryClient.setQueryData<Message[]>(['messages', activeConversationId], (current = []) =>
@@ -466,7 +461,8 @@ export function ConversationsPage() {
   const transferMutation = useMutation({
     mutationFn: () =>
       conversationsService.transfer(activeConversationId!, transferAgent),
-    onSuccess: (conv) => {
+    onSuccess: async (conv) => {
+      await patchConversationCache(conv);
       addToast({
         title: 'Atendimento transferido',
         message: `Conversa atribuída a ${conv.assignedName ?? 'novo atendente'}`,
@@ -481,10 +477,9 @@ export function ConversationsPage() {
   });
 
   const assumeMutation = useMutation({
-    mutationFn: () => conversationsService.assume(activeConversationId!),
-    onSuccess: (updated) => {
-      patchConversationCache(updated);
-      setStatusFilter('all');
+    mutationFn: (conversationId: string) => conversationsService.assume(conversationId),
+    onSuccess: async (updated) => {
+      await patchConversationCache(updated);
       addToast({
         title: 'Atendimento assumido',
         message: 'Agora você pode responder o cliente por esta tela.',
@@ -500,9 +495,8 @@ export function ConversationsPage() {
   const closeMutation = useMutation({
     mutationFn: () =>
       conversationsService.close(activeConversationId!, closeNote || undefined),
-    onSuccess: (updated) => {
-      patchConversationCache(updated);
-      setStatusFilter('all');
+    onSuccess: async (updated) => {
+      await patchConversationCache(updated);
       addToast({ title: 'Atendimento encerrado', message: 'Conversa marcada como encerrada', type: 'success' });
       setCloseOpen(false);
       setCloseNote('');
@@ -515,8 +509,8 @@ export function ConversationsPage() {
 
   const reopenMutation = useMutation({
     mutationFn: () => conversationsService.reopen(activeConversationId!),
-    onSuccess: (updated) => {
-      patchConversationCache(updated);
+    onSuccess: async (updated) => {
+      await patchConversationCache(updated);
       setStatusFilter('all');
       addToast({ title: 'Atendimento reaberto', message: 'Conversa ativa novamente', type: 'success' });
       invalidateConversation();
@@ -659,13 +653,15 @@ export function ConversationsPage() {
             <RefreshCw className={`h-3.5 w-3.5 ${conversationsFetching ? 'animate-spin' : ''}`} />
           </Button>
         </div>
-        <div className="grid min-w-0 flex-1 gap-2 sm:grid-cols-[minmax(0,1fr)_9rem_9rem]">
+        <div className="grid w-full min-w-0 grid-cols-2 gap-2 sm:w-auto sm:min-w-[28rem] sm:flex-1 sm:grid-cols-[minmax(0,1fr)_9rem_12rem]">
           <Search
+            className="col-span-2 sm:col-span-1"
             placeholder="Buscar leads e conversas..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <Select
+            aria-label="Filtrar por canal"
             options={[
               { value: 'all', label: 'Todos os canais' },
               { value: 'whatsapp', label: 'WhatsApp' },
@@ -679,20 +675,47 @@ export function ConversationsPage() {
             onChange={(e) => setFilter(e.target.value)}
           />
           <Select
+            aria-label="Filtrar por status"
             options={[
               { value: 'all', label: 'Todos os status' },
               { value: 'active', label: 'Ativas' },
-              { value: 'waiting', label: 'Aguardando' },
+              { value: 'waiting', label: 'Aguardando atendimento' },
               { value: 'closed', label: 'Encerradas' },
             ]}
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           />
         </div>
+        <div className="flex w-full flex-wrap items-center gap-2 border-t border-gray-100 pt-2 dark:border-gray-800">
+          <Button
+            type="button"
+            size="sm"
+            variant={statusFilter === 'waiting' ? 'danger' : 'outline'}
+            aria-pressed={statusFilter === 'waiting'}
+            onClick={() => {
+              initialSelectionDone.current = true;
+              showWaitingQueue();
+              if (searchParams.get('conversa')) navigate('/atendimento', { replace: true });
+            }}
+          >
+            <Clock3 className="h-4 w-4" />
+            Aguardando atendimento
+            <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-800 dark:bg-red-950 dark:text-red-100">{waitingCount}</span>
+          </Button>
+          {hasActiveFilters && <Button type="button" size="sm" variant="ghost" onClick={() => {
+            setStatusFilter('all'); setFilter('all'); setSearchQuery('');
+          }}>Mostrar todos</Button>}
+          <span role="status" className="text-xs text-gray-500 dark:text-gray-400">
+            {isAttending && waitingCount > 0
+              ? 'Alerta pausado enquanto você atende. A fila continua sendo atualizada.'
+              : statusFilter === 'waiting' ? `${filtered.length} atendimento(s) na fila com os filtros atuais` : ''}
+          </span>
+        </div>
       </div>
 
       <div className="flex min-h-0 flex-1 overflow-hidden bg-white dark:bg-gray-950">
         <aside
+          aria-label="Lista de atendimentos"
           className={`flex w-full shrink-0 flex-col border-r border-gray-200 md:w-72 lg:w-80 dark:border-gray-800 ${
             activeConversationId ? 'hidden md:flex' : 'flex'
           }`}
@@ -702,6 +725,8 @@ export function ConversationsPage() {
               <div className="p-6">
                 <Loading text="Carregando conversas..." />
               </div>
+            ) : displayList.length === 0 && statusFilter === 'waiting' && waitingCount === 0 ? (
+              <EmptyState icon={CheckCircle2} title="Nenhum atendimento aguardando" description="Novas solicitações de atendimento humano aparecerão aqui." />
             ) : displayList.length === 0 ? (
               <ConversationsEmptyState filtered={!isInboxEmpty || hasActiveFilters} />
             ) : (
@@ -710,7 +735,7 @@ export function ConversationsPage() {
                   key={conv.id}
                   conversation={conv}
                   active={conv.id === activeConversationId}
-                  pinned={conv.id === activeConversationId && !filtered.some((c) => c.id === conv.id)}
+                  animateWaiting={shouldFlash}
                   onClick={() => setActiveConversationId(conv.id)}
                 />
               ))
@@ -757,9 +782,7 @@ export function ConversationsPage() {
                     </div>
                     <div className="mt-0.5 flex flex-wrap items-center gap-2">
                       <ChannelBadge channel={activeConversation.channel} />
-                      {activeConversation.protocol && (
-                        <span className="truncate text-xs text-gray-400">{activeConversation.protocol}</span>
-                      )}
+                      <span className="truncate text-xs text-gray-400">Histórico do contato{(activeConversation.sessionIds?.length ?? 0) > 1 ? ` · ${activeConversation.sessionIds!.length} atendimentos reunidos` : ''}</span>
                       {activeConversation.assignedName && (
                         <span className="truncate text-xs text-gray-500">
                           · {activeConversation.assignedName}
@@ -774,7 +797,7 @@ export function ConversationsPage() {
                     <Button
                       variant="primary"
                       size="sm"
-                      onClick={() => assumeMutation.mutate()}
+                      onClick={() => activeConversationId && assumeMutation.mutate(activeConversationId)}
                       disabled={assumeMutation.isPending}
                     >
                       <UserCheck className="h-4 w-4" /> Assumir
@@ -897,7 +920,7 @@ export function ConversationsPage() {
                         <Button
                           variant="primary"
                           size="sm"
-                          onClick={() => assumeMutation.mutate()}
+                          onClick={() => activeConversationId && assumeMutation.mutate(activeConversationId)}
                           disabled={assumeMutation.isPending}
                         >
                           <UserCheck className="h-4 w-4" /> Assumir agora

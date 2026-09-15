@@ -1,4 +1,5 @@
 import type { AgentConfigurationField, AgentConfigurationValue } from '@/services/agentConfiguration.service';
+import { getConfigurationGuidance } from './configurationGuidance';
 
 export type ConfigurationValues = Record<string, AgentConfigurationValue>;
 
@@ -32,7 +33,9 @@ export function groupConfigurationFields(
   for (const field of fields) {
     if (category && field.group !== category) continue;
     if (changedOnly && Object.is(values[field.key], published[field.key])) continue;
-    const text = normalizeSearch([field.label, field.description, field.key, field.group, values[field.key]].join(' '));
+    const guidance = getConfigurationGuidance(field);
+    const text = normalizeSearch([field.label, field.description, field.key, field.group, values[field.key],
+      guidance.label, guidance.purpose, guidance.whenUsed, guidance.section].join(' '));
     if (!words.every((word) => text.includes(word))) continue;
     const group = groups.get(field.group) ?? [];
     group.push(field);
@@ -74,6 +77,19 @@ export function configurationFieldError(field: AgentConfigurationField, value: A
     try {
       const parsed: unknown = JSON.parse(String(value));
       if (!Array.isArray(parsed) || !parsed.length || parsed.length > 100) return 'Informe uma lista JSON com 1 a 100 itens.';
+      if (field.valueSchema === 'creditBands') {
+        let previous = -1;
+        for (const band of parsed) {
+          if (!Array.isArray(band) || band.length !== 3 || band.some((n) => !Number.isSafeInteger(n) || n <= 0)
+            || band[0] > band[1] || band[0] <= previous || band[2] <= band[1]) return 'Preencha valores positivos, faixas sem sobreposição e compra acima do crédito máximo.';
+          previous = band[1];
+        }
+      }
+      if (field.valueSchema === 'greetingVariants' && parsed.some((item) => typeof item !== 'string' || !item.trim() || item.length > 1000)) return 'Preencha cada saudação com até 1.000 caracteres.';
+      if (field.valueSchema === 'institutionalKnowledge' && parsed.some((item) => !item || typeof item !== 'object'
+        || typeof item.title !== 'string' || !item.title.trim() || typeof item.body !== 'string' || !item.body.trim()
+        || !Array.isArray(item.cues) || item.cues.some((cue: unknown) => typeof cue !== 'string' || !cue.trim())
+        || ![undefined, null, 'acceptsTradeIn'].includes(item.policyKey))) return 'Preencha o nome, a informação oficial e os termos de busca de cada assunto.';
     } catch {
       return 'Revise o formato JSON antes de publicar.';
     }

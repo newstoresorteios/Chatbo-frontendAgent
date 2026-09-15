@@ -104,7 +104,7 @@ export function useConversations(options?: { live?: boolean }) {
   const live = Boolean(options?.live);
   return useQuery({
     queryKey: ['conversations'],
-    queryFn: conversationsService.getConversations,
+    queryFn: ({ signal }) => conversationsService.getConversations({ signal }),
     staleTime: live ? 2_000 : 30_000,
     refetchInterval: live ? 3_000 : false,
     refetchIntervalInBackground: false,

@@ -1,0 +1,2322 @@
+[
+  {
+    "key": "maxReplyChars",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "historyTurns",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "catalogShortlistSize",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "catalogCandidatePool",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "catalogRerankLimit",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "observabilityLevel",
+    "target": "runtime",
+    "type": "select"
+  },
+  {
+    "key": "learningEnabled",
+    "target": "runtime",
+    "type": "boolean"
+  },
+  {
+    "key": "learningAutoPromote",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "learningAutoActivate",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "learningLookbackHours",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "learningBatchLimit",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "learningMaxClusters",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "learningCanaryHours",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "learningRollbackMinReviews",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "learningRollbackFailLift",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "log_level",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "app_name",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "openai_model",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "openai_main_model",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "openai_fast_model",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "openai_agent_name",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "openai_transcribe_model",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "openai_tts_model",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "openai_tts_voice",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "openai_tts_format",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "openai_api_mode",
+    "target": "setting",
+    "type": "select"
+  },
+  {
+    "key": "openai_store_responses",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "openai_responses_structured_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "openai_responses_tool_loop_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "openai_shadow_sample_rate",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "openai_responses_traffic_percent",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "openai_responses_fallback_to_chat",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "openai_canary_sticky_routing",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_rollout_profile",
+    "target": "setting",
+    "type": "select"
+  },
+  {
+    "key": "agent_emergency_rollback",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_rollout_alert_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_rollout_alert_window",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_rollout_alert_min_samples",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_rollout_fallback_alert_rate",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "agent_rollout_factual_alert_rate",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "agent_rollout_handoff_alert_rate",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "openai_chat_completions_primary_allowed",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "openai_reasoning_effort",
+    "target": "setting",
+    "type": "select"
+  },
+  {
+    "key": "openai_text_verbosity",
+    "target": "setting",
+    "type": "select"
+  },
+  {
+    "key": "openai_timeout_seconds",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "openai_max_retries",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_max_recent_turns",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_max_active_contact_memories",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_max_contact_memory_chars",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_max_instruction_extensions",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_max_instruction_extension_chars",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_persona_knowledge_in_prompt_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_max_persona_attachments",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_max_persona_knowledge_chars",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_max_conversation_summary_chars",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_memory_proposals_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_memory_auto_apply_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_memory_auto_apply_min_confidence",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "agent_memory_auto_apply_min_importance",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "agent_contact_memory_in_prompt_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_contact_preference_memory_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_contact_preference_summary_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_contact_preference_rehydrate_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_contact_preference_ttl_days",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_contact_theme_ttl_days",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_contact_preference_min_confidence",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "agent_instruction_extension_proposals_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_conversation_summary_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_conversation_summary_in_prompt_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_conversation_summary_mode",
+    "target": "setting",
+    "type": "select"
+  },
+  {
+    "key": "agent_prompt_compilation_audit_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_debug_store_compiled_prompt",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_legacy_prompt_compat_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_runtime_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_llm_budget_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_max_llm_calls_per_turn",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_max_llm_calls_per_turn_complex",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_turn_understanding_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_policy_mode",
+    "target": "setting",
+    "type": "select"
+  },
+  {
+    "key": "agent_tool_policy_mode",
+    "target": "setting",
+    "type": "select"
+  },
+  {
+    "key": "agent_factual_validation_mode",
+    "target": "setting",
+    "type": "select"
+  },
+  {
+    "key": "agent_trusted_fact_domains",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "agent_conversation_lock_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_conversation_lock_timeout_seconds",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "agent_presenter_mode",
+    "target": "setting",
+    "type": "select"
+  },
+  {
+    "key": "human_takeover_idle_minutes",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "human_takeover_stale_conversa_days",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_quality_judge_mode",
+    "target": "setting",
+    "type": "select"
+  },
+  {
+    "key": "agent_quality_judge_risk_threshold",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_quality_judge_sample_rate",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "agent_answer_council_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_answer_council_max_restarts",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_critique_mode",
+    "target": "setting",
+    "type": "select"
+  },
+  {
+    "key": "agent_critique_enforce_on_commerce",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_critique_max_retries",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_critique_llm_on_risk_only",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_critique_shadow_sample_rate",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "agent_double_check_mode",
+    "target": "setting",
+    "type": "select"
+  },
+  {
+    "key": "agent_learning_bootstrap_hours",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_learning_reflect_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_learning_max_instruction_chars",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_max_learned_cases",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_max_learned_case_chars",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_history_hard_cap",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_send_idempotency_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_product_cache_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_product_cache_ttl_seconds",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "agent_price_cache_ttl_seconds",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "agent_stock_cache_ttl_seconds",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "agent_search_cache_ttl_seconds",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "agent_catalog_cache_ttl_seconds",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_catalog_index_write_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_catalog_index_read_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_catalog_index_fallback_to_tray",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_catalog_index_max_age_seconds",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_catalog_index_candidate_limit",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_catalog_exact_search_call_limit",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_catalog_recommendation_search_call_limit",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_image_cache_ttl_seconds",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "agent_full_obs_logs",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_http_obs_logs",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "tray_circuit_breaker_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "tray_circuit_failure_threshold",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "tray_circuit_open_seconds",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "tray_ready_to_ship_category_ids",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "order_tracking_audit_sample_ids",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "audio_inbound_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "audio_outbound_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_image_search_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_image_search_model",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "agent_image_search_min_confidence",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "agent_image_download_max_bytes",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_visual_search_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_product_image_index_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_visual_embedding_model",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "agent_visual_top_k",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_visual_max_distance",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "agent_product_image_index_batch_size",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "checkout_cep_lookup_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "pix_direct_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "pix_exp_min",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "remarketing_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "remarketing_touch_hours",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "remarketing_meta_window_hours",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "remarketing_batch_size",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_async_ingress_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "agent_inbox_batch_size",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_inbox_lease_seconds",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "instagram_ingress_provider",
+    "target": "setting",
+    "type": "select"
+  },
+  {
+    "key": "instagram_story_recognition_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "instagram_story_payload_diagnostics",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "instagram_story_media_storage_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "instagram_story_media_max_bytes",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "instagram_story_media_timeout_seconds",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "instagram_story_media_retention_days",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "instagram_story_allowed_hosts",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "instagram_story_video_frame_analysis_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "instagram_story_video_max_frames",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "instagram_story_vision_model",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "instagram_story_analysis_detail",
+    "target": "setting",
+    "type": "select"
+  },
+  {
+    "key": "instagram_story_analysis_version",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "instagram_story_visual_cache_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "instagram_story_visual_cache_ttl_days",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "instagram_story_auto_match_min_confidence",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "instagram_story_exact_match_min_confidence",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "instagram_story_visual_match_min_confidence",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "instagram_story_ambiguous_min_confidence",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "instagram_story_match_margin",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "instagram_story_max_candidates",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "instagram_story_admin_api_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "instagram_story_account_tenant_map",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "instagram_story_storage_bucket",
+    "target": "setting",
+    "type": "text"
+  },
+  {
+    "key": "instagram_story_rollout_mode",
+    "target": "setting",
+    "type": "select"
+  },
+  {
+    "key": "instagram_story_canary_percent",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "instagram_story_real_payload_validated",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "acceptsTradeIn",
+    "target": "policy",
+    "type": "boolean"
+  },
+  {
+    "key": "agentCanAppraise",
+    "target": "policy",
+    "type": "boolean"
+  },
+  {
+    "key": "checkoutMode",
+    "target": "policy",
+    "type": "select"
+  },
+  {
+    "key": "requireQualificationBeforeCatalog",
+    "target": "policy",
+    "type": "boolean"
+  },
+  {
+    "key": "pixDiscountPercent",
+    "target": "policy",
+    "type": "integer"
+  },
+  {
+    "key": "maxCatalogOptions",
+    "target": "policy",
+    "type": "integer"
+  },
+  {
+    "key": "message.trade_in_handoff",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.trade_in_unavailable",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.handoff_requested",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.handoff_failed",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.catalog_unavailable",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.checkout_site",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.learning_reflection_system",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "agent_catalog_similarity_threshold",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "agent_catalog_trgm_retry_seconds",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_queue_retry_base_seconds",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_queue_retry_max_seconds",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "database_pool_enabled",
+    "target": "setting",
+    "type": "boolean"
+  },
+  {
+    "key": "database_pool_max_size",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "database_pool_timeout_seconds",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "message.agents.commerce_order.try_commerce_confirmation.1e8abffe4e",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.agents.door._non_handoff_fallback.f9f5712adb",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.agents.door.generate_openai_reply_async.d5937d8b8d",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.agents.door._route_after_interpret.8054ad3cc3",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.agents.door_media.try_media_routes.8725e9c344",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.cart_service._create_cart_items_checkout_impl.15ca1b31c8",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.cart_service.current_cart_reply.c61327af0f",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.cart_service.current_cart_reply.71040eafa9",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.cart_service._reconciled_cart_result.9e54595660",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.checkout_data_service.checkout_data_template.14427b9d20",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.checkout_data_service.checkout_data_template.3763ba7d83",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.checkout_data_service.checkout_data_template.b5b0c345ba",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.checkout_data_service.update_checkout_data.1d1064be49",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.checkout_service.checkout_channel_choice_prompt.f0e9369d89",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.checkout_service.cart_pay_link_copy.d7ae9ab664",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.checkout_service.cart_pay_link_copy.9b0f19ecb6",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.checkout_service.checkout_channel_choice_prompt.ce7df37d91",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.checkout_service.cart_pay_link_copy.2232cf8060",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.checkout_service.cart_pay_link_copy.3db3f7e0bb",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.checkout_service.select_checkout_channel.009ee3abb2",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.checkout_service.select_checkout_channel.fff5f0d39b",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.checkout_service.select_checkout_channel.2d9be610e7",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.commerce_router._product_result.7cc54b8858",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.commerce_router.guided_near_match_result.7cc54b8858",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.commerce_router.guided_near_match_result.6c86daa333",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.commerce_router.handle_commerce_message.32b49f1456",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.commerce_router.handle_commerce_message.8cf78f2a2d",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.commerce_router.handle_commerce_message.4760f4c191",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.commerce_router.handle_commerce_message.b5a2563ce4",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.commerce_router.handle_commerce_message.bca0c01912",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.commerce_router.handle_commerce_message.65c74c62dc",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service.order_notes_unavailable_result.4202b4712d",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service._order_facts_result.64519fcb81",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service.confirm_prepared_order.5bc2c4491d",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service.create_order.797bc8020f",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service._order_not_found_result.1dd6354819",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service.invalid_tax_document_result.0afb481931",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service._order_facts_result.739504b12f",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service._order_facts_result.9b1e427de9",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service._order_facts_result.d1ee53d2cb",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service._order_customer_mismatch_result.256694b25c",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service.get_order_facts.176aa1b9be",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service.find_order_by_customer_document.d71b24fb4d",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service.prepare_order.0ba06f033b",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service.confirm_prepared_order.ac99869145",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service.create_order.63cf392e2a",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service.create_order.3e0820c503",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service.create_order.a2443c9932",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service.create_order.651103c0a5",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service._order_facts_result.270c451578",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service.get_order_facts.2785df718d",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service.get_order_facts.809728b4ae",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service.find_order_by_customer_document.bab271469f",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service.find_order_by_customer_document.6354833eb6",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service.find_order_by_customer_document.cfd1ae9f14",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service.find_order_by_customer_document.00f5f3e5fe",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service.find_order_by_customer_document.7e9d61c10d",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_service.create_order.c2f4dfa254",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.order_tracking_audit.fetch_recent_missing_tracking_reply_count.c0027a74c2",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.payment_service.inspect_payment_options.99903915c2",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.payment_service.inspect_order_payment.48544e92b4",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.payment_service._no_cart.03969c105d",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.payment_service.inspect_current_cart.2a0cb78456",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.payment_service._blocked_payment_advance.3fb984b57a",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.payment_service.inspect_payment_options.1db337bdf7",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.payment_service.inspect_payment_options.061cc0a0be",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.payment_service.inspect_order_payment.edf4ba4b0f",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.payment_service.inspect_current_cart.e15adfacd3",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.payment_service.inspect_payment_options.9d914e0008",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.payment_service.inspect_payment_options.5f58381e82",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.payment_service.inspect_order_payment.befda12511",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.payment_service.inspect_order_payment.ed27d4db69",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.payment_service.inspect_order_payment.f46e3eef6b",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.payment_service.inspect_order_payment.7746205634",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.pix_checkout_service._pix_reply.1dce2051a5",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.pix_checkout_service.refresh_direct_pix_checkout.19005ae7f7",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.pix_checkout_service._pix_reply.92993c4f81",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.pix_checkout_service.refresh_direct_pix_checkout.933a009f3f",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.pix_checkout_service.generate_direct_pix_checkout.9b4b172314",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.pix_checkout_service.generate_direct_pix_checkout.9141b0c789",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.pix_checkout_service.generate_direct_pix_checkout.5bedac07a5",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.pix_checkout_service.generate_direct_pix_checkout.1ccbcdc17c",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.pix_checkout_service.generate_direct_pix_checkout.adb0598970",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.pix_checkout_service.generate_direct_pix_checkout.ca560299bb",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.pix_checkout_service.generate_direct_pix_checkout.13dd2db01b",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.pix_checkout_service.refresh_direct_pix_checkout.723824a905",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.pix_checkout_service.refresh_direct_pix_checkout.e78910c2a8",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.pix_checkout_service.generate_direct_pix_checkout.4c25f78488",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.pix_checkout_service.refresh_direct_pix_checkout.6120cd3962",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.shipping_service.quote_shipping.e76b4dd623",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.shipping_service.list_shipping_methods.8c809e06c1",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.shipping_service.select_shipping.255657933b",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.shipping_service.quote_shipping.bca9087441",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.shipping_service.quote_shipping.f19a6c1566",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.shipping_service.quote_shipping.eab38ae6f0",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.shipping_service.quote_shipping.abb98103eb",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.shipping_service.quote_shipping.6e33b71e9f",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.shipping_service.list_shipping_methods.d08dc01c96",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.shipping_service.select_shipping.a3c1379297",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.commerce.shipping_service.select_shipping.7562a73d17",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.identity.greeting_policy.choose_greeting_reply.0cc3700da4",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.identity.greeting_policy.choose_greeting_reply.67fb9018de",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.identity.greeting_policy.choose_farewell_reply.f1a13d9030",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.identity.greeting_policy.choose_farewell_reply.adca7d8480",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.identity.user_preferences.mark_preferred_name_prompted.4a9f3154ef",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies._build_last_participation_reply.1b7105ab98",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies.build_balance_reply.3a823ceb76",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies.build_current_raffle_reply.d3473a2f6d",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies.build_current_raffle_reply.6c521170f1",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies.build_available_numbers_reply.8192e309b6",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies._build_last_participation_reply.0212990f69",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies._build_last_participation_reply.fd4b151e43",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies.build_preferred_name_reply.23bfc8fbfd",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies.build_coupon_code_reply.f33fa19168",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies.build_current_raffle_reply.ec8278f4e0",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies.build_current_raffle_reply.8e45ccdd4d",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies.build_available_numbers_reply.be93f10e7d",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies.build_available_numbers_reply.b8ed2512c0",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies.build_raffle_history_reply.3960e8e168",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies.build_raffle_history_reply.3798160d72",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies.build_simulation_reply.632dc1f5fb",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies.build_simulation_reply.a469556ff6",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies.build_current_raffle_reply.c2901dd5bc",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies.build_current_raffle_reply.5c9c50c9c3",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies.build_current_raffle_reply.538144f136",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies.build_available_numbers_reply.036dda7d33",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies.build_available_numbers_reply.362fcb86b2",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.agent_replies.build_available_numbers_reply.5961f7e0f5",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.capability_catalog.format_capability_catalog_for_prompt.b4a625f78f",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.capability_catalog.format_capability_catalog_for_prompt.9ebf887cec",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.capability_catalog.format_capability_catalog_for_prompt.fa11716c98",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.llm.prompt_compiler.compile_agent_prompt.5468db63bb",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.ops.simulation.build_purchase_simulation_reply.ab192a9608",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.ops.simulation.build_purchase_simulation_reply.82c83c52cd",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.ops.simulation.build_purchase_simulation_reply.871ad1b102",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.ops.simulation.build_purchase_simulation_reply.9dd3356379",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.ops.simulation.build_purchase_simulation_reply.79a0d667b7",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.ops.simulation.build_purchase_simulation_reply.fde0b57483",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.ops.simulation.build_purchase_simulation_reply.6350fc5046",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.ops.simulation.build_purchase_simulation_reply.035e76d3c4",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.ops.simulation.build_purchase_simulation_reply.7cdafa24cd",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.ops.simulation.build_purchase_simulation_reply.0efcfa05e5",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.ops.simulation.build_purchase_simulation_reply.0b3e2abf73",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.ops.simulation.build_purchase_simulation_reply.98fbe2017a",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.ops.simulation.build_purchase_simulation_reply.e788d1c115",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.ops.simulation.build_purchase_simulation_reply.390ba6de03",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.ops.simulation.build_purchase_simulation_reply.f3f0f5ebcc",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.persona.persona_admin_api.admin_prompt_preview.f81cf6860a",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.persona.persona_repository.insert_prompt_compilation.9111729e77",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.persona.persona_runtime.prompt_policy_block.a0dc1acb1e",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.persona.persona_runtime.prompt_policy_block.1f42cf601d",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.persona.persona_runtime.prompt_policy_block.8215a56d88",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.persona.persona_runtime.prompt_policy_block.24ceed8ddd",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.persona.persona_runtime.prompt_policy_block.83006804b8",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.persona.persona_runtime.prompt_policy_block.b0ffb37ca5",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.persona.persona_runtime.prompt_policy_block.614717c941",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.persona.persona_runtime.prompt_policy_block.d0d6392aba",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.persona.persona_runtime.prompt_policy_block.44d521606e",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.persona.persona_runtime.prompt_policy_block.8e874a098f",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.persona.persona_runtime.prompt_policy_block.5fb731be61",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.persona.persona_runtime.prompt_policy_block.5c5b16523d",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.persona.persona_runtime.prompt_policy_block.a06fb52629",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.answer_council._honest_constraint_reply.5d9a82525b",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.answer_council._continue_prompt_result.03b11ace96",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.answer_council._honest_constraint_reply.955d8d4ba5",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.answer_council._continue_commerce_reply.a9ba15d95c",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.answer_council._continue_commerce_reply.c3716da9ad",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.catalog_media._dead_product_link_reply.986a0a5b2b",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.catalog_media.try_catalog_media.11c2e62298",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.catalog_media.try_catalog_media.4fff6f82c4",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.catalog_media.try_catalog_media.dae59443c2",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.catalog_media.try_catalog_media.42d87281fd",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.catalog_media.try_catalog_media.06f88dada6",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.catalog_pending.apply_catalog_pending.519d2f2555",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.catalog_pending.apply_catalog_pending.3f5e4c9c97",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.catalog_purchase.try_catalog_purchase.d92b051a7e",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.catalog_reference.resolve_catalog_reference.e5e477867c",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.catalog_reference.resolve_catalog_reference.a35c141ec3",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.catalog_retrieve.retrieve_catalog_or_clarify.8054ad3cc3",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.checkout_flow._combine_order_and_payment_results.b01b2ca247",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.checkout_flow._combine_order_and_payment_results.39d57eb3ad",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.checkout_flow._inspect_listed_products.2a5f73dd2e",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.checkout_flow._inspect_listed_products.039679e1d2",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.checkout_flow._pending_action_rejected_result.e21311b402",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.discovery._is_fulfillment_persona_prompt.c9ff6b5a7e",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.discovery._city_or_urgency_prompt.c9ff6b5a7e",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.policies.action_authority.informational_payment_policy_result.1e4776f73c",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.policies.action_authority.informational_payment_policy_result.7c0782063f",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.policies.action_authority.purchase_product_required_result.de22e507ce",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.policies.action_authority.purchase_product_required_result.78d26293ee",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.policies.objection_authority._short_reply_for_kind.c5b65b8ddd",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.policies.objection_authority._short_reply_for_kind.2c21b2e70c",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.policies.objection_authority._short_reply_for_kind.01da67ab2f",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.policies.objection_authority._short_reply_for_kind.6c2b85b188",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.policies.objection_authority._short_reply_for_kind.895f63801e",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.policies.objection_authority._short_reply_for_kind.ff1040aa67",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.policies.objection_authority._short_reply_for_kind.de55a633fb",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.policies.objection_authority._short_reply_for_kind.e288c50991",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.policies.objection_authority._short_reply_for_kind.4a12ed8d72",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.policies.objection_authority._short_reply_for_kind.453ca9b585",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.purchase_selection._ask_which_option_repair.3bc12d7456",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.purchase_selection._ask_which_option_repair.2148b19bdc",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.responder.generate_clarification_reply.8054ad3cc3",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.tray_query_authority._budget_miss_reply.426ba2ac4f",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.tray_query_authority._budget_miss_reply.f771665be9",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.tray_query_authority._budget_miss_reply.b429990c60",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.tray_query_authority.budget_miss_from_authorization.c97880417c",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.tray_query_authority.budget_hard_miss_result.895e8c8464",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales.tray_query_authority._budget_miss_reply.c5ac523a55",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.sales_agent._purchase_close_hold_reply.915c8beed7",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.verify.response_critique._regenerate_reply.2807ee309e",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "business.site_url",
+    "target": "policy",
+    "type": "text"
+  },
+  {
+    "key": "business.store_url",
+    "target": "policy",
+    "type": "text"
+  },
+  {
+    "key": "business.store_pronta_entrega_url",
+    "target": "policy",
+    "type": "text"
+  },
+  {
+    "key": "business.ns_sales_whatsapp",
+    "target": "policy",
+    "type": "text"
+  },
+  {
+    "key": "message.business.human_support_message.d86b19641e",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.business.register_phone_message.af8a374a34",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.business.third_party_refusal.7ed15f4249",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "business.credit_bands",
+    "target": "policy",
+    "type": "textarea"
+  },
+  {
+    "key": "message.business.format_card_usage_table_text.c44b529ef6",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.business.format_card_usage_table_text.0874ed5905",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.business.format_card_usage_table_text.59ffac20e3",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.business.build_site_knowledge_text.9d5fa80f06",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.business.build_rules_reply.3ca4ed85ac",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.business.persona_greeting_operational.02a8ba3200",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.business.system_instructions.a369e54ee8",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.business.store_lookup_unavailable.08732f3104",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.business.general_greeting_fallback.e280997ce6",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.business.store_knowledge_unavailable.81b8d95141",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.business.greeting_reply.e280997ce6",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "business.greeting_variants",
+    "target": "policy",
+    "type": "textarea"
+  },
+  {
+    "key": "business.agent_name",
+    "target": "policy",
+    "type": "text"
+  },
+  {
+    "key": "business.institutional_knowledge",
+    "target": "policy",
+    "type": "textarea"
+  },
+  {
+    "key": "message.instructions.sales_planner_instructions.3e5d0d4949",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.instructions._operator_sales_responder_instructions_1.c5bfd84014",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.instructions.sales_clarification_instructions.f30acad4b3",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.instructions.out_of_scope_reply.3b2b6ef6d6",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.instructions._operator_sales_interpreter_instructions_1.e36482f8b1",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.instructions.checkout_flow_instructions.055922388c",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.instructions.sales_interpreter_instructions.730a4d19c0",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.instructions.sales_responder_instructions.730a4d19c0",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.instructions.audio_transcription_failed_reply.f0aba5867b",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.instructions._whisper_brand_prompt.bd3748af7a",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.instructions._empty_reply_fallback.ef243cd947",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.instructions.unviewable_media_guide_reply.38b7fbef16",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.instructions.price_without_image_instagram_reply.d4742da0f8",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.instructions.commerce_unavailable.08732f3104",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.instructions.product_not_found_reply.2fc50111a8",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.instructions.shipping_leadtime_guidance.6e088df59a",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.instructions.scope_send_fallback.c3669b99d4",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.instructions.purchase_close_relist_fallback.915c8beed7",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "agent_knowledge_attachment_limit",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_knowledge_chunk_chars",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_knowledge_max_chunks",
+    "target": "setting",
+    "type": "integer"
+  },
+  {
+    "key": "agent_knowledge_relative_score",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "agent_learning_rollback_abs_fail",
+    "target": "setting",
+    "type": "number"
+  },
+  {
+    "key": "conversationRepairPhrases",
+    "target": "policy",
+    "type": "textarea"
+  },
+  {
+    "key": "conversationRepairHandoffAfter",
+    "target": "policy",
+    "type": "integer"
+  },
+  {
+    "key": "checkoutContextMaxAgeSeconds",
+    "target": "policy",
+    "type": "integer"
+  },
+  {
+    "key": "browseContextMaxAgeSeconds",
+    "target": "policy",
+    "type": "integer"
+  },
+  {
+    "key": "message.double_check_system",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.double_check_insufficiency",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.conversation_repair_ack",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.conversation_repair_handoff",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "message.conversation_repair_missing_context",
+    "target": "message",
+    "type": "textarea"
+  },
+  {
+    "key": "catalogWarmBrands",
+    "target": "policy",
+    "type": "textarea"
+  },
+  {
+    "key": "catalogWarmBrandLimit",
+    "target": "policy",
+    "type": "integer"
+  },
+  {
+    "key": "catalogWarmProductsPerBrand",
+    "target": "policy",
+    "type": "integer"
+  },
+  {
+    "key": "catalogStaleDays",
+    "target": "policy",
+    "type": "integer"
+  }
+]

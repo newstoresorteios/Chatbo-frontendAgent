@@ -59,6 +59,8 @@ function normalizeConversation(raw: Partial<Conversation> & Record<string, unkno
     assignedTo: raw.assignedTo ? String(raw.assignedTo) : undefined,
     assignedName: raw.assignedName ? String(raw.assignedName) : undefined,
     canalId: (raw.canalId as string | null | undefined) ?? null,
+    sessionIds: Array.isArray(raw.sessionIds) ? raw.sessionIds.map(String) : [String(raw.id)],
+    activeSessionId: raw.activeSessionId ? String(raw.activeSessionId) : String(raw.id),
     contactPhone: (raw.contactPhone as string | null | undefined) ?? null,
   };
 }
@@ -105,17 +107,17 @@ export function mergeConversationMessages(current: Message[], incoming: Message[
     else merged.push(message);
   }
   return merged.sort(
-    (left, right) => new Date(left.timestamp).getTime() - new Date(right.timestamp).getTime(),
+    (left, right) => new Date(left.timestamp).getTime() - new Date(right.timestamp).getTime() || left.id.localeCompare(right.id),
   );
 }
 
 export const conversationsService = {
-  getConversations: async (): Promise<Conversation[]> => {
+  getConversations: async (options?: { signal?: AbortSignal }): Promise<Conversation[]> => {
     if (USE_MOCK) {
       await delay(400);
       return mockConversations;
     }
-    const { data } = await api.get<unknown>('/conversas', { params: { limit: 60 } });
+    const { data } = await api.get<unknown>('/conversas', { params: { limit: 60, scope: 'contact' }, signal: options?.signal });
     return unwrapList<Partial<Conversation> & Record<string, unknown>>(data)
       .filter((row) => row && row.id)
       .map(normalizeConversation);
@@ -123,7 +125,7 @@ export const conversationsService = {
 
   getMessages: async (
     conversationId: string,
-    options?: { after?: string; before?: string; limit?: number },
+    options?: { after?: string; before?: string; beforeId?: string; limit?: number },
   ): Promise<Message[]> => {
     if (USE_MOCK) {
       await delay(300);
@@ -139,8 +141,10 @@ export const conversationsService = {
     const { data } = await api.get<unknown>(`/conversas/${conversationId}/mensagens`, {
       params: {
         limit: options?.limit ?? 60,
+        scope: 'contact',
         after: options?.after,
         before: options?.before,
+        beforeId: options?.beforeId,
       },
     });
     return unwrapList<Partial<Message> & Record<string, unknown>>(data).map(normalizeMessage);
@@ -169,7 +173,7 @@ export const conversationsService = {
     }
     const { data } = await api.post<Message>(
       `/conversas/${conversationId}/mensagens`,
-      { content, sender },
+      { content, sender }, { params: { scope: 'contact' } },
     );
     return data;
   },
@@ -191,7 +195,7 @@ export const conversationsService = {
     const form = new FormData();
     form.append('file', file);
     form.append('caption', caption);
-    const { data } = await api.post<Message>(`/conversas/${conversationId}/midia`, form);
+    const { data } = await api.post<Message>(`/conversas/${conversationId}/midia`, form, { params: { scope: 'contact' } });
     return normalizeMessage(data as Message & Record<string, unknown>);
   },
 
@@ -204,7 +208,7 @@ export const conversationsService = {
     }
     const { data } = await api.patch<Conversation>(
       `/conversas/${conversationId}/transferir`,
-      { assigneeId },
+      { assigneeId }, { params: { scope: 'contact' } },
     );
     return data;
   },
@@ -217,7 +221,7 @@ export const conversationsService = {
       return { ...conv, status: 'active' };
     }
     const { data } = await api.patch<Conversation>(
-      `/conversas/${conversationId}/assumir`,
+      `/conversas/${conversationId}/assumir`, undefined, { params: { scope: 'contact' } },
     );
     return data;
   },
@@ -229,7 +233,7 @@ export const conversationsService = {
       if (!conv) throw new Error('Conversa não encontrada');
       return { ...conv, unreadCount: 0 };
     }
-    const { data } = await api.patch<Conversation>(`/conversas/${conversationId}/lida`);
+    const { data } = await api.patch<Conversation>(`/conversas/${conversationId}/lida`, undefined, { params: { scope: 'contact' } });
     return normalizeConversation(data as Conversation & Record<string, unknown>);
   },
 
@@ -242,7 +246,7 @@ export const conversationsService = {
     }
     const { data } = await api.patch<Conversation>(
       `/conversas/${conversationId}/encerrar`,
-      note ? { note } : {},
+      note ? { note } : {}, { params: { scope: 'contact' } },
     );
     return data;
   },
@@ -255,7 +259,7 @@ export const conversationsService = {
       return { ...conv, status: 'active' };
     }
     const { data } = await api.patch<Conversation>(
-      `/conversas/${conversationId}/reativar`,
+      `/conversas/${conversationId}/reativar`, undefined, { params: { scope: 'contact' } },
     );
     return data;
   },
@@ -272,7 +276,7 @@ export const conversationsService = {
     }
     const { data } = await api.post<Conversation>(
       `/conversas/${conversationId}/reserva`,
-      payload,
+      payload, { params: { scope: 'contact' } },
     );
     return data;
   },

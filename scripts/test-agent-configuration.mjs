@@ -4,7 +4,11 @@ import test from 'node:test';
 import ts from 'typescript';
 
 // Use the existing TypeScript compiler; no extra test runtime is required.
-const source = await readFile(new URL('../src/features/agent-configuration/configurationFields.ts', import.meta.url), 'utf8');
+const helpSource = await readFile(new URL('../src/features/agent-configuration/configurationGuidance.ts', import.meta.url), 'utf8');
+const helpJS = ts.transpileModule(helpSource, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2020 } }).outputText;
+const helpUrl = `data:text/javascript;base64,${Buffer.from(helpJS).toString('base64')}`;
+const { getConfigurationGuidance } = await import(helpUrl);
+const source = (await readFile(new URL('../src/features/agent-configuration/configurationFields.ts', import.meta.url), 'utf8')).replace("'./configurationGuidance'", JSON.stringify(helpUrl));
 const { outputText } = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2020 } });
 const { groupConfigurationFields, changedConfigurationValues, restoreConfigurationValues, configurationFieldError } =
   await import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`);
@@ -18,6 +22,31 @@ const fields = [
 ];
 const published = { historyTurns: 12, acceptsTradeIn: true, 'message.greeting': 'Olá, nossa loja entrega em Curitiba.', agentCanAppraise: false, newSetting: 0.5 };
 const keys = (groups) => groups.flatMap(([, items]) => items.map((item) => item.key));
+
+test('every current catalog field has purpose and a documented usage point', async () => {
+  const catalog = JSON.parse(await readFile(new URL('./fixtures/agent-configuration-fields.json', import.meta.url), 'utf8'));
+  const missing = catalog.filter((field) => getConfigurationGuidance(field).section === 'Outras configurações');
+  assert.deepEqual(missing.map((field) => field.key), []);
+  for (const field of catalog) {
+    const guide = getConfigurationGuidance(field);
+    assert.ok(guide.label && guide.purpose.length > 30 && guide.whenUsed.length > 20, field.key);
+  }
+});
+
+test('search includes purpose and when the field is used', () => {
+  assert.deepEqual(keys(groupConfigurationFields(fields, published, { search: 'peças' })), ['agentCanAppraise']);
+});
+
+test('structured values reject invalid credit bands and preserve valid knowledge', () => {
+  const field = { type: 'textarea', valueSchema: 'creditBands' };
+  assert.equal(configurationFieldError(field, '[[5000,25000,150000],[25100,60000,350000]]'), undefined);
+  assert.ok(configurationFieldError(field, '[[5000,25000,150000],[20000,60000,350000]]'));
+  assert.ok(configurationFieldError(field, '[[null,25000,150000]]'));
+  assert.ok(configurationFieldError(field, '[[5000,25000,20000]]'));
+  const knowledge = { ...field, valueSchema: 'institutionalKnowledge' };
+  assert.equal(configurationFieldError(knowledge, JSON.stringify([{ title: 'Garantia', body: 'Consulte a garantia oficial.', cues: ['garantia'], policyKey: null }])), undefined);
+  assert.ok(configurationFieldError(knowledge, JSON.stringify([{ title: '', body: 'Texto', cues: [''] }])));
+});
 
 test('all catalog fields and newly introduced categories are discoverable without a filter', () => {
   const groups = groupConfigurationFields(fields, published);

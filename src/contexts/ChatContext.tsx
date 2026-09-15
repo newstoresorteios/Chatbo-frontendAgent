@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import type { Conversation } from '@/types';
+import { filterInboxConversations } from '@/utils/conversationAlerts';
 
 interface ChatContextValue {
   activeConversationId: string | null;
@@ -17,6 +18,7 @@ interface ChatContextValue {
   setStatusFilter: (status: string) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  showWaitingQueue: () => void;
   filterConversations: (conversations: Conversation[]) => Conversation[];
 }
 
@@ -29,19 +31,18 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const filterConversations = useCallback(
-    (conversations: Conversation[]) => {
-      return conversations.filter((c) => {
-        const name = (c.customerName || '').toLowerCase();
-        const last = (c.lastMessage || '').toLowerCase();
-        const query = searchQuery.toLowerCase();
-        const matchesSearch = !searchQuery || name.includes(query) || last.includes(query);
-        const matchesStatus = statusFilter === 'all' || c.status === statusFilter;
-        const matchesChannel = filter === 'all' || c.channel === filter;
-        return matchesSearch && matchesStatus && matchesChannel;
-      });
-    },
+    (conversations: Conversation[]) => filterInboxConversations(conversations, {
+      channel: filter, status: statusFilter, search: searchQuery,
+    }),
     [searchQuery, statusFilter, filter],
   );
+
+  const showWaitingQueue = useCallback(() => {
+    setFilter('all');
+    setStatusFilter('waiting');
+    setSearchQuery('');
+    setActiveConversationId(null);
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -53,6 +54,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       setStatusFilter,
       searchQuery,
       setSearchQuery,
+      showWaitingQueue,
       filterConversations,
     }),
     [
@@ -61,6 +63,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       statusFilter,
       searchQuery,
       filterConversations,
+      showWaitingQueue,
     ],
   );
 

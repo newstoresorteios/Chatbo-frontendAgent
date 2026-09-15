@@ -9,6 +9,7 @@ interface ConversationCardProps {
   conversation: Conversation;
   active?: boolean;
   pinned?: boolean;
+  animateWaiting?: boolean;
   onClick: () => void;
 }
 
@@ -24,7 +25,7 @@ const statusLabel = {
   closed: 'Encerrada',
 };
 
-export function ConversationCard({ conversation, active, pinned, onClick }: ConversationCardProps) {
+export function ConversationCard({ conversation, active, pinned, animateWaiting = true, onClick }: ConversationCardProps) {
   const status = statusVariant[conversation.status] ? conversation.status : 'active';
   const handoffWaiting = isHandoffWaiting(conversation);
   return (
@@ -36,7 +37,8 @@ export function ConversationCard({ conversation, active, pinned, onClick }: Conv
           ? 'bg-primary-50 dark:bg-primary-900/20'
           : 'hover:bg-gray-50 dark:hover:bg-gray-800/50',
         pinned && !active && 'border-l-2 border-l-amber-400 bg-amber-50/50 dark:bg-amber-900/10',
-        handoffWaiting && !active && 'animate-handoff-card border-l-2 border-l-red-500 bg-red-50/70 dark:bg-red-950/20',
+        handoffWaiting && !active && 'border-l-2 border-l-red-500 bg-red-50/70 dark:bg-red-950/20',
+        handoffWaiting && !active && animateWaiting && 'animate-handoff-card',
         handoffWaiting && active && 'border-l-2 border-l-red-500',
       )}
     >

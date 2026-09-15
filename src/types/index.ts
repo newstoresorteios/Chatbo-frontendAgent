@@ -213,6 +213,8 @@ export interface Message {
 }
 
 export interface Conversation {
+  sessionIds?: string[];
+  activeSessionId?: string;
   id: string;
   customerId: string;
   customerName: string;

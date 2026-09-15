@@ -26,7 +26,7 @@ export const agentRuntimeService = {
 
     try {
       const { data } = await api.get<ConversationAgentContext>(
-        `/conversas/${conversationId}/agente`,
+        `/conversas/${conversationId}/agente`, { params: { scope: 'contact' } },
       );
       return {
         conversationId: data.conversationId ?? conversationId,
