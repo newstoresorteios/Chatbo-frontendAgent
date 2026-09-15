@@ -303,7 +303,7 @@ export const personaService = {
     return personaFromResponse(data);
   },
   updatePersona: async (personaId: string, payload: AgentPersona): Promise<AgentPersona> => {
-    const { data } = await api.patch<PersonaApiResponse>(`/personas/${personaId}`, personaToPayload(payload));
+    const { data } = await api.patch<PersonaApiResponse>(`/personas/${personaId}`, { ...personaToPayload(payload), expectedVersion: payload.version });
     return personaFromResponse(data);
   },
   activatePersona: async (personaId: string): Promise<AgentPersona> => {
@@ -350,5 +350,9 @@ export const personaService = {
   },
   deleteAttachment: async (personaId: string, attachmentId: string): Promise<void> => {
     await api.delete(`/personas/${personaId}/attachments/${attachmentId}`);
+  },
+  updateAttachmentValidity: async (personaId: string, attachmentId: string, validUntil: string | null, expectedUpdatedAt: string): Promise<PersonaAttachment> => {
+    const { data } = await api.patch<PersonaAttachment>(`/personas/${personaId}/attachments/${attachmentId}`, { validUntil, expectedUpdatedAt });
+    return data;
   },
 };

@@ -125,6 +125,8 @@ export const PERSONA_TRANSFER_TRIGGERS = [
 export type PersonaAttachmentStatus = 'uploaded' | 'processed' | 'failed';
 
 export interface PersonaAttachment {
+  validUntil?: string | null;
+  contentHash?: string | null;
   id: string;
   personaId: string;
   workspaceId: string;

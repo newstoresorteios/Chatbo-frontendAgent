@@ -17,6 +17,8 @@ interface PersonaAttachmentsPanelProps {
   deletingId?: string | null;
   onUpload: (file: File) => void;
   onRemove: (attachmentId: string) => void;
+  onValidityChange: (item: PersonaAttachment, value: string | null) => void;
+  updatingId?: string | null;
 }
 
 export function PersonaAttachmentsPanel({
@@ -26,6 +28,8 @@ export function PersonaAttachmentsPanel({
   deletingId,
   onUpload,
   onRemove,
+  onValidityChange,
+  updatingId,
 }: PersonaAttachmentsPanelProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -83,6 +87,21 @@ export function PersonaAttachmentsPanel({
                     {formatBytes(item.byteSize)}
                     {item.hasExtractedText ? ` · ${item.extractedChars} chars no agente` : ''}
                   </p>
+                  {item.contentHash && <p className="mt-1 text-xs text-gray-500">Versão do conteúdo: {item.contentHash.slice(0, 12)}</p>}
+                  <label className="mt-2 block text-xs text-gray-500">
+                    Válido até (data UTC; vazio significa sem vencimento)
+                    <input type="date" aria-label={`Validade de ${item.filename}`}
+                      className="ml-2 rounded border bg-transparent p-1"
+                      key={`${item.id}:${item.updatedAt}`}
+                      defaultValue={item.validUntil?.slice(0, 10) ?? ''}
+                      disabled={disabled || updatingId === item.id}
+                      onBlur={(event) => {
+                        const date = event.target.value;
+                        const value = date ? `${date}T23:59:59.999Z` : null;
+                        if (date !== (item.validUntil?.slice(0, 10) ?? '')) onValidityChange(item, value);
+                      }} />
+                  </label>
+                  {item.validUntil && new Date(item.validUntil).getTime() <= Date.now() && <p className="mt-1 text-xs text-amber-700">Vencido — fora das consultas do agente</p>}
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
                     <Badge variant={item.status === 'processed' ? 'success' : item.status === 'failed' ? 'danger' : 'warning'}>
                       {item.status === 'processed' ? 'Pronto' : item.status === 'failed' ? 'Falhou' : 'Enviado'}

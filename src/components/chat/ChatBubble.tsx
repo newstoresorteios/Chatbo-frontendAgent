@@ -9,6 +9,16 @@ interface ChatBubbleProps {
   onRetry?: (message: Message) => void;
 }
 
+
+function MessageText({ text }: { text: string }) {
+  return <span className="whitespace-pre-wrap break-words">{text.split(/(https?:\/\/[^\s<>]+)/g).map((part, index) => {
+    if (!/^https?:\/\//i.test(part)) return part;
+    const url = part.replace(/[.,!;]+$/, '');
+    const punctuation = part.slice(url.length);
+    return <span key={index}><a href={url} target="_blank" rel="noopener noreferrer" className="break-all underline underline-offset-2">{url}</a>{punctuation}</span>;
+  })}</span>;
+}
+
 const senderConfig = {
   customer: {
     align: 'justify-start',
@@ -32,7 +42,7 @@ export function ChatBubble({ message, customerName, onRetry }: ChatBubbleProps) 
   const isCustomer = message.sender === 'customer';
 
   return (
-    <div className={cn('flex gap-2', config.align)}>
+    <div className={cn('flex gap-2', config.align)} style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 80px' }}>
       {isCustomer && customerName && (
         <Avatar name={customerName} size="sm" className="mt-1 shrink-0" />
       )}
@@ -60,7 +70,7 @@ export function ChatBubble({ message, customerName, onRetry }: ChatBubbleProps) 
               <span className="truncate">{message.mediaFilename || 'Abrir documento'}</span>
             </a>
           )}
-          {(!message.mediaType || !message.content.startsWith(`[${message.mediaType}:`)) && message.content}
+          {(!message.mediaType || !message.content.startsWith(`[${message.mediaType}:`)) && <MessageText text={message.content} />}
           {message.mediaType && !message.mediaUrl && (
             <span className="block text-xs opacity-70">Anexo temporariamente indisponível</span>
           )}

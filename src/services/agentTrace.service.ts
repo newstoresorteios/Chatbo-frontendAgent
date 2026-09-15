@@ -22,6 +22,8 @@ export interface AgentTraceSummary {
   safetyReason?: string;
   personaVersionId?: number;
   configurationKeys: string[];
+  configurationVersion?: number;
+  configurationCount?: number;
   createdAt: string;
   responseSource?: string;
 }
@@ -31,6 +33,7 @@ export interface AgentTraceDetail extends AgentTraceSummary {
   llmCalls: Array<Record<string, unknown>>;
   llmCallsByType: Record<string, number>;
   trayTools: Array<{ tool?: string; ok?: boolean; elapsed_ms?: number }>;
+  catalogQueries: Array<{ source: string; strategy: string; status: string; filters: Record<string, unknown>; result_count: number | null; duration_ms: number }>;
   integrationFailures: Record<string, number>;
   inbound: Record<string, unknown>;
   context: Record<string, unknown>;
@@ -47,7 +50,7 @@ export interface AgentTracePage {
 }
 
 export const agentTraceService = {
-  list: async (filters?: { channel?: string; outcome?: string }): Promise<AgentTracePage> => {
+  list: async (filters?: { channel?: string; outcome?: string; before?: string }): Promise<AgentTracePage> => {
     const { data } = await api.get<AgentTracePage>('/agents/current/traces', {
       params: { limit: 60, ...filters },
     });

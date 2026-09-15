@@ -78,6 +78,8 @@ export interface LearningCase {
 }
 
 export interface LearningOverview {
+  configurationVersion?: number;
+  generatedAt?: string;
   tenantId: string;
   workspaceId: string;
   pendingInsights: LearningInsight[];
@@ -101,6 +103,10 @@ export const agentLearningKeys = {
 };
 
 export const agentLearningService = {
+  listExtensions: async (status: LearningExtensionStatus): Promise<LearningExtension[]> => {
+    const { data } = await api.get<{items: LearningExtension[]}>('/agent-learning/extensions', { params: {status, limit: 100} });
+    return data.items;
+  },
   overview: async (): Promise<LearningOverview> => {
     const { data } = await api.get<LearningOverview>('/agent-learning/overview');
     return data;

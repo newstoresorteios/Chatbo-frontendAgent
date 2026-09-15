@@ -350,10 +350,11 @@ export function ConversationsPage() {
       queryClient.setQueryData<Message[]>(['messages', activeConversationId], (current = []) =>
         mergeConversationMessages(current, older),
       );
+      if (lastScrolledConversationRef.current !== activeConversationId) return;
       if (older.length < MESSAGE_PAGE_SIZE) setHasOlderMessages(false);
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          if (!viewport) return;
+          if (!viewport || lastScrolledConversationRef.current !== activeConversationId) return;
           viewport.scrollTop = previousTop + viewport.scrollHeight - previousHeight;
         });
       });
@@ -364,7 +365,7 @@ export function ConversationsPage() {
         type: 'error',
       });
     } finally {
-      setLoadingOlderMessages(false);
+      if (lastScrolledConversationRef.current === activeConversationId) setLoadingOlderMessages(false);
     }
   };
 

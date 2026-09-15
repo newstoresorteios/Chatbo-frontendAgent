@@ -11,6 +11,7 @@ import {
 import { extractApiErrorMessage } from '@/utils/apiErrors';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 import {
   Activity,
   BrainCircuit,
@@ -157,10 +158,19 @@ function ExtensionCard({
 export function AgentLearningPage() {
   const queryClient = useQueryClient();
   const { addToast } = useNotification();
+  const [historyStatus, setHistoryStatus] = useState<'rejected' | 'superseded' | 'expired' | ''>('');
+  const history = useQuery({
+    queryKey: [...agentLearningKeys.all, 'history', historyStatus],
+    queryFn: () => agentLearningService.listExtensions(historyStatus || 'rejected'),
+    enabled: Boolean(historyStatus), staleTime: 30_000,
+  });
 
   const { data, isLoading, isFetching, refetch, error } = useQuery({
     queryKey: agentLearningKeys.overview(),
     queryFn: agentLearningService.overview,
+    staleTime: 10_000,
+    refetchInterval: 15_000,
+    refetchIntervalInBackground: false,
   });
 
   const invalidate = async () => {
@@ -293,16 +303,15 @@ export function AgentLearningPage() {
         <div>
           <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-200">
             <GraduationCap className="h-3.5 w-3.5" />
-            Gate humano · auto-promote desligado
+            Configuração publicada · versão {data?.configurationVersion ?? '—'}
           </div>
           <h1 className="font-display text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
             Aprendizado do agente
           </h1>
           <p className="mt-1 max-w-2xl text-gray-500 dark:text-gray-400">
             Revise insights gerados pelos atendimentos e autorize a promoção para a persona.
-            Com <code className="text-xs">AGENT_LEARNING_AUTO_PROMOTE=false</code> e{' '}
-            <code className="text-xs">AGENT_LEARNING_AUTO_ACTIVATE=false</code>, nada entra na
-            persona sem esta aprovação.
+            Os critérios de promoção automática e ativação são definidos nas configurações avançadas do workspace.
+            Atualizado em {formatDate(data?.generatedAt)}.
           </p>
         </div>
         <Button variant="outline" loading={isFetching} onClick={() => void refetch()}>
@@ -355,7 +364,7 @@ export function AgentLearningPage() {
           <EmptyState
             icon={GraduationCap}
             title="Nenhum aprendizado pendente"
-            description="Quando o cron de attendance-learning gerar insights, eles aparecem aqui para autorização."
+            description="As melhorias identificadas nas avaliações de atendimento aparecem aqui para revisão."
           />
         ) : (
           <div className="grid gap-4 xl:grid-cols-2">
@@ -450,7 +459,7 @@ export function AgentLearningPage() {
               {activeCases.map((item) => (
                 <article key={item.id} className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
                   <div className="mb-3 flex flex-wrap items-center gap-2">
-                    <Badge variant="success">Aplicado ao prompt</Badge>
+                    <Badge variant="success">Disponível para consultas relevantes</Badge>
                     {item.failureCodes.map((code) => <Badge key={code} variant="default">{code}</Badge>)}
                     <span className="ml-auto text-xs text-gray-500">Importância {formatPct(item.importance)}</span>
                   </div>
@@ -492,6 +501,24 @@ export function AgentLearningPage() {
           )}
         </section>
       </div>
+      <section className="space-y-3">
+        <label className="block text-sm font-medium">Histórico de instruções
+          <select className="ml-3 rounded border bg-transparent p-2" value={historyStatus}
+            onChange={(event) => setHistoryStatus(event.target.value as typeof historyStatus)}>
+            <option value="">Carregar histórico</option><option value="rejected">Rejeitadas</option>
+            <option value="superseded">Desativadas ou substituídas</option><option value="expired">Expiradas</option>
+          </select>
+        </label>
+        {history.isFetching && <p className="text-sm">Carregando histórico…</p>}
+        {history.error && <p role="alert" className="text-sm text-red-600">{extractApiErrorMessage(history.error)}</p>}
+        {historyStatus && history.data?.length === 0 && <p className="text-sm text-gray-500">Nenhuma instrução neste estado.</p>}
+        {historyStatus && history.data?.map((item) => <article key={item.id} className="rounded-xl border p-4">
+          <p className="text-xs text-gray-500">{item.extensionKey} · {formatDate(item.updatedAt)}</p>
+          <p className="mt-2 whitespace-pre-wrap text-sm">{item.instructionText}</p>
+          {item.rejectionReason && <p className="mt-2 text-sm text-amber-700">Motivo: {item.rejectionReason}</p>}
+        </article>)}
+        {historyStatus && (history.data?.length ?? 0) >= 100 && <p className="text-xs">Exibindo as 100 instruções mais recentes deste estado.</p>}
+      </section>
     </motion.div>
   );
 }

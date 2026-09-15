@@ -6,12 +6,17 @@ export interface AgentConfigurationField {
   key: string;
   label: string;
   description: string;
-  type: 'integer' | 'number' | 'select' | 'boolean';
+  type: 'integer' | 'number' | 'select' | 'boolean' | 'text' | 'textarea';
   group: string;
   min?: number;
   max?: number;
   step?: number;
   options?: Array<{ value: string; label: string }>;
+  readOnly?: boolean;
+  maxLength?: number;
+  variables?: string[];
+  valueSchema?: string;
+  target?: 'setting' | 'runtime' | 'policy' | 'message' | 'knowledge';
 }
 
 export interface AgentConfiguration {

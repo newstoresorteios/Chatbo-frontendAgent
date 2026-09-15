@@ -9,7 +9,7 @@ import {
 } from '@/services/agentTrace.service';
 import { extractApiErrorMessage } from '@/utils/apiErrors';
 import { formatDateTime } from '@/utils';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { Activity, Bot, Clock3, Database, RefreshCw, Search, Wrench } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -86,16 +86,20 @@ export function AgentTracesPage() {
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  const traces = useQuery({
+  const traces = useInfiniteQuery({
     queryKey: ['agent', 'traces', channel, outcome],
-    queryFn: () => agentTraceService.list({ channel: channel || undefined, outcome: outcome || undefined }),
+    queryFn: ({ pageParam }) => agentTraceService.list({ channel: channel || undefined, outcome: outcome || undefined, before: pageParam }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (page) => page.hasNext ? page.nextCursor : undefined,
     refetchInterval: 10_000,
+    refetchIntervalInBackground: false,
   });
 
   const visible = useMemo(() => {
     const term = search.trim().toLocaleLowerCase('pt-BR');
-    if (!term) return traces.data?.items ?? [];
-    return (traces.data?.items ?? []).filter((item) => [item.traceId, item.inputPreview, item.outputPreview, item.intent]
+    const items = [...new Map((traces.data?.pages.flatMap((page) => page.items) ?? []).map((item) => [item.id, item])).values()];
+    if (!term) return items;
+    return items.filter((item) => [item.traceId, item.inputPreview, item.outputPreview, item.intent]
       .some((value) => String(value ?? '').toLocaleLowerCase('pt-BR').includes(term)));
   }, [search, traces.data]);
 
@@ -141,6 +145,7 @@ export function AgentTracesPage() {
         <div className="grid min-h-[620px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900 lg:grid-cols-[minmax(340px,0.9fr)_minmax(460px,1.4fr)]">
           <div className="max-h-[760px] overflow-y-auto border-r border-slate-200 dark:border-slate-700">
             {visible.map((trace) => <TraceRow key={trace.id} trace={trace} selected={trace.id === selectedId} onSelect={() => setSelectedId(trace.id)} />)}
+            {traces.hasNextPage && <div className="p-4"><Button variant="outline" loading={traces.isFetchingNextPage} onClick={() => void traces.fetchNextPage()}>Carregar execuções anteriores</Button></div>}
           </div>
           <div className="max-h-[760px] overflow-y-auto p-5 lg:p-6">
             {detail.error ? (
@@ -151,10 +156,11 @@ export function AgentTracesPage() {
                   <div className="flex flex-wrap items-center gap-2"><Badge variant={outcomeVariants[detail.data.outcome]}>{outcomeLabels[detail.data.outcome]}</Badge><Badge variant="default">{detail.data.channel}</Badge></div>
                   <p className="mt-3 break-all font-mono text-sm text-slate-700 dark:text-slate-200">{detail.data.traceId}</p>
                   <p className="mt-2 text-sm text-slate-500">{detail.data.outputPreview || 'Sem prévia de resposta.'}</p>
+                  <p className="mt-2 text-xs text-slate-500">Persona {detail.data.personaVersionId ?? '—'} · Configuração {detail.data.configurationVersion ?? 'legada'}</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  {[{ label: 'Tempo', value: detail.data.durationMs ? `${Math.round(detail.data.durationMs)} ms` : '—', icon: Clock3 }, { label: 'OpenAI', value: detail.data.openAiCalls, icon: Bot }, { label: 'Tray', value: detail.data.trayCalls, icon: Wrench }, { label: 'Banco', value: detail.data.databaseCalls, icon: Database }].map(({ label, value, icon: Icon }) => (
+                  {[{ label: 'Tempo', value: detail.data.durationMs != null ? `${Math.round(detail.data.durationMs)} ms` : '—', icon: Clock3 }, { label: 'OpenAI', value: detail.data.openAiCalls ?? '—', icon: Bot }, { label: 'Tray', value: detail.data.trayCalls ?? '—', icon: Wrench }, { label: 'Banco', value: detail.data.databaseCalls ?? '—', icon: Database }].map(({ label, value, icon: Icon }) => (
                     <div key={label} className="rounded-xl bg-slate-50 p-3 dark:bg-slate-800"><Icon className="h-4 w-4 text-cyan-600" /><p className="mt-2 text-xs text-slate-500">{label}</p><p className="font-semibold text-slate-900 dark:text-white">{String(value)}</p></div>
                   ))}
                 </div>
@@ -162,6 +168,10 @@ export function AgentTracesPage() {
                 <section><h2 className="mb-3 font-semibold text-slate-900 dark:text-white">Tempo por etapa</h2><StageTimeline stages={detail.data.stages} /></section>
                 <section className="space-y-3">
                   <h2 className="font-semibold text-slate-900 dark:text-white">Consultas realizadas</h2>
+                  {(detail.data.catalogQueries ?? []).map((query, index) => <div key={`catalog-${index}`} className="rounded-lg border border-slate-200 p-3 text-sm dark:border-slate-700">
+                    <div className="flex justify-between gap-3"><span>Catálogo · {query.strategy}</span><span>{query.status === 'ok' ? `${query.result_count ?? 0} resultados` : 'falha na consulta'} · {Math.round(query.duration_ms)} ms</span></div>
+                    <dl className="mt-2 grid gap-1 text-xs text-slate-500">{Object.entries(query.filters).map(([key, value]) => <div key={key} className="flex gap-2"><dt>{key}:</dt><dd className="break-all">{String(value)}</dd></div>)}</dl>
+                  </div>)}
                   {!detail.data.trayTools.length && !detail.data.llmCalls.length ? <p className="text-sm text-slate-500">Nenhuma consulta externa registrada.</p> : null}
                   {detail.data.trayTools.map((tool, index) => <div key={`${tool.tool}-${index}`} className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700"><span className="font-mono">Tray · {tool.tool || 'consulta'}</span><span className={tool.ok ? 'text-emerald-600' : 'text-red-500'}>{tool.ok ? 'sucesso' : 'falha'} · {Math.round(tool.elapsed_ms ?? 0)} ms</span></div>)}
                   {detail.data.llmCalls.map((call, index) => <div key={`llm-${index}`} className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700"><span className="font-mono">OpenAI · {String(call.call_type ?? call.model ?? 'geração')}</span><span className="text-slate-500">{String(call.elapsed_ms ? `${Math.round(Number(call.elapsed_ms))} ms` : call.route ?? '')}</span></div>)}

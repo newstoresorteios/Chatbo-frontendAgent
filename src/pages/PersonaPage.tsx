@@ -233,6 +233,16 @@ export function PersonaPage() {
     onError: (error) => addToast({ title: 'Falha ao remover', message: errorMessage(error), type: 'error' }),
   });
 
+  const attachmentValidityMutation = useMutation({
+    mutationFn: ({ id, validUntil, expectedUpdatedAt }: { id: string; validUntil: string | null; expectedUpdatedAt: string }) =>
+      personaService.updateAttachmentValidity(selectedId ?? '', id, validUntil, expectedUpdatedAt),
+    onSuccess: async () => {
+      if (selectedId) await queryClient.invalidateQueries({ queryKey: personaKeys.attachments(workspace.id, selectedId) });
+      addToast({ title: 'Validade atualizada', message: 'A nova validade será usada nas próximas consultas.', type: 'success' });
+    },
+    onError: (error) => addToast({ title: 'Falha ao salvar validade', message: errorMessage(error), type: 'error' }),
+  });
+
   const testMutation = useMutation({
     mutationFn: (customerMessage: string) => personaService.testPersona({
       persona: draft,
@@ -470,6 +480,10 @@ export function PersonaPage() {
                 deletingId={deleteAttachmentMutation.isPending ? deleteAttachmentMutation.variables : null}
                 onUpload={(file) => uploadAttachmentMutation.mutate(file)}
                 onRemove={(attachmentId) => deleteAttachmentMutation.mutate(attachmentId)}
+                updatingId={attachmentValidityMutation.isPending ? attachmentValidityMutation.variables.id : null}
+                onValidityChange={(item, value) => {
+                  if (item.updatedAt) attachmentValidityMutation.mutate({ id: item.id, validUntil: value, expectedUpdatedAt: item.updatedAt });
+                }}
               />
             )}
           </Card>

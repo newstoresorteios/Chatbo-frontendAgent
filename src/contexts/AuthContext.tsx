@@ -13,6 +13,7 @@ import { authService, REFRESH_KEY, TOKEN_KEY, USER_KEY } from '@/services/api';
 import { extractApiErrorMessage } from '@/utils/apiErrors';
 import { normalizeSessionUser } from '@/utils/sessionScope';
 import type { LoginCredentials, RegisterCredentials, User } from '@/types';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface AuthContextValue {
   user: User | null;
@@ -69,6 +70,7 @@ function readStoredSessionUser(): User | null {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const queryClient = useQueryClient();
   const [user, setUser] = useState<User | null>(() => readStoredSessionUser());
   const [isLoading, setIsLoading] = useState(() => Boolean(localStorage.getItem(TOKEN_KEY) && !USE_MOCK));
 
@@ -106,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (credentials: LoginCredentials) => {
+    queryClient.clear();
     setIsLoading(true);
     try {
       if (!credentials.email || !credentials.password) {
@@ -132,9 +135,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [queryClient]);
 
   const register = useCallback(async (credentials: RegisterCredentials) => {
+    queryClient.clear();
     setIsLoading(true);
     try {
       if (!credentials.name || !credentials.email || !credentials.password) {
@@ -168,7 +172,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [queryClient]);
 
   const logout = useCallback(() => {
     if (!USE_MOCK) {
@@ -176,8 +180,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       authService.logout(refreshToken).catch(() => undefined);
     }
     clearSession();
+    queryClient.clear();
     setUser(null);
-  }, []);
+  }, [queryClient]);
 
   const updateProfile = useCallback(async (patch: Partial<User>) => {
     if (USE_MOCK) {
