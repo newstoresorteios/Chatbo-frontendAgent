@@ -222,6 +222,17 @@ export const conversationsService = {
     return data;
   },
 
+  markRead: async (conversationId: string): Promise<Conversation> => {
+    if (USE_MOCK) {
+      await delay(100);
+      const conv = mockConversations.find((c) => c.id === conversationId);
+      if (!conv) throw new Error('Conversa não encontrada');
+      return { ...conv, unreadCount: 0 };
+    }
+    const { data } = await api.patch<Conversation>(`/conversas/${conversationId}/lida`);
+    return normalizeConversation(data as Conversation & Record<string, unknown>);
+  },
+
   close: async (conversationId: string, note?: string): Promise<Conversation> => {
     if (USE_MOCK) {
       await delay(200);

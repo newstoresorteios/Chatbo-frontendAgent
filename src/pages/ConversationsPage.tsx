@@ -121,6 +121,7 @@ export function ConversationsPage() {
     { live: true },
   );
   const knownConversationIdsRef = useRef<Set<string> | null>(null);
+  const attemptedReadKeysRef = useRef(new Map<string, number>());
   const activeConversation = conversations?.find((c) => c.id === activeConversationId);
   const { data: customerDetail } = useCustomerDetail(activeConversation?.customerId, contextOpen);
   const {
@@ -233,6 +234,29 @@ export function ConversationsPage() {
   const isClosed = activeConversation?.status === 'closed';
   const isAssignedToMe = !!user?.id && activeConversation?.assignedTo === user.id;
   const canReply = Boolean(user?.id) && isAssignedToMe && !isClosed;
+
+  useEffect(() => {
+    if (!activeConversationId || !isAssignedToMe || !activeConversation?.unreadCount
+      || messagesLoading || messagesError || !messages
+      || document.visibilityState !== 'visible') return;
+    const key = `${activeConversationId}:${activeConversation.lastMessageAt}`;
+    const now = Date.now();
+    if ((attemptedReadKeysRef.current.get(key) ?? 0) > now - 10_000) return;
+    attemptedReadKeysRef.current.set(key, now);
+    void conversationsService.markRead(activeConversationId).then((updated) => {
+      queryClient.setQueryData<Conversation[]>(['conversations'], (old) =>
+        old?.map((conversation) => conversation.id === updated.id
+          ? (conversation.lastMessageAt === updated.lastMessageAt
+            ? { ...conversation, unreadCount: updated.unreadCount }
+            : conversation)
+          : conversation),
+      );
+      if (updated.unreadCount === 0) attemptedReadKeysRef.current.set(key, Infinity);
+    }).catch(() => {
+      void queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    });
+  }, [activeConversationId, activeConversation?.lastMessageAt, activeConversation?.unreadCount,
+    isAssignedToMe, messages, messagesLoading, messagesError, queryClient]);
 
   const invalidateConversation = () => {
     queryClient.invalidateQueries({ queryKey: ['conversations'] });
