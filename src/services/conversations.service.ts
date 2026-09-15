@@ -83,7 +83,7 @@ export const conversationsService = {
       await delay(400);
       return mockConversations;
     }
-    const { data } = await api.get<unknown>('/conversas');
+    const { data } = await api.get<unknown>('/conversas', { params: { limit: 60 } });
     return unwrapList<Partial<Conversation> & Record<string, unknown>>(data)
       .filter((row) => row && row.id)
       .map(normalizeConversation);
@@ -94,7 +94,9 @@ export const conversationsService = {
       await delay(300);
       return messagesStore[conversationId] ?? [];
     }
-    const { data } = await api.get<unknown>(`/conversas/${conversationId}/mensagens`);
+    const { data } = await api.get<unknown>(`/conversas/${conversationId}/mensagens`, {
+      params: { limit: 60 },
+    });
     return unwrapList<Partial<Message> & Record<string, unknown>>(data).map(normalizeMessage);
   },
 

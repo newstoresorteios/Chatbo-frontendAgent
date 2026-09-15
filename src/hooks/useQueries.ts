@@ -38,18 +38,19 @@ export function useCustomers(params: ListParams = {}) {
   });
 }
 
-export function useCustomerDetail(id: string | undefined) {
+export function useCustomerDetail(id: string | undefined, enabled = true) {
   return useQuery({
     queryKey: ['customer', id],
     queryFn: () => customersService.getCustomerDetail(id!),
-    enabled: !!id,
+    enabled: !!id && enabled,
   });
 }
 
-export function useProducts(params: ListParams = {}) {
+export function useProducts(params: ListParams = {}, enabled = true) {
   return useQuery({
     queryKey: ['products', params],
     queryFn: () => productsService.getProducts(params),
+    enabled,
   });
 }
 
@@ -103,8 +104,8 @@ export function useConversations(options?: { live?: boolean }) {
   return useQuery({
     queryKey: ['conversations'],
     queryFn: conversationsService.getConversations,
-    staleTime: live ? 2_000 : 30_000,
-    refetchInterval: live ? 3_000 : false,
+    staleTime: live ? 4_000 : 30_000,
+    refetchInterval: live ? 5_000 : false,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
@@ -124,8 +125,8 @@ export function useMessages(conversationId: string | null, options?: { live?: bo
     queryKey: ['messages', conversationId],
     queryFn: () => conversationsService.getMessages(conversationId!),
     enabled: !!conversationId,
-    staleTime: live ? 2_000 : 30_000,
-    refetchInterval: conversationId ? (live ? 3_000 : false) : false,
+    staleTime: live ? 1_500 : 30_000,
+    refetchInterval: conversationId ? (live ? 2_000 : false) : false,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
@@ -140,13 +141,13 @@ export function useMessages(conversationId: string | null, options?: { live?: bo
   });
 }
 
-export function useConversationAgentContext(conversationId: string | null) {
+export function useConversationAgentContext(conversationId: string | null, enabled = true) {
   return useQuery({
     queryKey: ['conversation-agent-context', conversationId],
     queryFn: () => agentRuntimeService.getConversationAgentContext(conversationId!),
-    enabled: !!conversationId,
+    enabled: !!conversationId && enabled,
     staleTime: 20_000,
-    refetchInterval: conversationId ? 20_000 : false,
+    refetchInterval: false,
     refetchOnWindowFocus: false,
     placeholderData: (previous) => previous,
     retry: (failureCount, error) => {

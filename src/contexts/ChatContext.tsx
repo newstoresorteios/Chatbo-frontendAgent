@@ -6,15 +6,11 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { Conversation, Message } from '@/types';
+import type { Conversation } from '@/types';
 
 interface ChatContextValue {
   activeConversationId: string | null;
   setActiveConversationId: (id: string | null) => void;
-  isTyping: boolean;
-  setIsTyping: (typing: boolean) => void;
-  localMessages: Record<string, Message[]>;
-  addLocalMessage: (conversationId: string, message: Message) => void;
   filter: string;
   setFilter: (filter: string) => void;
   statusFilter: string;
@@ -28,18 +24,9 @@ const ChatContext = createContext<ChatContextValue | null>(null);
 
 export function ChatProvider({ children }: { children: ReactNode }) {
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
-  const [isTyping, setIsTyping] = useState(false);
-  const [localMessages, setLocalMessages] = useState<Record<string, Message[]>>({});
   const [filter, setFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-
-  const addLocalMessage = useCallback((conversationId: string, message: Message) => {
-    setLocalMessages((prev) => ({
-      ...prev,
-      [conversationId]: [...(prev[conversationId] ?? []), message],
-    }));
-  }, []);
 
   const filterConversations = useCallback(
     (conversations: Conversation[]) => {
@@ -60,10 +47,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     () => ({
       activeConversationId,
       setActiveConversationId,
-      isTyping,
-      setIsTyping,
-      localMessages,
-      addLocalMessage,
       filter,
       setFilter,
       statusFilter,
@@ -74,9 +57,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     }),
     [
       activeConversationId,
-      isTyping,
-      localMessages,
-      addLocalMessage,
       filter,
       statusFilter,
       searchQuery,

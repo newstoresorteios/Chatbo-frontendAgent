@@ -25,7 +25,7 @@ import { useConversationSuggestion } from '@/hooks/useConversationSuggestion';
 import { conversationsService } from '@/services/conversations.service';
 import { roleLabel, usersService } from '@/services/users.service';
 import { extractApiErrorMessage } from '@/utils/apiErrors';
-import type { Conversation } from '@/types';
+import type { Conversation, Message } from '@/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
@@ -61,10 +61,6 @@ export function ConversationsPage() {
   const {
     activeConversationId,
     setActiveConversationId,
-    isTyping,
-    setIsTyping,
-    localMessages,
-    addLocalMessage,
     filterConversations,
     filter,
     setFilter,
@@ -75,6 +71,13 @@ export function ConversationsPage() {
   } = useChat();
 
   const { user } = useAuth();
+  const [transferOpen, setTransferOpen] = useState(false);
+  const [reserveOpen, setReserveOpen] = useState(false);
+  const [closeOpen, setCloseOpen] = useState(false);
+  const [contextOpen, setContextOpen] = useState(false);
+  const [transferAgent, setTransferAgent] = useState('');
+  const [reserveProduct, setReserveProduct] = useState('');
+  const [closeNote, setCloseNote] = useState('');
   const {
     data: conversations,
     isLoading,
@@ -97,30 +100,28 @@ export function ConversationsPage() {
   );
   const knownConversationIdsRef = useRef<Set<string> | null>(null);
   const activeConversation = conversations?.find((c) => c.id === activeConversationId);
-  const { data: customerDetail } = useCustomerDetail(activeConversation?.customerId);
+  const { data: customerDetail } = useCustomerDetail(activeConversation?.customerId, contextOpen);
   const {
     data: agentContext,
     isLoading: agentContextLoading,
     isError: agentContextError,
-  } = useConversationAgentContext(activeConversationId);
+  } = useConversationAgentContext(activeConversationId, contextOpen);
   const { data: teamUsers, isLoading: teamLoading } = useQuery({
     queryKey: ['usuarios'],
     queryFn: usersService.list,
+    enabled: transferOpen,
   });
-  const { data: productsData } = useProducts({ page: 1, pageSize: 50 });
+  const { data: productsData, isLoading: productsLoading } = useProducts(
+    { page: 1, pageSize: 50 },
+    reserveOpen,
+  );
   const queryClient = useQueryClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesViewportRef = useRef<HTMLDivElement>(null);
+  const lastScrolledConversationRef = useRef<string | null>(null);
   const { addToast } = useNotification();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-
-  const [transferOpen, setTransferOpen] = useState(false);
-  const [reserveOpen, setReserveOpen] = useState(false);
-  const [closeOpen, setCloseOpen] = useState(false);
-  const [contextOpen, setContextOpen] = useState(false);
-  const [transferAgent, setTransferAgent] = useState('');
-  const [reserveProduct, setReserveProduct] = useState('');
-  const [closeNote, setCloseNote] = useState('');
 
   const agentOptions = useMemo(
     () =>
@@ -156,10 +157,7 @@ export function ConversationsPage() {
 
   const mergedForAi = useMemo(() => {
     if (!activeConversationId) return [];
-    const combined = [
-      ...(messages ?? []),
-      ...(localMessages[activeConversationId] ?? []),
-    ];
+    const combined = messages ?? [];
     const seen = new Set<string>();
     return combined.filter((msg) => {
       const external = (msg as { externalId?: string }).externalId;
@@ -178,15 +176,19 @@ export function ConversationsPage() {
       keys.forEach((k) => seen.add(k));
       return true;
     });
-  }, [messages, localMessages, activeConversationId]);
+  }, [messages, activeConversationId]);
 
   const { data: aiSuggestion, isLoading: aiLoading } = useConversationSuggestion(
     activeConversationId,
     activeConversation?.customerId,
     mergedForAi,
+    contextOpen,
   );
 
-  const filtered = conversations ? filterConversations(conversations) : [];
+  const filtered = useMemo(
+    () => (conversations ? filterConversations(conversations) : []),
+    [conversations, filterConversations],
+  );
   const hasActiveFilters =
     filter !== 'all' || statusFilter !== 'all' || Boolean(searchQuery.trim());
   const isInboxEmpty = (conversations?.length ?? 0) === 0;
@@ -261,22 +263,45 @@ export function ConversationsPage() {
   }, [conversations, addToast]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, localMessages, activeConversationId]);
+    const viewport = messagesViewportRef.current;
+    if (!viewport) return;
+    const conversationChanged = lastScrolledConversationRef.current !== activeConversationId;
+    lastScrolledConversationRef.current = activeConversationId;
+    const distanceFromBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
+    if (conversationChanged || distanceFromBottom < 180) {
+      messagesEndRef.current?.scrollIntoView({ behavior: conversationChanged ? 'auto' : 'smooth' });
+    }
+  }, [messages, activeConversationId]);
 
   const sendMutation = useMutation({
-    mutationFn: (content: string) =>
-      conversationsService.sendMessage(activeConversationId!, content),
-    onSuccess: (message) => {
-      addLocalMessage(activeConversationId!, message);
-      invalidateConversation();
-      addToast({
-        title: 'Mensagem enviada',
-        message: 'A resposta foi entregue ao cliente pelo canal da conversa.',
-        type: 'success',
-      });
+    mutationFn: ({ conversationId, content }: { conversationId: string; content: string; tempId: string }) =>
+      conversationsService.sendMessage(conversationId, content),
+    onMutate: async ({ conversationId, content, tempId }) => {
+      const queryKey = ['messages', conversationId] as const;
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<Message[]>(queryKey);
+      const optimistic: Message = {
+        id: tempId,
+        conversationId,
+        content,
+        sender: 'agent',
+        timestamp: new Date().toISOString(),
+        status: 'sending',
+      };
+      queryClient.setQueryData<Message[]>(queryKey, (old = []) => [...old, optimistic]);
+      return { previous };
     },
-    onError: (error) => {
+    onSuccess: (message, { conversationId, tempId }) => {
+      queryClient.setQueryData<Message[]>(['messages', conversationId], (old = []) =>
+        old.map((item) => (item.id === tempId ? message : item)),
+      );
+      void queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      void queryClient.invalidateQueries({ queryKey: ['messages', conversationId] });
+    },
+    onError: (error, { conversationId, tempId }) => {
+      queryClient.setQueryData<Message[]>(['messages', conversationId], (old = []) =>
+        old.map((item) => (item.id === tempId ? { ...item, status: 'failed' } : item)),
+      );
       addToast({
         title: 'Erro ao enviar',
         message: extractApiErrorMessage(
@@ -383,9 +408,19 @@ export function ConversationsPage() {
       });
       return;
     }
-    sendMutation.mutate(content);
-    setIsTyping(true);
-    setTimeout(() => setIsTyping(false), 2000);
+    sendMutation.mutate({
+      conversationId: activeConversationId,
+      content,
+      tempId: `pending-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    });
+  };
+
+  const handleRetryMessage = (message: Message) => {
+    if (!activeConversationId || !canReply) return;
+    queryClient.setQueryData<Message[]>(['messages', activeConversationId], (old = []) =>
+      old.filter((item) => item.id !== message.id),
+    );
+    handleSend(message.content);
   };
 
   const handleUseSuggestion = () => {
@@ -412,7 +447,6 @@ export function ConversationsPage() {
 
   const allMessages = mergedForAi;
 
-  if (isLoading) return <Loading text="Carregando conversas..." />;
   if (conversationsError) {
     return (
       <EmptyState
@@ -496,7 +530,11 @@ export function ConversationsPage() {
           }`}
         >
           <div className="min-h-0 flex-1 overflow-y-auto">
-            {displayList.length === 0 ? (
+            {isLoading ? (
+              <div className="p-6">
+                <Loading text="Carregando conversas..." />
+              </div>
+            ) : displayList.length === 0 ? (
               <ConversationsEmptyState filtered={!isInboxEmpty || hasActiveFilters} />
             ) : (
               displayList.map((conv) => (
@@ -594,7 +632,7 @@ export function ConversationsPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => setTransferOpen(true)}
-                    disabled={isClosed || teamLoading || agentOptions.length === 0 || !canReply}
+                    disabled={isClosed || !canReply}
                   >
                     <RefreshCw className="h-4 w-4" /> Transferir
                   </Button>
@@ -602,7 +640,7 @@ export function ConversationsPage() {
               </div>
 
               <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-slate-50 dark:bg-[#0b1220]">
-                <div className="dashboard-grid-bg min-h-0 flex-1 space-y-3 overflow-y-auto px-3 py-3 sm:px-4">
+                <div ref={messagesViewportRef} className="dashboard-grid-bg min-h-0 flex-1 space-y-3 overflow-y-auto px-3 py-3 sm:px-4">
                   {isClosed && (
                     <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
                       Conversa encerrada. Reabra para enviar novas mensagens.
@@ -636,10 +674,10 @@ export function ConversationsPage() {
                         key={msg.id}
                         message={msg}
                         customerName={activeConversation.customerName}
+                        onRetry={handleRetryMessage}
                       />
                     ))
                   )}
-                  {isTyping && <div className="text-sm text-gray-400">Digitando...</div>}
                   <div ref={messagesEndRef} />
                 </div>
 
@@ -666,7 +704,7 @@ export function ConversationsPage() {
                 <div className="shrink-0 border-t border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
                   <MessageInput
                     onSend={handleSend}
-                    disabled={!canReply || sendMutation.isPending}
+                    disabled={!canReply}
                     placeholder={
                       isClosed
                         ? 'Conversa encerrada'
@@ -701,7 +739,7 @@ export function ConversationsPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => setReserveOpen(true)}
-                        disabled={!canReply || productOptions.length === 0}
+                        disabled={!canReply}
                       >
                         <Package className="h-4 w-4" /> Reservar produto
                       </Button>
@@ -809,7 +847,9 @@ export function ConversationsPage() {
           </>
         }
       >
-        {agentOptions.length === 0 ? (
+        {teamLoading ? (
+          <Loading text="Carregando equipe..." />
+        ) : agentOptions.length === 0 ? (
           <p className="text-sm text-gray-500">Cadastre pessoas com login em Configurações → Equipe e acessos.</p>
         ) : (
           <Select
@@ -855,7 +895,9 @@ export function ConversationsPage() {
           </>
         }
       >
-        {productOptions.length === 0 ? (
+        {productsLoading ? (
+          <Loading text="Carregando produtos..." />
+        ) : productOptions.length === 0 ? (
           <p className="text-sm text-gray-500">Sincronize produtos no Mercos primeiro.</p>
         ) : (
           <>

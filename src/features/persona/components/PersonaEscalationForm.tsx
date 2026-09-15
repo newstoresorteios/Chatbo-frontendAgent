@@ -2,7 +2,7 @@ import { ListEditor } from '@/features/persona/components/PersonaFormPrimitives'
 import type { AgentPersona } from '@/features/persona/types';
 import { PERSONA_TRANSFER_TRIGGERS } from '@/features/persona/types';
 
-const transferTriggers = [...PERSONA_TRANSFER_TRIGGERS];
+const transferTriggers: readonly string[] = PERSONA_TRANSFER_TRIGGERS;
 
 export function PersonaEscalationForm({
   value,

@@ -193,7 +193,7 @@ export interface SalesRankings {
 }
 
 export type MessageSender = 'customer' | 'agent' | 'ai';
-export type MessageStatus = 'sent' | 'delivered' | 'read';
+export type MessageStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
 export type ConversationStatus = 'active' | 'waiting' | 'closed';
 
 export interface Message {

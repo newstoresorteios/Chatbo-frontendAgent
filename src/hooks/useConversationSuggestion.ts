@@ -6,12 +6,13 @@ export function useConversationSuggestion(
   conversationId: string | null,
   customerId?: string,
   extraMessages?: Message[],
+  enabled = true,
 ) {
   return useQuery({
     queryKey: ['ai-suggestion', conversationId, customerId, extraMessages?.length],
     queryFn: () =>
       agentService.suggestForConversation(conversationId!, customerId, extraMessages),
-    enabled: !!conversationId,
+    enabled: !!conversationId && enabled,
     staleTime: 30_000,
   });
 }

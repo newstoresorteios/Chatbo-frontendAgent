@@ -1,11 +1,12 @@
 import { cn, formatDateTime } from '@/utils';
 import type { Message } from '@/types';
-import { Bot, User } from 'lucide-react';
+import { Bot, Check, CheckCheck, Clock3, RotateCcw, User } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 
 interface ChatBubbleProps {
   message: Message;
   customerName?: string;
+  onRetry?: (message: Message) => void;
 }
 
 const senderConfig = {
@@ -26,7 +27,7 @@ const senderConfig = {
   },
 };
 
-export function ChatBubble({ message, customerName }: ChatBubbleProps) {
+export function ChatBubble({ message, customerName, onRetry }: ChatBubbleProps) {
   const config = senderConfig[message.sender] ?? senderConfig.agent;
   const isCustomer = message.sender === 'customer';
 
@@ -47,7 +48,19 @@ export function ChatBubble({ message, customerName }: ChatBubbleProps) {
         </div>
         <div className="mt-1 flex items-center gap-1.5 text-xs text-gray-400">
           <span>{formatDateTime(message.timestamp)}</span>
-          {!isCustomer && message.status === 'read' && <span>· Visualizado</span>}
+          {!isCustomer && message.status === 'sending' && <Clock3 className="h-3 w-3" aria-label="Enviando" />}
+          {!isCustomer && message.status === 'sent' && <Check className="h-3 w-3" aria-label="Enviada" />}
+          {!isCustomer && message.status === 'delivered' && <CheckCheck className="h-3 w-3" aria-label="Entregue" />}
+          {!isCustomer && message.status === 'read' && <CheckCheck className="h-3 w-3 text-sky-500" aria-label="Visualizada" />}
+          {!isCustomer && message.status === 'failed' && (
+            <button
+              type="button"
+              className="flex items-center gap-1 text-red-500 hover:text-red-600"
+              onClick={() => onRetry?.(message)}
+            >
+              <RotateCcw className="h-3 w-3" /> Tentar novamente
+            </button>
+          )}
         </div>
       </div>
     </div>
