@@ -1,4 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRef } from 'react';
 import { dashboardService } from '@/services/dashboard.service';
 import { salesService } from '@/services/sales.service';
 import { customersService, productsService, ordersService } from '@/services/data.service';
@@ -6,7 +7,7 @@ import { mercosService } from '@/services/mercos.service';
 import { agentService } from '@/services/agent.service';
 import { rankingsService } from '@/services/rankings.service';
 import { systemService } from '@/services/system.service';
-import { conversationsService } from '@/services/conversations.service';
+import { conversationsService, mergeConversationMessages } from '@/services/conversations.service';
 import { agentRuntimeService } from '@/services/agentRuntime.service';
 import type { Conversation, ListParams, Message } from '@/types';
 
@@ -104,8 +105,8 @@ export function useConversations(options?: { live?: boolean }) {
   return useQuery({
     queryKey: ['conversations'],
     queryFn: conversationsService.getConversations,
-    staleTime: live ? 4_000 : 30_000,
-    refetchInterval: live ? 5_000 : false,
+    staleTime: live ? 2_000 : 30_000,
+    refetchInterval: live ? 3_000 : false,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
@@ -121,12 +122,33 @@ export function useConversations(options?: { live?: boolean }) {
 
 export function useMessages(conversationId: string | null, options?: { live?: boolean }) {
   const live = Boolean(options?.live);
+  const queryClient = useQueryClient();
+  const fullSyncRef = useRef<{ conversationId: string | null; at: number }>({
+    conversationId: null,
+    at: 0,
+  });
   return useQuery<Message[], Error, Message[]>({
     queryKey: ['messages', conversationId],
-    queryFn: () => conversationsService.getMessages(conversationId!),
+    queryFn: async () => {
+      const queryKey = ['messages', conversationId] as const;
+      const current = queryClient.getQueryData<Message[]>(queryKey) ?? [];
+      const now = Date.now();
+      const requiresFullSync = fullSyncRef.current.conversationId !== conversationId
+        || now - fullSyncRef.current.at >= 15_000;
+      const latestPersisted = [...current]
+        .reverse()
+        .find((message) => !message.id.startsWith('pending-'));
+      const latestTime = latestPersisted ? new Date(latestPersisted.timestamp).getTime() : 0;
+      const after = latestTime && !requiresFullSync
+        ? new Date(Math.max(0, latestTime - 3_000)).toISOString()
+        : undefined;
+      const updates = await conversationsService.getMessages(conversationId!, { after });
+      if (!after) fullSyncRef.current = { conversationId, at: now };
+      return current.length ? mergeConversationMessages(current, updates) : updates;
+    },
     enabled: !!conversationId,
-    staleTime: live ? 1_500 : 30_000,
-    refetchInterval: conversationId ? (live ? 2_000 : false) : false,
+    staleTime: live ? 750 : 30_000,
+    refetchInterval: conversationId ? (live ? 1_500 : false) : false,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,

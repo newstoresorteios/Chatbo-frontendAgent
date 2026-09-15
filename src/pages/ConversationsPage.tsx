@@ -90,7 +90,6 @@ export function ConversationsPage() {
   const {
     data: messages,
     isLoading: messagesLoading,
-    isFetching: messagesFetching,
     isError: messagesError,
     error: messagesLoadError,
     refetch: refetchMessages,
@@ -289,14 +288,32 @@ export function ConversationsPage() {
         status: 'sending',
       };
       queryClient.setQueryData<Message[]>(queryKey, (old = []) => [...old, optimistic]);
+      queryClient.setQueryData<Conversation[]>(['conversations'], (old = []) =>
+        old.map((conversation) => conversation.id === conversationId
+          ? {
+              ...conversation,
+              lastMessage: content,
+              lastMessageAt: optimistic.timestamp,
+              unreadCount: 0,
+            }
+          : conversation),
+      );
       return { previous };
     },
     onSuccess: (message, { conversationId, tempId }) => {
       queryClient.setQueryData<Message[]>(['messages', conversationId], (old = []) =>
         old.map((item) => (item.id === tempId ? message : item)),
       );
-      void queryClient.invalidateQueries({ queryKey: ['conversations'] });
-      void queryClient.invalidateQueries({ queryKey: ['messages', conversationId] });
+      queryClient.setQueryData<Conversation[]>(['conversations'], (old = []) =>
+        old.map((conversation) => conversation.id === conversationId
+          ? {
+              ...conversation,
+              lastMessage: message.content,
+              lastMessageAt: message.timestamp,
+              unreadCount: 0,
+            }
+          : conversation),
+      );
     },
     onError: (error, { conversationId, tempId }) => {
       queryClient.setQueryData<Message[]>(['messages', conversationId], (old = []) =>
@@ -581,7 +598,10 @@ export function ConversationsPage() {
                         {messagesLoading && allMessages.length === 0
                           ? '...'
                           : `${allMessages.length} msgs`}
-                        {messagesFetching && allMessages.length > 0 ? ' · sync' : ''}
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                        ao vivo
                       </span>
                     </div>
                     <div className="mt-0.5 flex flex-wrap items-center gap-2">

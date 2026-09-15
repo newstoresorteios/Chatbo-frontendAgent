@@ -77,6 +77,33 @@ function normalizeMessage(raw: Partial<Message> & Record<string, unknown>): Mess
   };
 }
 
+function samePendingMessage(existing: Message, incoming: Message): boolean {
+  if (!existing.id.startsWith('pending-') || existing.sender !== incoming.sender) return false;
+  const existingContent = existing.content.trim();
+  const incomingContent = incoming.content.trim();
+  const contentMatches = incomingContent === existingContent || incomingContent.endsWith(existingContent);
+  const timeDistance = Math.abs(
+    new Date(incoming.timestamp).getTime() - new Date(existing.timestamp).getTime(),
+  );
+  return contentMatches && timeDistance < 120_000;
+}
+
+export function mergeConversationMessages(current: Message[], incoming: Message[]): Message[] {
+  const merged = [...current];
+  for (const message of incoming) {
+    const index = merged.findIndex((item) =>
+      item.id === message.id
+      || Boolean(item.externalId && message.externalId && item.externalId === message.externalId)
+      || samePendingMessage(item, message),
+    );
+    if (index >= 0) merged[index] = message;
+    else merged.push(message);
+  }
+  return merged.sort(
+    (left, right) => new Date(left.timestamp).getTime() - new Date(right.timestamp).getTime(),
+  );
+}
+
 export const conversationsService = {
   getConversations: async (): Promise<Conversation[]> => {
     if (USE_MOCK) {
@@ -89,13 +116,16 @@ export const conversationsService = {
       .map(normalizeConversation);
   },
 
-  getMessages: async (conversationId: string): Promise<Message[]> => {
+  getMessages: async (
+    conversationId: string,
+    options?: { after?: string },
+  ): Promise<Message[]> => {
     if (USE_MOCK) {
       await delay(300);
       return messagesStore[conversationId] ?? [];
     }
     const { data } = await api.get<unknown>(`/conversas/${conversationId}/mensagens`, {
-      params: { limit: 60 },
+      params: { limit: 60, after: options?.after },
     });
     return unwrapList<Partial<Message> & Record<string, unknown>>(data).map(normalizeMessage);
   },
