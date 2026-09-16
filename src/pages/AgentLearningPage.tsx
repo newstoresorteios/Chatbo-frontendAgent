@@ -1,4 +1,5 @@
 import { Badge } from '@/components/ui/Badge';
+import { HistoricalEvaluationsPanel } from '@/components/agents/HistoricalEvaluationsPanel';
 import { Button } from '@/components/ui/Button';
 import { EmptyState, Loading } from '@/components/ui/EmptyState';
 import { useNotification } from '@/contexts/NotificationContext';
@@ -443,6 +444,7 @@ export function AgentLearningPage() {
         )}
       </section>
 
+      <HistoricalEvaluationsPanel />
       <div className="grid gap-6 xl:grid-cols-2">
         <section className="space-y-4">
           <div className="flex items-center gap-2">
