@@ -394,7 +394,8 @@ message.conversation_repair_handoff|Encaminhamento após falhas repetidas|Texto 
 message.conversation_repair_missing_context|Pedir contexto para corrigir atendimento|Texto que pede os dados necessários para recuperar um pedido que não foi compreendido.|Quando o cliente sinaliza falha, mas o histórico ainda não identifica o produto que deveria ser consultado.
 message.trade_in_handoff|Permuta: encaminhamento à equipe|Texto que informa a possibilidade de permuta com avaliação humana.|Quando o cliente pede permuta e a loja aceita esse tipo de negociação.
 message.trade_in_unavailable|Permuta não disponível|Texto que informa a indisponibilidade de permuta na política atual.|Quando o cliente pede permuta e a opção está desativada.
-message.handoff_requested|Atendimento humano solicitado|Confirma ao cliente a solicitação de transferência.|Depois que o fluxo de encaminhamento confirma a solicitação de atendimento humano.
+message.handoff_offer|Confirmação para atendimento humano|Pergunta se o cliente aceita a transferência sugerida pela IA. A oferta não coloca a conversa na fila nem aciona o alerta.|Quando a IA precisa de apoio humano por uma limitação, falha ou regra de atendimento.
+message.handoff_requested|Atendimento humano solicitado|Confirma ao cliente a solicitação de transferência.|Depois de um pedido explícito do cliente ou do aceite da oferta de transferência.
 message.handoff_failed|Falha no encaminhamento humano|Informa que não foi possível confirmar a transferência.|Quando a solicitação de atendimento humano falha.
 message.catalog_unavailable|Catálogo indisponível|Resposta usada quando a consulta ao catálogo não pode ser confirmada.|Quando uma busca necessária falha ou não está disponível.
 message.checkout_site|Orientação de checkout pelo site|Apresenta o link para finalizar a compra. A variável {url} recebe o endereço da compra.|Quando a compra deve ser concluída no site oficial.

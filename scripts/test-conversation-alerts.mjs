@@ -12,7 +12,7 @@ const { isHandoffWaiting, listHandoffWaiting, isAttendingConversation, filterInb
 
 const conversation = (id, updates = {}) => ({
   id, customerId: id, customerName: `Cliente ${id}`, lastMessage: 'Preciso de atendimento',
-  lastMessageAt: '2026-09-15T12:00:00Z', status: 'waiting', unreadCount: 1,
+  lastMessageAt: '2026-09-15T12:00:00Z', status: 'waiting', handoffRequested: true, unreadCount: 1,
   channel: 'whatsapp', ...updates,
 });
 
@@ -60,4 +60,14 @@ test('channel and text filters combine with waiting without changing the origina
   assert.deepEqual(filterInboxConversations(rows, {}), rows);
   assert.equal(listHandoffWaiting(rows).length, 2);
   assert.deepEqual(filterInboxConversations(rows, { status: 'closed' }), []);
+});
+
+
+test('ordinary arrivals and unconfirmed AI offers never enter the human queue', () => {
+  const rows = [conversation('ordinary', { handoffRequested: false, unreadCount: 25 }),
+    conversation('legacy', { handoffRequested: undefined }),
+    conversation('offer', { status: 'active', handoffRequested: false }),
+    conversation('requested'), conversation('accepted')];
+  assert.deepEqual(listHandoffWaiting(rows).map(row => row.id), ['requested', 'accepted']);
+  assert.deepEqual(filterInboxConversations(rows, { status: 'waiting' }), listHandoffWaiting(rows));
 });

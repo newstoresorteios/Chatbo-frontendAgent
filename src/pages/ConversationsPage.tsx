@@ -679,7 +679,7 @@ export function ConversationsPage() {
             options={[
               { value: 'all', label: 'Todos os status' },
               { value: 'active', label: 'Ativas' },
-              { value: 'waiting', label: 'Aguardando atendimento' },
+              { value: 'waiting', label: 'Aguardando atendimento humano' },
               { value: 'closed', label: 'Encerradas' },
             ]}
             value={statusFilter}

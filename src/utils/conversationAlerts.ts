@@ -1,7 +1,7 @@
 import type { Conversation } from '@/types';
 
 export function isHandoffWaiting(conversation: Conversation): boolean {
-  return conversation.status === 'waiting' && !conversation.assignedTo;
+  return conversation.status === 'waiting' && conversation.handoffRequested === true && !conversation.assignedTo;
 }
 
 export function listHandoffWaiting(conversations: Conversation[]): Conversation[] {

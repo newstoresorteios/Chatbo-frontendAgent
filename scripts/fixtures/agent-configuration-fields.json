@@ -2318,5 +2318,10 @@
     "key": "catalogStaleDays",
     "target": "policy",
     "type": "integer"
+  },
+  {
+    "key": "message.handoff_offer",
+    "target": "message",
+    "type": "textarea"
   }
 ]

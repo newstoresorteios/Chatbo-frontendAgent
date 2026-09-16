@@ -213,6 +213,9 @@ export interface Message {
 }
 
 export interface Conversation {
+  handoffRequested?: boolean;
+  handoffRequestedAt?: string | null;
+  handoffReason?: string | null;
   sessionIds?: string[];
   activeSessionId?: string;
   id: string;
