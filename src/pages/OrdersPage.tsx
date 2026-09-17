@@ -12,6 +12,7 @@ import { useOrders, useSalesMetrics } from '@/hooks/useQueries';
 import { useNotification } from '@/contexts/NotificationContext';
 import { commercialBiService } from '@/services/commercialBi.service';
 import { extractApiErrorMessage } from '@/utils/apiErrors';
+import { orderConversationPath } from '@/utils/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   formatCurrency,
@@ -25,8 +26,9 @@ import {
   orderStatusDescriptions,
 } from '@/utils/orderHelpers';
 import type { Order, OrderStatus } from '@/types';
-import { Banknote, FileText, RefreshCw, ShoppingCart } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { Banknote, ExternalLink, FileText, MessageSquare, RefreshCw, ShoppingCart } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const statusOptions = [
   { value: '', label: 'Todos os status' },
@@ -53,11 +55,19 @@ const typeVariant: Record<'Orçamento' | 'Pedido' | 'Cancelado', 'warning' | 'in
 
 export function OrdersPage() {
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [search, setSearch] = useState(() => searchParams.get('busca') ?? '');
   const [status, setStatus] = useState('');
   const [selected, setSelected] = useState<Order | null>(null);
   const queryClient = useQueryClient();
   const { addToast } = useNotification();
+
+  useEffect(() => {
+    const requestedSearch = searchParams.get('busca') ?? '';
+    setSearch(requestedSearch);
+    setPage(1);
+  }, [searchParams]);
 
   const { data, isLoading } = useOrders({ page, pageSize: 10, search, status: status || undefined });
   const { data: metrics } = useSalesMetrics();
@@ -248,7 +258,19 @@ export function OrdersPage() {
         open={!!selected}
         onClose={() => setSelected(null)}
         title={selected ? `Pedido #${selected.number}` : 'Pedido'}
-        footer={<Button variant="outline" onClick={() => setSelected(null)}>Fechar</Button>}
+        footer={(
+          <div className="flex flex-wrap justify-end gap-2">
+            {selected?.conversationEvidence?.conversationId && (
+              <Button onClick={() => {
+                const path = orderConversationPath(selected);
+                if (path) navigate(path);
+              }}>
+                <MessageSquare className="h-4 w-4" /> Abrir conversa relacionada
+              </Button>
+            )}
+            <Button variant="outline" onClick={() => setSelected(null)}>Fechar</Button>
+          </div>
+        )}
       >
         {selected && (
           <div className="space-y-4 text-sm">
@@ -297,6 +319,26 @@ export function OrdersPage() {
                 <div className="sm:col-span-2">
                   <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">Contato relacionado</dt>
                   <dd className="mt-1 font-mono text-xs text-gray-600 dark:text-gray-400">{selected.customerId}</dd>
+                </div>
+              )}
+              <div className="sm:col-span-2">
+                <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">Como o pedido foi atribuído</dt>
+                <dd className="mt-1 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-emerald-900 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-100">
+                  {selected.attributionLabel || 'Contato e pedido/carrinho confirmados pelo ChatBô.'}
+                </dd>
+              </div>
+              {selected.conversationEvidence && (
+                <div className="sm:col-span-2 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                  <p className="flex items-center gap-2 font-medium text-gray-900 dark:text-white">
+                    <ExternalLink className="h-4 w-4" /> Evidência da conversa
+                  </p>
+                  <p className="mt-2 text-xs text-gray-500">
+                    {selected.conversationEvidence.protocol ? `Protocolo ${selected.conversationEvidence.protocol} · ` : ''}
+                    {selected.conversationEvidence.channel || 'whatsapp'}
+                    {selected.conversationEvidence.sessionCount && selected.conversationEvidence.sessionCount > 1
+                      ? ` · ${selected.conversationEvidence.sessionCount} atendimentos reunidos`
+                      : ''}
+                  </p>
                 </div>
               )}
             </dl>

@@ -1,12 +1,8 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { conversationsService } from '@/services/conversations.service';
 import type { Notification } from '@/types';
+import { useQuery } from '@tanstack/react-query';
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 
 interface Toast {
   id: string;
@@ -27,84 +23,77 @@ interface NotificationContextValue {
 
 const NotificationContext = createContext<NotificationContextValue | null>(null);
 
-const initialNotifications: Notification[] = [
-  {
-    id: 'n1',
-    title: 'Nova conversa',
-    message: 'Carlos Mendes iniciou uma conversa',
-    read: false,
-    createdAt: new Date(Date.now() - 300000).toISOString(),
-    type: 'info',
-  },
-  {
-    id: 'n2',
-    title: 'Pedido confirmado',
-    message: 'Pedido TC-2024-004 foi confirmado',
-    read: false,
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
-    type: 'success',
-  },
-  {
-    id: 'n3',
-    title: 'Sincronização Mercos',
-    message: 'Produtos sincronizados com sucesso',
-    read: true,
-    createdAt: new Date(Date.now() - 7200000).toISOString(),
-    type: 'success',
-  },
-];
-
 export function NotificationProvider({ children }: { children: ReactNode }) {
-  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
+  const { isAuthenticated } = useAuth();
+  const [readIds, setReadIds] = useState<Set<string>>(() => new Set());
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const { data: conversations } = useQuery({
+    queryKey: ['conversations'],
+    queryFn: ({ signal }) => conversationsService.getConversations({ signal }),
+    enabled: isAuthenticated,
+    staleTime: 10_000,
+    refetchInterval: isAuthenticated ? 15_000 : false,
+    refetchIntervalInBackground: false,
+    retry: 1,
+  });
+
+  const notifications = useMemo<Notification[]>(
+    () => (conversations ?? [])
+      .filter((conversation) => conversation.status === 'waiting' || conversation.unreadCount > 0)
+      .slice(0, 20)
+      .map((conversation) => {
+        const id = `conversation:${conversation.id}:${conversation.status}:${conversation.handoffRequestedAt ?? conversation.lastMessageAt}`;
+        const waiting = conversation.status === 'waiting';
+        return {
+          id,
+          title: waiting ? 'Aguardando atendimento humano' : 'Nova mensagem',
+          message: `${conversation.customerName}: ${conversation.lastMessage || 'Abra a conversa para visualizar.'}`,
+          read: readIds.has(id),
+          createdAt: conversation.handoffRequestedAt || conversation.lastMessageAt,
+          type: waiting ? 'warning' : 'info',
+          href: `/atendimento?conversa=${encodeURIComponent(conversation.id)}`,
+        };
+      }),
+    [conversations, readIds],
+  );
 
   const unreadCount = useMemo(
-    () => notifications.filter((n) => !n.read).length,
+    () => notifications.filter((notification) => !notification.read).length,
     [notifications],
   );
 
   const addToast = useCallback((toast: Omit<Toast, 'id'>) => {
     const id = `toast-${Date.now()}`;
-    setToasts((prev) => [...prev, { ...toast, id }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4000);
+    setToasts((previous) => [...previous, { ...toast, id }]);
+    setTimeout(() => setToasts((previous) => previous.filter((item) => item.id !== id)), 4000);
   }, []);
 
   const removeToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
+    setToasts((previous) => previous.filter((item) => item.id !== id));
   }, []);
 
   const markAsRead = useCallback((id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
-    );
+    setReadIds((previous) => new Set(previous).add(id));
   }, []);
 
   const markAllAsRead = useCallback(() => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  }, []);
+    setReadIds((previous) => {
+      const next = new Set(previous);
+      notifications.forEach((notification) => next.add(notification.id));
+      return next;
+    });
+  }, [notifications]);
 
   const value = useMemo(
-    () => ({
-      notifications,
-      toasts,
-      unreadCount,
-      addToast,
-      removeToast,
-      markAsRead,
-      markAllAsRead,
-    }),
+    () => ({ notifications, toasts, unreadCount, addToast, removeToast, markAsRead, markAllAsRead }),
     [notifications, toasts, unreadCount, addToast, removeToast, markAsRead, markAllAsRead],
   );
 
-  return (
-    <NotificationContext.Provider value={value}>{children}</NotificationContext.Provider>
-  );
+  return <NotificationContext.Provider value={value}>{children}</NotificationContext.Provider>;
 }
 
 export function useNotification() {
-  const ctx = useContext(NotificationContext);
-  if (!ctx) throw new Error('useNotification must be used within NotificationProvider');
-  return ctx;
+  const context = useContext(NotificationContext);
+  if (!context) throw new Error('useNotification must be used within NotificationProvider');
+  return context;
 }

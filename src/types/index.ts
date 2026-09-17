@@ -411,6 +411,15 @@ export interface OrderItem {
   price: number;
 }
 
+export interface OrderConversationEvidence {
+  conversationId: string;
+  activeSessionId?: string;
+  protocol?: string | null;
+  channel?: ChannelType;
+  lastMessageAt?: string | null;
+  sessionCount?: number;
+}
+
 export interface Order {
   id: string;
   number: string;
@@ -421,6 +430,9 @@ export interface Order {
   createdAt: string;
   items: number;
   itemDetails?: OrderItem[];
+  attributionReason?: string | null;
+  attributionLabel?: string;
+  conversationEvidence?: OrderConversationEvidence | null;
 }
 
 export interface MercosOrderStatusBreakdown {
@@ -530,6 +542,7 @@ export interface Notification {
   read: boolean;
   createdAt: string;
   type: 'info' | 'success' | 'warning' | 'error';
+  href?: string;
 }
 
 export interface PaginatedResponse<T> {

@@ -18,9 +18,9 @@ function CompactSelect({ ariaLabel, value, onChange, options, className }: { ari
 
 export function DashboardInternalNav(props: DashboardInternalNavProps) {
   const {
-    items, activeSection, isHidden, presentationMode, filtersOpen, period, productFilter, customerFilter,
-    statusFilter, channelFilter, periodOptions, productOptions, customerOptions, statusOptions, channelOptions,
-    onPeriodChange, onProductChange, onCustomerChange, onStatusChange, onChannelChange, onToggleFilters,
+    items, activeSection, isHidden, presentationMode, filtersOpen, period, customerFilter,
+    statusFilter, channelFilter, periodOptions, customerOptions, statusOptions, channelOptions,
+    onPeriodChange, onCustomerChange, onStatusChange, onChannelChange, onToggleFilters,
   } = props;
 
   return (
@@ -39,8 +39,7 @@ export function DashboardInternalNav(props: DashboardInternalNavProps) {
               <div className="flex shrink-0 items-center gap-2">
                 <CompactSelect ariaLabel="Período" value={period} onChange={(value) => onPeriodChange(value as typeof period)} options={periodOptions} className="w-[118px]" />
                 <div className="hidden items-center gap-2 lg:flex">
-                  <CompactSelect ariaLabel="Produto" value={productFilter} onChange={onProductChange} options={productOptions} className="w-[150px]" />
-                  <CompactSelect ariaLabel="Cliente" value={customerFilter} onChange={onCustomerChange} options={customerOptions} className="w-[150px]" />
+                  <CompactSelect ariaLabel="Contato" value={customerFilter} onChange={onCustomerChange} options={customerOptions} className="w-[150px]" />
                   <CompactSelect ariaLabel="Status comercial" value={statusFilter} onChange={(value) => onStatusChange(value as typeof statusFilter)} options={statusOptions} className="w-[140px]" />
                   <CompactSelect ariaLabel="Canal" value={channelFilter} onChange={onChannelChange} options={channelOptions} className="w-[140px]" />
                 </div>
@@ -52,8 +51,7 @@ export function DashboardInternalNav(props: DashboardInternalNavProps) {
           </div>
           {!presentationMode && filtersOpen && (
             <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="mt-2 grid gap-2 border-t border-white/10 pt-2 sm:grid-cols-2 lg:hidden">
-              <CompactSelect ariaLabel="Produto" value={productFilter} onChange={onProductChange} options={productOptions} />
-              <CompactSelect ariaLabel="Cliente" value={customerFilter} onChange={onCustomerChange} options={customerOptions} />
+              <CompactSelect ariaLabel="Contato" value={customerFilter} onChange={onCustomerChange} options={customerOptions} />
               <CompactSelect ariaLabel="Status comercial" value={statusFilter} onChange={(value) => onStatusChange(value as typeof statusFilter)} options={statusOptions} />
               <CompactSelect ariaLabel="Canal" value={channelFilter} onChange={onChannelChange} options={channelOptions} />
             </motion.div>

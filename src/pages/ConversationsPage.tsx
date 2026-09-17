@@ -269,6 +269,11 @@ export function ConversationsPage() {
   };
 
   useEffect(() => {
+    const requestedSearch = searchParams.get('busca');
+    if (requestedSearch !== null) {
+      initialSelectionDone.current = true;
+      setSearchQuery(requestedSearch);
+    }
     if (searchParams.get('fila') === 'aguardando') {
       initialSelectionDone.current = true;
       showWaitingQueue();
@@ -288,7 +293,7 @@ export function ConversationsPage() {
         setActiveConversationId(displayList[0]?.id ?? null);
       }
     }
-  }, [conversations, displayList, activeConversationId, statusFilter, setActiveConversationId, searchParams, showWaitingQueue, navigate]);
+  }, [conversations, displayList, activeConversationId, statusFilter, setActiveConversationId, setSearchQuery, searchParams, showWaitingQueue, navigate]);
 
   // Avisa e mantém a fila atualizada quando o NSAgent cria novas conversas.
   useEffect(() => {

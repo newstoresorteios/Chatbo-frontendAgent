@@ -15,6 +15,7 @@ import type {
   CustomerDetail,
   Product,
   Order,
+  ChannelType,
   ListParams,
   PaginatedResponse,
 } from '@/types';
@@ -49,6 +50,9 @@ function snapshotOrders(snapshot: CommercialBiSnapshot | null): Order[] {
           price: numberValue(item?.price),
         }))
       : [];
+    const evidence = row.conversationEvidence && typeof row.conversationEvidence === 'object'
+      ? row.conversationEvidence as Record<string, unknown>
+      : null;
     return {
       id,
       number: textValue(row.number, id),
@@ -61,6 +65,18 @@ function snapshotOrders(snapshot: CommercialBiSnapshot | null): Order[] {
         || itemDetails.reduce((total, item) => total + item.quantity, 0)
         || 1,
       itemDetails,
+      attributionReason: textValue(row.attributionReason) || null,
+      attributionLabel: textValue(row.attributionLabel),
+      conversationEvidence: evidence
+        ? {
+            conversationId: textValue(evidence.conversationId),
+            activeSessionId: textValue(evidence.activeSessionId) || undefined,
+            protocol: textValue(evidence.protocol) || null,
+            channel: textValue(evidence.channel, 'whatsapp') as ChannelType,
+            lastMessageAt: textValue(evidence.lastMessageAt) || null,
+            sessionCount: numberValue(evidence.sessionCount),
+          }
+        : null,
     };
   });
 }
@@ -112,11 +128,12 @@ export const productsService = {
 export const ordersService = {
   getOrders: async (params: ListParams = {}): Promise<PaginatedResponse<Order>> => {
     const { page = 1, pageSize = 10, search = '', status } = params;
+    const normalizedSearch = search.trim().replace(/^#/, '');
     if (USE_MOCK) {
       await delay(500);
       let items = [...mockOrders];
-      if (search) {
-        items = filterBySearch(items, search, ['number', 'customerName']);
+      if (normalizedSearch) {
+        items = filterBySearch(items, normalizedSearch, ['number', 'customerName']);
       }
       if (status) {
         items = items.filter((o) => o.status === status);
@@ -125,8 +142,8 @@ export const ordersService = {
     }
     const { data } = await api.get<{ item: CommercialBiSnapshot | null }>('/commercial-bi/latest');
     let items = snapshotOrders(data.item ?? null);
-    if (search) {
-      items = filterBySearch(items, search, ['number', 'customerName']);
+    if (normalizedSearch) {
+      items = filterBySearch(items, normalizedSearch, ['number', 'customerName']);
     }
     if (status) {
       items = items.filter((order) => order.status === status);

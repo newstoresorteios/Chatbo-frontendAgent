@@ -67,17 +67,14 @@ export interface DashboardInternalNavProps {
   presentationMode: boolean;
   filtersOpen: boolean;
   period: PeriodFilter;
-  productFilter: string;
   customerFilter: string;
   statusFilter: CommercialStatusFilter;
   channelFilter: string;
   periodOptions: DashboardSelectOption[];
-  productOptions: DashboardSelectOption[];
   customerOptions: DashboardSelectOption[];
   statusOptions: DashboardSelectOption[];
   channelOptions: DashboardSelectOption[];
   onPeriodChange: (value: PeriodFilter) => void;
-  onProductChange: (value: string) => void;
   onCustomerChange: (value: string) => void;
   onStatusChange: (value: CommercialStatusFilter) => void;
   onChannelChange: (value: string) => void;

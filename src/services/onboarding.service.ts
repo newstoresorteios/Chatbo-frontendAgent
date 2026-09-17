@@ -43,7 +43,7 @@ export interface OnboardingTestResult {
   generatedAt?: string;
 }
 
-export interface OnboardingActivationResult extends OnboardingState {}
+export type OnboardingActivationResult = OnboardingState;
 
 interface OnboardingResponse {
   status?: OnboardingStatus;
@@ -90,6 +90,7 @@ function normalizeOnboarding(data: OnboardingResponse): OnboardingState {
 
 export const onboardingService = {
   getCurrent: async (_workspaceId: string): Promise<OnboardingState> => {
+    void _workspaceId;
     const { data } = await api.get<OnboardingResponse>('/onboarding');
     return normalizeOnboarding(data);
   },
@@ -114,6 +115,7 @@ export const onboardingService = {
     return data;
   },
   activate: async (_workspaceId: string): Promise<OnboardingActivationResult> => {
+    void _workspaceId;
     const { data } = await api.post<OnboardingResponse>('/onboarding/activate');
     return normalizeOnboarding(data);
   },

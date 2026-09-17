@@ -5,8 +5,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNotification } from '@/contexts/NotificationContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { cn, formatRelativeTime } from '@/utils';
+import { globalSearchPath, type GlobalSearchScope } from '@/utils/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Bell, Building2, LogOut, Menu, Moon, Sun, UserCircle, Zap } from 'lucide-react';
+import { Bell, Building2, LogOut, Menu, MessageSquare, Moon, ShoppingCart, Sun, UserCircle, Zap } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -20,7 +21,16 @@ export function Header({ onMenuClick }: HeaderProps) {
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotification();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [globalSearch, setGlobalSearch] = useState('');
+  const [showSearchOptions, setShowSearchOptions] = useState(false);
   const navigate = useNavigate();
+
+  const runGlobalSearch = (scope: GlobalSearchScope) => {
+    const path = globalSearchPath(globalSearch, scope);
+    if (!path) return;
+    setShowSearchOptions(false);
+    navigate(path);
+  };
 
   const handleExitToLanding = () => {
     setShowUserMenu(false);
@@ -34,7 +44,34 @@ export function Header({ onMenuClick }: HeaderProps) {
         <Button variant="ghost" size="icon" onClick={onMenuClick} className="lg:hidden">
           <Menu className="h-5 w-5" />
         </Button>
-        <Search placeholder="Buscar leads, pedidos, clientes..." className="hidden w-72 md:block lg:w-80" />
+        <form
+          className="relative hidden w-72 md:block lg:w-80"
+          onSubmit={(event) => { event.preventDefault(); runGlobalSearch('conversations'); }}
+          onBlur={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget)) setShowSearchOptions(false);
+          }}
+        >
+          <Search
+            placeholder="Buscar conversas ou pedidos..."
+            value={globalSearch}
+            onChange={(event) => {
+              setGlobalSearch(event.target.value);
+              setShowSearchOptions(Boolean(event.target.value.trim()));
+            }}
+            onFocus={() => setShowSearchOptions(Boolean(globalSearch.trim()))}
+            aria-label="Busca global"
+          />
+          {showSearchOptions && (
+            <div className="absolute left-0 right-0 top-full z-[130] mt-2 overflow-hidden rounded-xl border border-gray-200 bg-white p-1.5 shadow-xl dark:border-gray-700 dark:bg-gray-900">
+              <button type="submit" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800">
+                <MessageSquare className="h-4 w-4 text-blue-600" /> Buscar “{globalSearch.trim()}” nas conversas
+              </button>
+              <button type="button" onClick={() => runGlobalSearch('orders')} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800">
+                <ShoppingCart className="h-4 w-4 text-blue-600" /> Buscar “{globalSearch.trim()}” nos pedidos
+              </button>
+            </div>
+          )}
+        </form>
       </div>
 
       <div className="flex items-center gap-2">
@@ -79,10 +116,17 @@ export function Header({ onMenuClick }: HeaderProps) {
                     </button>
                   </div>
                   <div className="max-h-[420px] overflow-y-auto">
+                    {notifications.length === 0 && (
+                      <p className="px-4 py-6 text-center text-sm text-gray-500">Nenhum alerta pendente.</p>
+                    )}
                     {notifications.map((n) => (
                       <button
                         key={n.id}
-                        onClick={() => markAsRead(n.id)}
+                        onClick={() => {
+                          markAsRead(n.id);
+                          setShowNotifications(false);
+                          if (n.href) navigate(n.href);
+                        }}
                         className={cn(
                           'flex w-full flex-col gap-0.5 border-b border-gray-100 px-4 py-3 text-left transition-colors hover:bg-blue-50/70 dark:border-white/10 dark:hover:bg-white/10',
                           !n.read && 'bg-blue-50/60 dark:bg-blue-950/20',

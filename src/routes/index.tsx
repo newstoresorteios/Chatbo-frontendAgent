@@ -17,7 +17,6 @@ import { RouteLoadingFallback } from '@/components/ui/PageState';
 const CampaignsPage = lazy(() => import('@/pages/CampaignsPage').then((m) => ({ default: m.CampaignsPage })));
 const ChannelsPage = lazy(() => import('@/pages/ChannelsPage').then((m) => ({ default: m.ChannelsPage })));
 const ChatbotPage = lazy(() => import('@/pages/ChatbotPage').then((m) => ({ default: m.ChatbotPage })));
-const CustomersPage = lazy(() => import('@/pages/CustomersPage').then((m) => ({ default: m.CustomersPage })));
 const FunnelPage = lazy(() => import('@/pages/FunnelPage').then((m) => ({ default: m.FunnelPage })));
 const IntegrationsPage = lazy(() => import('@/pages/IntegrationsPage').then((m) => ({ default: m.IntegrationsPage })));
 const SystemAdminPage = lazy(() => import('@/pages/SystemAdminPage').then((m) => ({ default: m.SystemAdminPage })));
@@ -30,7 +29,6 @@ const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ 
 const ConversationsPage = lazy(() => import('@/pages/ConversationsPage').then((m) => ({ default: m.ConversationsPage })));
 const ReportsPage = lazy(() => import('@/pages/ReportsPage').then((m) => ({ default: m.ReportsPage })));
 const InsightsPage = lazy(() => import('@/pages/InsightsPage').then((m) => ({ default: m.InsightsPage })));
-const ProductsPage = lazy(() => import('@/pages/ProductsPage').then((m) => ({ default: m.ProductsPage })));
 const OrdersPage = lazy(() => import('@/pages/OrdersPage').then((m) => ({ default: m.OrdersPage })));
 const CopilotPage = lazy(() => import('@/pages/CopilotPage').then((m) => ({ default: m.CopilotPage })));
 const BusinessProfilePage = lazy(() => import('@/pages/BusinessProfilePage').then((m) => ({ default: m.BusinessProfilePage })));
@@ -71,9 +69,9 @@ export function AppRoutes() {
         <Route element={<AppLayout />}>
           <Route path="/atendimento" element={<LazyPage><ConversationsPage /></LazyPage>} />
           <Route path="/conversas" element={<Navigate to="/atendimento" replace />} />
-          <Route path="/contatos" element={<LazyPage><CustomersPage /></LazyPage>} />
-          <Route path="/clientes" element={<Navigate to="/contatos" replace />} />
-          <Route path="/produtos" element={<LazyPage><ProductsPage /></LazyPage>} />
+          <Route path="/contatos" element={<Navigate to="/atendimento" replace />} />
+          <Route path="/clientes" element={<Navigate to="/atendimento" replace />} />
+          <Route path="/produtos" element={<Navigate to="/dashboard" replace />} />
           <Route path="/configuracoes" element={<LazyPage><SettingsPage /></LazyPage>} />
           <Route path="/perfil" element={<LazyPage><ProfilePage /></LazyPage>} />
           <Route path="/onboarding" element={<Navigate to="/atendimento" replace />} />

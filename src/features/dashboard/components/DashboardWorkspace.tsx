@@ -159,7 +159,7 @@ export function DashboardWorkspace() {
   const salesMetrics = salesQuery.data;
   const agentStatus = agentQuery.data;
   const systemStatus = systemQuery.data;
-  const isLoading = dashboardQuery.isLoading || salesQuery.isLoading;
+  const isLoading = dashboardQuery.isLoading;
   const isFetching = [dashboardQuery, conversationsQuery, channelsQuery, salesQuery, agentQuery, systemQuery]
     .some((query) => query.isFetching);
 
@@ -197,7 +197,7 @@ export function DashboardWorkspace() {
   });
 
   const [period, setPeriod] = useState<PeriodFilter>('month');
-  const [productFilter, setProductFilter] = useState('');
+  const productFilter = '';
   const [customerFilter, setCustomerFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<CommercialStatusFilter>('all');
   const [channelFilter, setChannelFilter] = useState('');
@@ -397,6 +397,7 @@ export function DashboardWorkspace() {
             origin: 'Pontuação de leads',
             impact: 'Aumenta foco em oportunidades com maior intenção.',
             action: 'Ver leads',
+            href: '/atendimento',
           },
         ]
       : []),
@@ -408,17 +409,7 @@ export function DashboardWorkspace() {
             origin: 'Retenção',
             impact: 'Pode recuperar receita sem depender de novos leads.',
             action: 'Preparar abordagem',
-          },
-        ]
-      : []),
-    ...(products.some((p) => p.stock === 0)
-      ? [
-          {
-            priority: 'Media' as const,
-            description: 'Conferir produtos sem estoque antes de campanhas.',
-            origin: 'Catálogo',
-            impact: 'Reduz atrito comercial e promessas incorretas.',
-            action: 'Ver catálogo',
+            href: '/copiloto',
           },
         ]
       : []),
@@ -428,6 +419,7 @@ export function DashboardWorkspace() {
       origin: 'IA Comercial',
       impact: 'Ajuda a orientar a rotina de vendas.',
       action: 'Perguntar ao ChatBô',
+      href: '/copiloto',
     },
   ].slice(0, 6);
 
@@ -511,13 +503,12 @@ export function DashboardWorkspace() {
     { label: 'IA', id: 'ia', icon: Brain },
     { label: 'Pipeline', id: 'pipeline', icon: GitBranch },
     { label: 'Leads', id: 'leads', icon: Target },
-    { label: 'Clientes', id: 'clientes', icon: Users },
+    { label: 'Contatos', id: 'clientes', icon: Users },
     { label: 'Operação', id: 'operacao', icon: Gauge },
   ];
 
   const periodOptions = [{ value: 'month', label: 'Este mês' }];
-  const productOptions = [{ value: '', label: 'Produtos' }, ...products.map((p) => ({ value: p.id, label: p.name }))];
-  const customerOptions = [{ value: '', label: 'Clientes' }, ...customers.map((c) => ({ value: c.id, label: c.name }))];
+  const customerOptions = [{ value: '', label: 'Contatos' }, ...customers.map((c) => ({ value: c.id, label: c.name }))];
   const statusOptions = [
     { value: 'all', label: 'Status' },
     { value: 'active', label: 'Ativas' },
@@ -541,13 +532,7 @@ export function DashboardWorkspace() {
       impact: 'Recupera receita com menor custo de aquisição.',
       priority: retentionCustomers.length > 0 ? 'Media' : 'Baixa',
       action: 'Ver lista de retenção',
-    },
-    {
-      title: 'Promover produtos com baixa saída',
-      reason: 'Produtos sem movimento precisam de abordagem comercial ou revisão.',
-      impact: 'Aumenta giro de catálogo e qualidade das campanhas.',
-      priority: products.length > 0 ? 'Media' : 'Baixa',
-      action: 'Analisar catálogo',
+      href: '/atendimento',
     },
     {
       title: 'Usar IA para gerar propostas',
@@ -555,6 +540,7 @@ export function DashboardWorkspace() {
       impact: 'Reduz tempo médio de atendimento.',
       priority: 'Media',
       action: 'Perguntar ao ChatBô',
+      href: '/copiloto',
     },
   ];
 
@@ -587,17 +573,14 @@ export function DashboardWorkspace() {
           presentationMode={presentationMode}
           filtersOpen={filtersOpen}
           period={period}
-          productFilter={productFilter}
           customerFilter={customerFilter}
           statusFilter={statusFilter}
           channelFilter={channelFilter}
           periodOptions={periodOptions}
-          productOptions={productOptions}
           customerOptions={customerOptions}
           statusOptions={statusOptions}
           channelOptions={channelOptions}
           onPeriodChange={setPeriod}
-          onProductChange={setProductFilter}
           onCustomerChange={setCustomerFilter}
           onStatusChange={setStatusFilter}
           onChannelChange={setChannelFilter}

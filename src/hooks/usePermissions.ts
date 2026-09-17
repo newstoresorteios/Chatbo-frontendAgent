@@ -16,7 +16,7 @@ export function usePermissions() {
   const permissions = query.data?.permissions ?? {};
 
   const can = (permission: string) => {
-    if (Boolean(permissions[permission])) return true;
+    if (permissions[permission]) return true;
     // Admin/supervisor nunca ficam sem áreas comerciais se o backend ainda
     // não devolver a chave viewFinancial (deploy desalinhado).
     if (permission === 'viewFinancial') {

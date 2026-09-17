@@ -55,7 +55,7 @@ export function DashboardExecutiveHeader({
             <span className="text-sm capitalize text-blue-100">{formatToday()}</span>
           </div>
           <h1 className="mt-5 font-display text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">Painel Comercial ChatBô</h1>
-          <p className="mt-3 max-w-3xl text-base text-blue-50/90 lg:text-lg">Visão inteligente de vendas, clientes, produtos e oportunidades.</p>
+          <p className="mt-3 max-w-3xl text-base text-blue-50/90 lg:text-lg">Visão mensal das conversas, pedidos e oportunidades geradas pelo ChatBô.</p>
           <p className="mt-2 text-sm text-blue-100/80">
             {getGreeting()}, {firstName}. O ChatBô consolida a rotina comercial, previsões e prioridades da operação em uma única tela.
           </p>

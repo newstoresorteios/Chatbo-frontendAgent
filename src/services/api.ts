@@ -89,6 +89,9 @@ api.interceptors.response.use(
     return response;
   },
   async (error: AxiosError) => {
+    if (error.code === 'ERR_CANCELED') {
+      return Promise.reject(error);
+    }
     const status = error.response?.status;
     const original = error.config as RetryConfig | undefined;
     const url = String(original?.url ?? '');
