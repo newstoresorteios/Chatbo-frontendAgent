@@ -2,7 +2,7 @@ import { EmptyState, Loading, Skeleton } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChannels } from '@/hooks/usePlatform';
-import { useAgentStatus, useConversations, useCustomers, useDashboard, useMercosStatus, useOrders, useProducts, useSalesMetrics, useSystemStatus } from '@/hooks/useQueries';
+import { useAgentStatus, useConversations, useDashboard, useSalesMetrics, useSystemStatus } from '@/hooks/useQueries';
 import { commercialBiService } from '@/services/commercialBi.service';
 import { useNotification } from '@/contexts/NotificationContext';
 import { extractApiErrorMessage } from '@/utils/apiErrors';
@@ -19,7 +19,6 @@ import {
   Headphones,
   HeartHandshake,
   MessageSquare,
-  Package,
   RefreshCw,
   ShieldCheck,
   ShoppingCart,
@@ -105,11 +104,11 @@ function commercialEntities(snapshot: CommercialBiSnapshot | null | undefined): 
 } {
   const updatedAt = snapshot?.completedAt || snapshot?.createdAt || '';
   const customers = (snapshot?.entities?.customers ?? []).map((row, index) => ({
-    id: textValue(row.id, `tray-customer-${index}`),
+    id: textValue(row.id, `chatbo-customer-${index}`),
     name: textValue(row.name, 'Cliente'),
     email: textValue(row.email),
     phone: textValue(row.phone),
-    company: 'Tray',
+    company: 'ChatBô',
     city: '',
     ordersCount: numberValue(row.ordersCount),
     totalSpent: numberValue(row.totalSpent),
@@ -117,18 +116,18 @@ function commercialEntities(snapshot: CommercialBiSnapshot | null | undefined): 
     synced: true,
   }));
   const products = (snapshot?.entities?.products ?? []).map((row, index) => ({
-    id: textValue(row.id, `tray-product-${index}`),
+    id: textValue(row.id, `chatbo-product-${index}`),
     code: textValue(row.code, textValue(row.id)),
     name: textValue(row.name, 'Produto'),
     price: numberValue(row.price),
     stock: numberValue(row.stock),
-    category: textValue(row.category, 'Catálogo Tray'),
+    category: textValue(row.category, 'ChatBô'),
     synced: true,
   }));
   const allowedStatuses = new Set<OrderStatus>(['pending', 'processing', 'shipped', 'delivered', 'cancelled']);
   const orders = (snapshot?.entities?.orders ?? []).map((row, index) => {
     const rawStatus = textValue(row.status, 'pending') as OrderStatus;
-    const id = textValue(row.id, `tray-order-${index}`);
+    const id = textValue(row.id, `chatbo-order-${index}`);
     return {
       id,
       number: id,
@@ -149,40 +148,28 @@ export function DashboardWorkspace() {
   const queryClient = useQueryClient();
   const dashboardQuery = useDashboard();
   const conversationsQuery = useConversations();
-  const customersQuery = useCustomers({ page: 1, pageSize: 100 });
-  const productsQuery = useProducts({ page: 1, pageSize: 100 });
-  const ordersQuery = useOrders({ page: 1, pageSize: 100 });
   const channelsQuery = useChannels();
   const salesQuery = useSalesMetrics();
   const agentQuery = useAgentStatus();
-  const mercosQuery = useMercosStatus();
   const systemQuery = useSystemStatus();
 
   const { data } = dashboardQuery;
   const conversations = conversationsQuery.data;
-  const customersData = customersQuery.data;
-  const productsData = productsQuery.data;
-  const ordersData = ordersQuery.data;
   const channels = channelsQuery.data;
   const salesMetrics = salesQuery.data;
   const agentStatus = agentQuery.data;
-  const mercosStatus = mercosQuery.data;
   const systemStatus = systemQuery.data;
   const isLoading = dashboardQuery.isLoading || salesQuery.isLoading;
-  const isFetching = [dashboardQuery, conversationsQuery, customersQuery, productsQuery, ordersQuery, channelsQuery, salesQuery, agentQuery, mercosQuery, systemQuery]
+  const isFetching = [dashboardQuery, conversationsQuery, channelsQuery, salesQuery, agentQuery, systemQuery]
     .some((query) => query.isFetching);
 
   const refreshDashboard = async () => {
     await Promise.allSettled([
       dashboardQuery.refetch(),
       conversationsQuery.refetch(),
-      customersQuery.refetch(),
-      productsQuery.refetch(),
-      ordersQuery.refetch(),
       channelsQuery.refetch(),
       salesQuery.refetch(),
       agentQuery.refetch(),
-      mercosQuery.refetch(),
       systemQuery.refetch(),
     ]);
   };
@@ -192,15 +179,12 @@ export function DashboardWorkspace() {
     onSuccess: async () => {
       addToast({
         title: 'Análise BI atualizada',
-        message: 'Snapshot comercial gerado a partir do TRAYadaptor.',
+        message: 'Dados atribuídos ao ChatBô no mês atual foram recalculados.',
         type: 'success',
       });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
         queryClient.invalidateQueries({ queryKey: ['sales-metrics'] }),
-        queryClient.invalidateQueries({ queryKey: ['customers'] }),
-        queryClient.invalidateQueries({ queryKey: ['products'] }),
-        queryClient.invalidateQueries({ queryKey: ['orders'] }),
       ]);
     },
     onError: (error) => {
@@ -212,7 +196,7 @@ export function DashboardWorkspace() {
     },
   });
 
-  const [period, setPeriod] = useState<PeriodFilter>('30d');
+  const [period, setPeriod] = useState<PeriodFilter>('month');
   const [productFilter, setProductFilter] = useState('');
   const [customerFilter, setCustomerFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<CommercialStatusFilter>('all');
@@ -224,9 +208,9 @@ export function DashboardWorkspace() {
 
   const commercialBi = data?.commercialBi ?? salesMetrics?.commercialBi ?? null;
   const biEntities = useMemo(() => commercialEntities(commercialBi), [commercialBi]);
-  const customers = useMemo(() => customersData?.data?.length ? customersData.data : biEntities.customers, [biEntities.customers, customersData]);
-  const products = useMemo(() => productsData?.data?.length ? productsData.data : biEntities.products, [biEntities.products, productsData]);
-  const orders = useMemo(() => ordersData?.data?.length ? ordersData.data : biEntities.orders, [biEntities.orders, ordersData]);
+  const customers = biEntities.customers;
+  const products = biEntities.products;
+  const orders = biEntities.orders;
   const conversationList = useMemo(() => conversations ?? [], [conversations]);
 
 
@@ -274,7 +258,6 @@ export function DashboardWorkspace() {
   const revenueSold = salesMetrics?.valorTotalVendido ?? filteredOrders.reduce((sum, order) => sum + order.total, 0);
   const retainedRevenue = salesMetrics?.valorRetido ?? filteredOrders.filter((o) => o.status === 'delivered').reduce((sum, order) => sum + order.total, 0);
   const pipelineValue = salesMetrics?.pipelineValor ?? salesMetrics?.valorPipeline ?? 0;
-  const bySource = salesMetrics?.bySource ?? commercialBi?.kpis?.bySource ?? null;
   const biUpdatedLabel = commercialBi?.completedAt || commercialBi?.createdAt
     ? formatDateTime(String(commercialBi.completedAt || commercialBi.createdAt))
     : null;
@@ -498,20 +481,12 @@ export function DashboardWorkspace() {
       icon: Headphones,
     },
     {
-      title: 'Clientes cadastrados',
-      value: customersData?.total || stats.totalCustomers || customers.length,
-      description: `${activeCustomers} cliente(s) com interação recente.`,
+      title: 'Contatos no mês',
+      value: stats.totalCustomers || customers.length,
+      description: 'Contatos que conversaram com o ChatBô neste mês.',
       badge: `${recurringCustomers} recorrentes`,
       tone: 'blue',
       icon: Users,
-    },
-    {
-      title: 'Produtos cadastrados',
-      value: productsData?.total || stats.totalProducts || products.length,
-      description: 'Catálogo comercial disponível para atendimento e propostas.',
-      badge: `${products.filter((p) => p.stock > 0).length} com estoque`,
-      tone: 'slate',
-      icon: Package,
     },
     {
       title: 'Taxa de retenção',
@@ -537,16 +512,10 @@ export function DashboardWorkspace() {
     { label: 'Pipeline', id: 'pipeline', icon: GitBranch },
     { label: 'Leads', id: 'leads', icon: Target },
     { label: 'Clientes', id: 'clientes', icon: Users },
-    { label: 'Produtos', id: 'produtos', icon: Package },
     { label: 'Operação', id: 'operacao', icon: Gauge },
   ];
 
-  const periodOptions = [
-    { value: 'today', label: 'Hoje' },
-    { value: '7d', label: '7 dias' },
-    { value: '30d', label: '30 dias' },
-    { value: 'month', label: 'Este mês' },
-  ];
+  const periodOptions = [{ value: 'month', label: 'Este mês' }];
   const productOptions = [{ value: '', label: 'Produtos' }, ...products.map((p) => ({ value: p.id, label: p.name }))];
   const customerOptions = [{ value: '', label: 'Clientes' }, ...customers.map((c) => ({ value: c.id, label: c.name }))];
   const statusOptions = [
@@ -605,7 +574,7 @@ export function DashboardWorkspace() {
           isFetching={isFetching}
           onRefresh={refreshDashboard}
           onTogglePresentation={togglePresentationMode}
-          biSourceLabel={commercialBi ? 'Tray' : null}
+          biSourceLabel={commercialBi ? 'ChatBô · mês atual' : null}
           biUpdatedAt={biUpdatedLabel}
           analyzingBi={analyzeBiMutation.isPending}
           onAnalyzeBi={() => analyzeBiMutation.mutate()}
@@ -635,7 +604,7 @@ export function DashboardWorkspace() {
           onToggleFilters={() => setFiltersOpen((value) => !value)}
         />
 
-        <BusinessSummarySection metrics={kpis} presentationMode={presentationMode} bySource={bySource} />
+        <BusinessSummarySection metrics={kpis} presentationMode={presentationMode} />
 
         <NitrosExecutiveSummary
           diagnosis={executiveDiagnosis}
@@ -693,13 +662,29 @@ export function DashboardWorkspace() {
 
         <RetentionSection customers={retentionCustomers} presentationMode={presentationMode} />
 
-        <ProductCatalogSection products={productRows} sort={productSort} presentationMode={presentationMode} onSortChange={setProductSort} />
+        {products.length > 0 ? <ProductCatalogSection products={productRows} sort={productSort} presentationMode={presentationMode} onSortChange={setProductSort} /> : null}
 
         <CommercialPerformanceSection data={{ ticketAverage: ticketMedio, orderCount: filteredOrders.length || salesMetrics?.quantidadeVendas || 0, soldRevenue: revenueSold, retainedRevenue, activeCustomers, recurringCustomers, conversionRate, evolutionPoints: ordersChart.length, conversationsChart, responseTimeChart }} />
 
         <AskNitrosSection conversationId={conversationList[0]?.id} customerId={conversationList[0]?.customerId} presentationMode={presentationMode} />
 
-        <OperationCredibilitySection data={{ metrics: [{ label: 'IA', value: agentStatus?.online ? 'Online' : 'Offline', tone: agentStatus?.online ? 'green' : 'amber' }, { label: 'Modelo', value: agentStatus?.model ?? 'Sem status', tone: 'slate' }, { label: 'Canais conectados', value: channels?.filter((channel) => channel.connected).length ?? 0, tone: 'blue' }, { label: 'Prontidão', value: `${readiness}%`, tone: readiness >= 70 ? 'green' : 'amber' }, { label: 'Clientes sincronizados', value: mercosStatus?.syncedCustomers || systemStatus?.mercos.syncedCustomers || stats.totalCustomers || customers.length, tone: 'blue' }, { label: 'Produtos sincronizados', value: mercosStatus?.syncedProducts || systemStatus?.mercos.syncedProducts || stats.totalProducts || products.length, tone: 'blue' }, { label: 'Pedidos sincronizados', value: mercosStatus?.syncedOrders || systemStatus?.mercos.syncedOrders || stats.totalOrders || orders.length, tone: 'blue' }, { label: 'Última atualização', value: biUpdatedLabel ?? (mercosStatus?.lastSync ? formatDateTime(mercosStatus.lastSync) : 'Sem sync'), tone: 'slate' }], channelVolume, mercosStatus: commercialBi ? 'Tray conectado' : mercosStatus?.connected || systemStatus?.mercos.configured ? 'Configurado' : 'Pendente', whatsappStatus: systemStatus?.whatsapp.connected ? 'Conectado' : 'Verificar', supabaseStatus: systemStatus?.supabase.ok ? 'Operacional' : 'Sem status', synchronizedDataStatus: commercialBi || mercosStatus?.connected ? 'Sim' : 'Parcial' }} />
+        <OperationCredibilitySection data={{
+          metrics: [
+            { label: 'IA', value: agentStatus?.online ? 'Online' : 'Offline', tone: agentStatus?.online ? 'green' : 'amber' },
+            { label: 'Modelo', value: agentStatus?.model ?? 'Sem status', tone: 'slate' },
+            { label: 'Canais conectados', value: channels?.filter((channel) => channel.connected).length ?? 0, tone: 'blue' },
+            { label: 'Prontidão', value: `${readiness}%`, tone: readiness >= 70 ? 'green' : 'amber' },
+            { label: 'Contatos no mês', value: stats.totalCustomers, tone: 'blue' },
+            { label: 'Pedidos do ChatBô', value: stats.totalOrders, tone: 'blue' },
+            { label: 'Mensagens no mês', value: stats.totalMessages, tone: 'blue' },
+            { label: 'Última atualização', value: biUpdatedLabel ?? 'Sem atualização', tone: 'slate' },
+          ],
+          channelVolume,
+          chatboDataStatus: commercialBi ? 'Atualizado' : 'Pendente',
+          whatsappStatus: systemStatus?.whatsapp.connected ? 'Conectado' : 'Verificar',
+          supabaseStatus: systemStatus?.supabase.ok ? 'Operacional' : 'Sem status',
+          synchronizedDataStatus: 'Mês atual',
+        }} />
 
         <PerformanceRecommendationsSection recommendations={recommendations} />
       </div>

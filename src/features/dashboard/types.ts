@@ -87,11 +87,6 @@ export interface DashboardInternalNavProps {
 export interface BusinessSummarySectionProps {
   metrics: ExecutiveKpi[];
   presentationMode: boolean;
-  bySource?: {
-    tray?: number;
-    chatbo?: number;
-    ecommerce?: number;
-  } | null;
 }
 export interface NitrosExecutiveSummaryProps {
   diagnosis: string;
@@ -235,7 +230,7 @@ export interface ChannelVolumeItem {
 export interface OperationCredibilityData {
   metrics: CredibilityMetric[];
   channelVolume: ChannelVolumeItem[];
-  mercosStatus: string;
+  chatboDataStatus: string;
   whatsappStatus: string;
   supabaseStatus: string;
   synchronizedDataStatus: string;

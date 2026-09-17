@@ -14,7 +14,7 @@ export function OperationCredibilitySection({ data }: OperationCredibilitySectio
         </div> : <p className="mt-4 text-sm text-gray-500">Sem mensagens registradas por canal.</p>}
       </div>
       <div className="rounded-3xl border border-gray-200/80 bg-white/90 p-5 shadow-sm dark:border-white/10 dark:bg-gray-900/90"><h3 className="font-semibold text-gray-900 dark:text-white">Status geral do sistema</h3><div className="mt-4 space-y-3 text-sm">
-        {[['Mercos',data.mercosStatus],['WhatsApp',data.whatsappStatus],['Supabase',data.supabaseStatus],['Dados sincronizados',data.synchronizedDataStatus]].map(([label,value]) => <p key={label} className="flex justify-between gap-4"><span className="text-gray-500">{label}</span><strong>{value}</strong></p>)}
+        {[['Dados do ChatBô',data.chatboDataStatus],['WhatsApp',data.whatsappStatus],['Supabase',data.supabaseStatus],['Período',data.synchronizedDataStatus]].map(([label,value]) => <p key={label} className="flex justify-between gap-4"><span className="text-gray-500">{label}</span><strong>{value}</strong></p>)}
       </div></div>
     </div>
   </DashboardSection>;
