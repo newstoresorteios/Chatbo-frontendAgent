@@ -157,8 +157,18 @@ export function OrdersPage() {
     },
     {
       key: 'items',
-      header: 'Itens',
-      render: (o: Order) => o.items,
+      header: 'Item comprado',
+      render: (o: Order) => o.itemDetails?.length ? (
+        <div className="space-y-1">
+          {o.itemDetails.map((item) => (
+            <p key={`${o.id}-${item.productId}`} className="font-medium text-gray-900 dark:text-white">
+              {item.quantity}× {item.name}
+            </p>
+          ))}
+        </div>
+      ) : (
+        <span className="text-gray-500">{o.items} item(ns) — detalhe indisponível</span>
+      ),
     },
   ];
 
@@ -269,8 +279,15 @@ export function OrdersPage() {
                 </dd>
               </div>
               <div>
-                <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">Itens</dt>
-                <dd className="mt-1 text-gray-900 dark:text-white">{selected.items}</dd>
+                <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">Itens comprados</dt>
+                <dd className="mt-1 space-y-2 text-gray-900 dark:text-white">
+                  {selected.itemDetails?.length ? selected.itemDetails.map((item) => (
+                    <div key={`${selected.id}-${item.productId}`}>
+                      <p className="font-medium">{item.quantity}× {item.name}</p>
+                      <p className="text-xs text-gray-500">{formatCurrency(item.price)} cada</p>
+                    </div>
+                  )) : `${selected.items} item(ns) — detalhe indisponível`}
+                </dd>
               </div>
               <div>
                 <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">Data</dt>

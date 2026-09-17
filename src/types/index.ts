@@ -404,6 +404,13 @@ export interface Product {
 
 export type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
 
+export interface OrderItem {
+  productId: string;
+  name: string;
+  quantity: number;
+  price: number;
+}
+
 export interface Order {
   id: string;
   number: string;
@@ -413,6 +420,7 @@ export interface Order {
   total: number;
   createdAt: string;
   items: number;
+  itemDetails?: OrderItem[];
 }
 
 export interface MercosOrderStatusBreakdown {

@@ -41,6 +41,14 @@ function snapshotOrders(snapshot: CommercialBiSnapshot | null): Order[] {
   return (snapshot?.entities?.orders ?? []).map((row, index) => {
     const id = textValue(row.id, `chatbo-order-${index}`);
     const rawStatus = textValue(row.status, 'pending') as Order['status'];
+    const itemDetails = Array.isArray(row.items)
+      ? row.items.map((item) => ({
+          productId: textValue(item?.productId),
+          name: textValue(item?.name, 'Produto não informado'),
+          quantity: numberValue(item?.quantity) || 1,
+          price: numberValue(item?.price),
+        }))
+      : [];
     return {
       id,
       number: textValue(row.number, id),
@@ -49,7 +57,10 @@ function snapshotOrders(snapshot: CommercialBiSnapshot | null): Order[] {
       status: allowedStatuses.has(rawStatus) ? rawStatus : 'pending',
       total: numberValue(row.total),
       createdAt: textValue(row.createdAt, updatedAt),
-      items: numberValue(row.items) || 1,
+      items: numberValue(row.itemsCount)
+        || itemDetails.reduce((total, item) => total + item.quantity, 0)
+        || 1,
+      itemDetails,
     };
   });
 }
