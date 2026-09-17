@@ -1,5 +1,5 @@
-import { SetupChecklist } from '@/components/dashboard/SetupChecklist';
-import { Loading, Skeleton } from '@/components/ui/EmptyState';
+import { EmptyState, Loading, Skeleton } from '@/components/ui/EmptyState';
+import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChannels } from '@/hooks/usePlatform';
 import { useAgentStatus, useConversations, useCustomers, useDashboard, useMercosStatus, useOrders, useProducts, useSalesMetrics, useSystemStatus } from '@/hooks/useQueries';
@@ -8,7 +8,7 @@ import { useNotification } from '@/contexts/NotificationContext';
 import { extractApiErrorMessage } from '@/utils/apiErrors';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn, formatCurrency, formatDateTime } from '@/utils';
-import type { ChannelType } from '@/types';
+import type { ChannelType, CommercialBiSnapshot, Customer, Order, OrderStatus, Product } from '@/types';
 import {
   BarChart3,
   Bot,
@@ -20,6 +20,7 @@ import {
   HeartHandshake,
   MessageSquare,
   Package,
+  RefreshCw,
   ShieldCheck,
   ShoppingCart,
   Target,
@@ -88,20 +89,103 @@ function buildChannelVolume(
   }));
 }
 
+function textValue(value: unknown, fallback = ''): string {
+  return typeof value === 'string' || typeof value === 'number' ? String(value) : fallback;
+}
+
+function numberValue(value: unknown): number {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function commercialEntities(snapshot: CommercialBiSnapshot | null | undefined): {
+  customers: Customer[];
+  products: Product[];
+  orders: Order[];
+} {
+  const updatedAt = snapshot?.completedAt || snapshot?.createdAt || '';
+  const customers = (snapshot?.entities?.customers ?? []).map((row, index) => ({
+    id: textValue(row.id, `tray-customer-${index}`),
+    name: textValue(row.name, 'Cliente'),
+    email: textValue(row.email),
+    phone: textValue(row.phone),
+    company: 'Tray',
+    city: '',
+    ordersCount: numberValue(row.ordersCount),
+    totalSpent: numberValue(row.totalSpent),
+    lastContact: textValue(row.lastContact),
+    synced: true,
+  }));
+  const products = (snapshot?.entities?.products ?? []).map((row, index) => ({
+    id: textValue(row.id, `tray-product-${index}`),
+    code: textValue(row.code, textValue(row.id)),
+    name: textValue(row.name, 'Produto'),
+    price: numberValue(row.price),
+    stock: numberValue(row.stock),
+    category: textValue(row.category, 'Catálogo Tray'),
+    synced: true,
+  }));
+  const allowedStatuses = new Set<OrderStatus>(['pending', 'processing', 'shipped', 'delivered', 'cancelled']);
+  const orders = (snapshot?.entities?.orders ?? []).map((row, index) => {
+    const rawStatus = textValue(row.status, 'pending') as OrderStatus;
+    const id = textValue(row.id, `tray-order-${index}`);
+    return {
+      id,
+      number: id,
+      customerId: textValue(row.customerEmail, textValue(row.customerPhone)),
+      customerName: textValue(row.customerName, 'Cliente'),
+      status: allowedStatuses.has(rawStatus) ? rawStatus : 'pending',
+      total: numberValue(row.total),
+      createdAt: textValue(row.createdAt, updatedAt),
+      items: numberValue(row.items) || 1,
+    };
+  });
+  return { customers, products, orders };
+}
+
 export function DashboardWorkspace() {
   const { user } = useAuth();
   const { addToast } = useNotification();
   const queryClient = useQueryClient();
-  const { data, isLoading, refetch, isFetching } = useDashboard();
-  const { data: conversations } = useConversations();
-  const { data: customersData } = useCustomers({ page: 1, pageSize: 100 });
-  const { data: productsData } = useProducts({ page: 1, pageSize: 100 });
-  const { data: ordersData } = useOrders({ page: 1, pageSize: 100 });
-  const { data: channels } = useChannels();
-  const { data: salesMetrics } = useSalesMetrics();
-  const { data: agentStatus } = useAgentStatus();
-  const { data: mercosStatus } = useMercosStatus();
-  const { data: systemStatus } = useSystemStatus();
+  const dashboardQuery = useDashboard();
+  const conversationsQuery = useConversations();
+  const customersQuery = useCustomers({ page: 1, pageSize: 100 });
+  const productsQuery = useProducts({ page: 1, pageSize: 100 });
+  const ordersQuery = useOrders({ page: 1, pageSize: 100 });
+  const channelsQuery = useChannels();
+  const salesQuery = useSalesMetrics();
+  const agentQuery = useAgentStatus();
+  const mercosQuery = useMercosStatus();
+  const systemQuery = useSystemStatus();
+
+  const { data } = dashboardQuery;
+  const conversations = conversationsQuery.data;
+  const customersData = customersQuery.data;
+  const productsData = productsQuery.data;
+  const ordersData = ordersQuery.data;
+  const channels = channelsQuery.data;
+  const salesMetrics = salesQuery.data;
+  const agentStatus = agentQuery.data;
+  const mercosStatus = mercosQuery.data;
+  const systemStatus = systemQuery.data;
+  const isLoading = dashboardQuery.isLoading || salesQuery.isLoading;
+  const isFetching = [dashboardQuery, conversationsQuery, customersQuery, productsQuery, ordersQuery, channelsQuery, salesQuery, agentQuery, mercosQuery, systemQuery]
+    .some((query) => query.isFetching);
+
+  const refreshDashboard = async () => {
+    await Promise.allSettled([
+      dashboardQuery.refetch(),
+      conversationsQuery.refetch(),
+      customersQuery.refetch(),
+      productsQuery.refetch(),
+      ordersQuery.refetch(),
+      channelsQuery.refetch(),
+      salesQuery.refetch(),
+      agentQuery.refetch(),
+      mercosQuery.refetch(),
+      systemQuery.refetch(),
+    ]);
+  };
 
   const analyzeBiMutation = useMutation({
     mutationFn: () => commercialBiService.analyze(30),
@@ -114,6 +198,9 @@ export function DashboardWorkspace() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
         queryClient.invalidateQueries({ queryKey: ['sales-metrics'] }),
+        queryClient.invalidateQueries({ queryKey: ['customers'] }),
+        queryClient.invalidateQueries({ queryKey: ['products'] }),
+        queryClient.invalidateQueries({ queryKey: ['orders'] }),
       ]);
     },
     onError: (error) => {
@@ -135,9 +222,11 @@ export function DashboardWorkspace() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const { activeSection, isHidden: isDashboardNavHidden } = useDashboardNavigation(presentationMode);
 
-  const customers = useMemo(() => customersData?.data ?? [], [customersData]);
-  const products = useMemo(() => productsData?.data ?? [], [productsData]);
-  const orders = useMemo(() => ordersData?.data ?? [], [ordersData]);
+  const commercialBi = data?.commercialBi ?? salesMetrics?.commercialBi ?? null;
+  const biEntities = useMemo(() => commercialEntities(commercialBi), [commercialBi]);
+  const customers = useMemo(() => customersData?.data?.length ? customersData.data : biEntities.customers, [biEntities.customers, customersData]);
+  const products = useMemo(() => productsData?.data?.length ? productsData.data : biEntities.products, [biEntities.products, productsData]);
+  const orders = useMemo(() => ordersData?.data?.length ? ordersData.data : biEntities.orders, [biEntities.orders, ordersData]);
   const conversationList = useMemo(() => conversations ?? [], [conversations]);
 
 
@@ -170,13 +259,21 @@ export function DashboardWorkspace() {
     );
   }
 
-  if (!data) return null;
+  if (!data) {
+    return (
+      <EmptyState
+        icon={Gauge}
+        title="Não foi possível carregar o painel comercial"
+        description="Tente atualizar os dados. Se o problema continuar, verifique a integração comercial."
+        action={<Button onClick={() => dashboardQuery.refetch()}><RefreshCw className="h-4 w-4" /> Tentar novamente</Button>}
+      />
+    );
+  }
 
   const { stats, conversationsChart, ordersChart, responseTimeChart } = data;
   const revenueSold = salesMetrics?.valorTotalVendido ?? filteredOrders.reduce((sum, order) => sum + order.total, 0);
   const retainedRevenue = salesMetrics?.valorRetido ?? filteredOrders.filter((o) => o.status === 'delivered').reduce((sum, order) => sum + order.total, 0);
   const pipelineValue = salesMetrics?.pipelineValor ?? salesMetrics?.valorPipeline ?? 0;
-  const commercialBi = data?.commercialBi ?? salesMetrics?.commercialBi ?? null;
   const bySource = salesMetrics?.bySource ?? commercialBi?.kpis?.bySource ?? null;
   const biUpdatedLabel = commercialBi?.completedAt || commercialBi?.createdAt
     ? formatDateTime(String(commercialBi.completedAt || commercialBi.createdAt))
@@ -200,7 +297,7 @@ export function DashboardWorkspace() {
   const operationStatus =
     stats.waitingQueue === 0 ? 'Saudável' : stats.waitingQueue <= 5 ? 'Atenção' : 'Sobrecarregada';
   const operationTone: ExecutiveKpi['tone'] = operationStatus === 'Saudável' ? 'green' : operationStatus === 'Atenção' ? 'amber' : 'red';
-  const pipelineHealth = Math.max(8, Math.min(100, Math.round((retentionRate + conversionRate + (pipelineValue > 0 ? 25 : 0)) / 2)));
+  const pipelineHealth = Math.max(0, Math.min(100, Math.round((retentionRate + conversionRate + (pipelineValue > 0 ? 25 : 0)) / 2)));
   const pipelineTone: ExecutiveKpi['tone'] = pipelineHealth >= 70 ? 'green' : pipelineHealth >= 45 ? 'amber' : 'red';
   const gargalo = salesMetrics?.funil?.reduce((worst, step) => ((step.quedaPct ?? 0) > (worst.quedaPct ?? 0) ? step : worst), salesMetrics.funil[0]);
 
@@ -402,7 +499,7 @@ export function DashboardWorkspace() {
     },
     {
       title: 'Clientes cadastrados',
-      value: customersData?.total ?? stats.totalCustomers,
+      value: customersData?.total || stats.totalCustomers || customers.length,
       description: `${activeCustomers} cliente(s) com interação recente.`,
       badge: `${recurringCustomers} recorrentes`,
       tone: 'blue',
@@ -410,7 +507,7 @@ export function DashboardWorkspace() {
     },
     {
       title: 'Produtos cadastrados',
-      value: productsData?.total ?? stats.totalProducts,
+      value: productsData?.total || stats.totalProducts || products.length,
       description: 'Catálogo comercial disponível para atendimento e propostas.',
       badge: `${products.filter((p) => p.stock > 0).length} com estoque`,
       tone: 'slate',
@@ -425,9 +522,9 @@ export function DashboardWorkspace() {
       icon: HeartHandshake,
     },
     {
-      title: 'Performance da IA',
+      title: 'Participação da IA',
       value: `${stats.botResolved}%`,
-      description: `${agentStatus?.online ? 'IA online' : 'IA sem status online'} no painel.`,
+      description: `${stats.botResolved}% das mensagens foram enviadas pela IA.`,
       badge: agentStatus?.model ?? (stats.aiOnline ? 'Online' : 'Local'),
       tone: stats.aiOnline || agentStatus?.online ? 'green' : 'amber',
       icon: Bot,
@@ -500,15 +597,13 @@ export function DashboardWorkspace() {
       </div>
 
       <div className="relative space-y-8">
-        {!presentationMode && <SetupChecklist />}
-
         <DashboardExecutiveHeader
           firstName={user?.name?.split(' ')[0] ?? 'usuário'}
           operationStatus={operationStatus}
           operationTone={operationTone}
           presentationMode={presentationMode}
           isFetching={isFetching}
-          onRefresh={() => refetch()}
+          onRefresh={refreshDashboard}
           onTogglePresentation={togglePresentationMode}
           biSourceLabel={commercialBi ? 'Tray' : null}
           biUpdatedAt={biUpdatedLabel}
@@ -604,7 +699,7 @@ export function DashboardWorkspace() {
 
         <AskNitrosSection conversationId={conversationList[0]?.id} customerId={conversationList[0]?.customerId} presentationMode={presentationMode} />
 
-        <OperationCredibilitySection data={{ metrics: [{ label: 'IA', value: agentStatus?.online ? 'Online' : 'Offline', tone: agentStatus?.online ? 'green' : 'amber' }, { label: 'Modelo', value: agentStatus?.model ?? 'Sem status', tone: 'slate' }, { label: 'Canais conectados', value: channels?.filter((channel) => channel.connected).length ?? 0, tone: 'blue' }, { label: 'Prontidão', value: `${readiness}%`, tone: readiness >= 70 ? 'green' : 'amber' }, { label: 'Clientes sincronizados', value: mercosStatus?.syncedCustomers ?? systemStatus?.mercos.syncedCustomers ?? customers.length, tone: 'blue' }, { label: 'Produtos sincronizados', value: mercosStatus?.syncedProducts ?? systemStatus?.mercos.syncedProducts ?? products.length, tone: 'blue' }, { label: 'Pedidos sincronizados', value: mercosStatus?.syncedOrders ?? systemStatus?.mercos.syncedOrders ?? orders.length, tone: 'blue' }, { label: 'Última atualização', value: mercosStatus?.lastSync ? formatDateTime(mercosStatus.lastSync) : 'Sem sync', tone: 'slate' }], channelVolume, mercosStatus: mercosStatus?.connected || systemStatus?.mercos.configured ? 'Configurado' : 'Pendente', whatsappStatus: systemStatus?.whatsapp.connected ? 'Conectado' : 'Verificar', supabaseStatus: systemStatus?.supabase.ok ? 'Operacional' : 'Sem status', synchronizedDataStatus: mercosStatus?.connected ? 'Sim' : 'Parcial' }} />
+        <OperationCredibilitySection data={{ metrics: [{ label: 'IA', value: agentStatus?.online ? 'Online' : 'Offline', tone: agentStatus?.online ? 'green' : 'amber' }, { label: 'Modelo', value: agentStatus?.model ?? 'Sem status', tone: 'slate' }, { label: 'Canais conectados', value: channels?.filter((channel) => channel.connected).length ?? 0, tone: 'blue' }, { label: 'Prontidão', value: `${readiness}%`, tone: readiness >= 70 ? 'green' : 'amber' }, { label: 'Clientes sincronizados', value: mercosStatus?.syncedCustomers || systemStatus?.mercos.syncedCustomers || stats.totalCustomers || customers.length, tone: 'blue' }, { label: 'Produtos sincronizados', value: mercosStatus?.syncedProducts || systemStatus?.mercos.syncedProducts || stats.totalProducts || products.length, tone: 'blue' }, { label: 'Pedidos sincronizados', value: mercosStatus?.syncedOrders || systemStatus?.mercos.syncedOrders || stats.totalOrders || orders.length, tone: 'blue' }, { label: 'Última atualização', value: biUpdatedLabel ?? (mercosStatus?.lastSync ? formatDateTime(mercosStatus.lastSync) : 'Sem sync'), tone: 'slate' }], channelVolume, mercosStatus: commercialBi ? 'Tray conectado' : mercosStatus?.connected || systemStatus?.mercos.configured ? 'Configurado' : 'Pendente', whatsappStatus: systemStatus?.whatsapp.connected ? 'Conectado' : 'Verificar', supabaseStatus: systemStatus?.supabase.ok ? 'Operacional' : 'Sem status', synchronizedDataStatus: commercialBi || mercosStatus?.connected ? 'Sim' : 'Parcial' }} />
 
         <PerformanceRecommendationsSection recommendations={recommendations} />
       </div>

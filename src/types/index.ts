@@ -102,7 +102,11 @@ export interface CommercialBiSnapshot {
     bySource?: CommercialBiBySource;
     [key: string]: unknown;
   };
-  entities?: Record<string, unknown>;
+  entities?: {
+    customers?: Array<Record<string, unknown>>;
+    products?: Array<Record<string, unknown>>;
+    orders?: Array<Record<string, unknown>>;
+  };
   insights?: {
     summary?: string;
     actions?: string[];

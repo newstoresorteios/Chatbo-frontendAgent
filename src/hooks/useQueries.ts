@@ -15,6 +15,11 @@ export function useDashboard() {
   return useQuery({
     queryKey: ['dashboard'],
     queryFn: dashboardService.getDashboard,
+    staleTime: 15_000,
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
 }
 
@@ -22,6 +27,11 @@ export function useSalesMetrics() {
   return useQuery({
     queryKey: ['sales-metrics'],
     queryFn: salesService.getMetrics,
+    staleTime: 15_000,
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
 }
 
@@ -36,6 +46,9 @@ export function useCustomers(params: ListParams = {}) {
   return useQuery({
     queryKey: ['customers', params],
     queryFn: () => customersService.getCustomers(params),
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
 }
 
@@ -52,6 +65,9 @@ export function useProducts(params: ListParams = {}, enabled = true) {
     queryKey: ['products', params],
     queryFn: () => productsService.getProducts(params),
     enabled,
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
 }
 
@@ -59,6 +75,9 @@ export function useOrders(params: ListParams = {}) {
   return useQuery({
     queryKey: ['orders', params],
     queryFn: () => ordersService.getOrders(params),
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
 }
 
