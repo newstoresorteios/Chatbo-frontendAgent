@@ -42,7 +42,7 @@ export function ChatBubble({ message, customerName, onRetry }: ChatBubbleProps) 
   const isCustomer = message.sender === 'customer';
 
   return (
-    <div className={cn('flex gap-2', config.align)} style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 80px' }}>
+    <div className={cn('flex gap-2', config.align)}>
       {isCustomer && customerName && (
         <Avatar name={customerName} size="sm" className="mt-1 shrink-0" />
       )}

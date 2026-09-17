@@ -10,6 +10,8 @@ import type { Conversation } from '@/types';
 import { filterInboxConversations } from '@/utils/conversationAlerts';
 
 interface ChatContextValue {
+  isInboxExpanded: boolean;
+  setInboxExpanded: (expanded: boolean) => void;
   activeConversationId: string | null;
   setActiveConversationId: (id: string | null) => void;
   filter: string;
@@ -25,6 +27,7 @@ interface ChatContextValue {
 const ChatContext = createContext<ChatContextValue | null>(null);
 
 export function ChatProvider({ children }: { children: ReactNode }) {
+  const [isInboxExpanded, setInboxExpanded] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [filter, setFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -46,6 +49,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({
+      isInboxExpanded,
+      setInboxExpanded,
       activeConversationId,
       setActiveConversationId,
       filter,
@@ -58,6 +63,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       filterConversations,
     }),
     [
+      isInboxExpanded,
       activeConversationId,
       filter,
       statusFilter,

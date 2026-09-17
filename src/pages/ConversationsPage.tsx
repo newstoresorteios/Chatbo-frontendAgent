@@ -21,6 +21,8 @@ import {
   useMessages,
   useProducts,
 } from '@/hooks/useQueries';
+import { useConversationScroll } from '@/hooks/useConversationScroll';
+import { sortConversationsByLatestMessage } from '@/utils/conversationOrder';
 import { useConversationSuggestion } from '@/hooks/useConversationSuggestion';
 import { useUnclaimedConversationAlert } from '@/hooks/useUnclaimedConversationAlert';
 import { conversationsService, mergeConversationMessages } from '@/services/conversations.service';
@@ -29,11 +31,14 @@ import { extractApiErrorMessage } from '@/utils/apiErrors';
 import type { Conversation, Message } from '@/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  ArrowDown,
   ArrowLeft,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
   Clock3,
+  Maximize2,
+  Minimize2,
   Package,
   RefreshCw,
   ShoppingCart,
@@ -92,6 +97,8 @@ export function ConversationsPage() {
     searchQuery,
     setSearchQuery,
     showWaitingQueue,
+    isInboxExpanded,
+    setInboxExpanded,
   } = useChat();
 
   const { user } = useAuth();
@@ -144,9 +151,6 @@ export function ConversationsPage() {
     reserveOpen,
   );
   const queryClient = useQueryClient();
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const messagesViewportRef = useRef<HTMLDivElement>(null);
-  const lastScrolledConversationRef = useRef<string | null>(null);
   const { addToast } = useNotification();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -203,15 +207,25 @@ export function ConversationsPage() {
   const hasActiveFilters =
     filter !== 'all' || statusFilter !== 'all' || Boolean(searchQuery.trim());
   const isInboxEmpty = (conversations?.length ?? 0) === 0;
-  const displayList = useMemo(() => {
-    const mine = user?.id;
-    return [...filtered].sort((a, b) => {
-      const aMine = mine && a.assignedTo === mine ? 0 : 1;
-      const bMine = mine && b.assignedTo === mine ? 0 : 1;
-      if (aMine !== bMine) return aMine - bMine;
-      return new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime();
-    });
-  }, [filtered, user?.id]);
+  const displayList = useMemo(() => sortConversationsByLatestMessage(filtered), [filtered]);
+  const {
+    viewportRef: messagesViewportRef, contentRef: messagesContentRef, onScroll: onMessagesScroll,
+    scrollToLatest, showLatestButton, preserveHistoryPosition, isCurrentConversation,
+  } = useConversationScroll(
+    conversationsError ? null : activeConversation?.id ?? null,
+    mergedForAi,
+    messages !== undefined && !messagesLoading,
+  );
+
+  useEffect(() => () => setInboxExpanded(false), [setInboxExpanded]);
+  useEffect(() => {
+    if (!isInboxExpanded) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setInboxExpanded(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isInboxExpanded, setInboxExpanded]);
   const isClosed = activeConversation?.status === 'closed';
   const isAssignedToMe = !!user?.id && activeConversation?.assignedTo === user.id;
   const canReply = Boolean(user?.id) && isAssignedToMe && !isClosed;
@@ -271,10 +285,10 @@ export function ConversationsPage() {
     if (conversations && !initialSelectionDone.current) {
       initialSelectionDone.current = true;
       if (!activeConversationId && statusFilter !== 'waiting' && window.matchMedia('(min-width: 768px)').matches) {
-        setActiveConversationId(filtered[0]?.id ?? null);
+        setActiveConversationId(displayList[0]?.id ?? null);
       }
     }
-  }, [conversations, filtered, activeConversationId, statusFilter, setActiveConversationId, searchParams, showWaitingQueue, navigate]);
+  }, [conversations, displayList, activeConversationId, statusFilter, setActiveConversationId, searchParams, showWaitingQueue, navigate]);
 
   // Avisa e mantém a fila atualizada quando o NSAgent cria novas conversas.
   useEffect(() => {
@@ -303,17 +317,6 @@ export function ConversationsPage() {
   }, [conversations, addToast]);
 
   useEffect(() => {
-    const viewport = messagesViewportRef.current;
-    if (!viewport) return;
-    const conversationChanged = lastScrolledConversationRef.current !== activeConversationId;
-    lastScrolledConversationRef.current = activeConversationId;
-    const distanceFromBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
-    if (conversationChanged || distanceFromBottom < 180) {
-      messagesEndRef.current?.scrollIntoView({ behavior: conversationChanged ? 'auto' : 'smooth' });
-    }
-  }, [messages, activeConversationId]);
-
-  useEffect(() => {
     setHasOlderMessages(true);
     setLoadingOlderMessages(false);
   }, [activeConversationId]);
@@ -332,9 +335,6 @@ export function ConversationsPage() {
       return;
     }
 
-    const viewport = messagesViewportRef.current;
-    const previousHeight = viewport?.scrollHeight ?? 0;
-    const previousTop = viewport?.scrollTop ?? 0;
     setLoadingOlderMessages(true);
     try {
       const older = await conversationsService.getMessages(activeConversationId, {
@@ -342,17 +342,15 @@ export function ConversationsPage() {
         beforeId: /^[0-9a-f-]{36}$/i.test(earliest.id) ? earliest.id : undefined,
         limit: MESSAGE_PAGE_SIZE,
       });
+      const current = queryClient.getQueryData<Message[]>(['messages', activeConversationId]) ?? [];
+      if (isCurrentConversation(activeConversationId) && older.some((message) => !current.some((item) => item.id === message.id))) {
+        preserveHistoryPosition();
+      }
       queryClient.setQueryData<Message[]>(['messages', activeConversationId], (current = []) =>
         mergeConversationMessages(current, older),
       );
-      if (lastScrolledConversationRef.current !== activeConversationId) return;
+      if (!isCurrentConversation(activeConversationId)) return;
       if (older.length < MESSAGE_PAGE_SIZE) setHasOlderMessages(false);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          if (!viewport || lastScrolledConversationRef.current !== activeConversationId) return;
-          viewport.scrollTop = previousTop + viewport.scrollHeight - previousHeight;
-        });
-      });
     } catch (error) {
       addToast({
         title: 'Histórico indisponível',
@@ -360,7 +358,7 @@ export function ConversationsPage() {
         type: 'error',
       });
     } finally {
-      if (lastScrolledConversationRef.current === activeConversationId) setLoadingOlderMessages(false);
+      if (isCurrentConversation(activeConversationId)) setLoadingOlderMessages(false);
     }
   };
 
@@ -552,6 +550,7 @@ export function ConversationsPage() {
       });
       return;
     }
+    scrollToLatest();
     sendMutation.mutate({
       conversationId: activeConversationId,
       content,
@@ -569,6 +568,7 @@ export function ConversationsPage() {
       addToast({ title: 'Canal não suportado', message: 'Anexos exigem WhatsApp Meta conectado.', type: 'warning' });
       return false;
     }
+    scrollToLatest();
     mediaMutation.mutate({
       conversationId: activeConversationId, file, caption,
       tempId: `pending-media-${Date.now()}-${Math.random().toString(36).slice(2)}`,
@@ -619,16 +619,21 @@ export function ConversationsPage() {
           'Verifique a conexão com o backend e tente novamente.',
         )}
         action={
-          <Button variant="outline" onClick={() => { void refetchConversations(); }}>
-            Tentar novamente
-          </Button>
+          <div className="flex flex-wrap justify-center gap-2">
+            <Button variant="outline" onClick={() => { void refetchConversations(); }}>
+              Tentar novamente
+            </Button>
+            {isInboxExpanded && <Button variant="outline" onClick={() => setInboxExpanded(false)}>
+              <Minimize2 className="h-4 w-4" /> Sair da tela cheia
+            </Button>}
+          </div>
         }
       />
     );
   }
 
   return (
-    <div className="-m-4 flex h-[calc(100vh-4rem)] flex-col overflow-hidden lg:-m-6">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-gray-200/80 bg-white/95 px-3 py-2 dark:border-white/10 dark:bg-gray-950/90">
         <div className="flex min-w-0 items-center gap-2">
           <Target className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
@@ -710,6 +715,18 @@ export function ConversationsPage() {
               ? 'Alerta pausado enquanto você atende. A fila continua sendo atualizada.'
               : statusFilter === 'waiting' ? `${filtered.length} atendimento(s) na fila com os filtros atuais` : ''}
           </span>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="ml-auto"
+            aria-pressed={isInboxExpanded}
+            title={isInboxExpanded ? 'Sair da tela cheia (Esc)' : 'Usar toda a tela para atender'}
+            onClick={() => setInboxExpanded(!isInboxExpanded)}
+          >
+            {isInboxExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            {isInboxExpanded ? 'Sair da tela cheia' : 'Tela cheia'}
+          </Button>
         </div>
       </div>
 
@@ -736,7 +753,11 @@ export function ConversationsPage() {
                   conversation={conv}
                   active={conv.id === activeConversationId}
                   animateWaiting={shouldFlash}
-                  onClick={() => setActiveConversationId(conv.id)}
+                  onClick={() => {
+                    if (conv.id === activeConversationId) scrollToLatest();
+                    setActiveConversationId(conv.id);
+                    if (searchParams.get('conversa')) navigate('/atendimento', { replace: true });
+                  }}
                 />
               ))
             )}
@@ -746,8 +767,8 @@ export function ConversationsPage() {
         <section className={`min-h-0 min-w-0 flex-1 flex-col overflow-hidden ${activeConversationId ? 'flex' : 'hidden md:flex'}`}>
           {activeConversation ? (
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-              <div className="flex shrink-0 items-center justify-between gap-2 border-b border-blue-200/60 bg-gradient-to-r from-blue-50/95 via-white to-white px-3 py-2 dark:border-blue-900/40 dark:from-blue-950/40 dark:via-gray-950 dark:to-gray-950">
-                <div className="flex min-w-0 items-center gap-2">
+              <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-blue-200/60 bg-gradient-to-r from-blue-50/95 via-white to-white px-3 py-2 dark:border-blue-900/40 dark:from-blue-950/40 dark:via-gray-950 dark:to-gray-950">
+                <div className="flex min-w-0 flex-1 basis-48 items-center gap-2">
                   <Button
                     variant="ghost"
                     size="icon"
@@ -792,7 +813,7 @@ export function ConversationsPage() {
                     </div>
                   </div>
                 </div>
-                <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+                <div className="ml-auto flex shrink-0 flex-wrap items-center justify-end gap-1.5">
                   {!isClosed && !isAssignedToMe && user && (
                     <Button
                       variant="primary"
@@ -834,80 +855,93 @@ export function ConversationsPage() {
               </div>
 
               <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-slate-50 dark:bg-[#0b1220]">
-                <div ref={messagesViewportRef} className="dashboard-grid-bg min-h-0 flex-1 space-y-3 overflow-y-auto px-3 py-3 sm:px-4">
-                  {isClosed && (
-                    <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
-                      Conversa encerrada. Reabra para enviar novas mensagens.
-                    </div>
-                  )}
-                  {allMessages.length > 0 && (
-                    <div className="flex justify-center pb-1">
-                      {hasOlderMessages ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => { void handleLoadOlderMessages(); }}
-                          disabled={loadingOlderMessages}
-                        >
-                          {loadingOlderMessages
-                            ? <RefreshCw className="h-4 w-4 animate-spin" />
-                            : <ChevronUp className="h-4 w-4" />}
-                          {loadingOlderMessages ? 'Carregando histórico...' : 'Carregar mensagens anteriores'}
-                        </Button>
-                      ) : (
-                        <span className="rounded-full bg-white/90 px-3 py-1 text-xs text-gray-500 shadow-sm dark:bg-gray-900/90 dark:text-gray-400">
-                          Início da conversa
-                        </span>
-                      )}
-                    </div>
-                  )}
-                  {messagesLoading && allMessages.length === 0 ? (
-                    <Loading text="Carregando mensagens..." />
-                  ) : messagesError && allMessages.length === 0 ? (
-                    <EmptyState
-                      icon={XCircle}
-                      title="Não foi possível carregar as mensagens"
-                      description={extractApiErrorMessage(
-                        messagesLoadError,
-                        'Tente abrir a conversa novamente.',
-                      )}
-                      action={
-                        <Button variant="outline" onClick={() => { void refetchMessages(); }}>
-                          Tentar novamente
-                        </Button>
-                      }
-                    />
-                  ) : allMessages.length === 0 ? (
-                    <EmptyState
-                      icon={User}
-                      title="Nenhuma mensagem ainda"
-                      description="Assim que o lead ou o agente enviarem mensagens, elas aparecem aqui."
-                    />
-                  ) : (
-                    allMessages.map((msg, index) => {
-                      const day = messageDayLabel(msg.timestamp);
-                      const previousDay = index > 0
-                        ? messageDayLabel(allMessages[index - 1].timestamp)
-                        : null;
-                      return (
-                        <div key={msg.id} className="space-y-3">
-                          {day !== previousDay && (
-                            <div className="flex items-center justify-center py-1">
-                              <span className="rounded-md bg-white/90 px-2.5 py-1 text-[11px] font-medium text-gray-500 shadow-sm dark:bg-gray-900/90 dark:text-gray-400">
-                                {day}
-                              </span>
-                            </div>
-                          )}
-                          <ChatBubble
-                            message={msg}
-                            customerName={activeConversation.customerName}
-                            onRetry={handleRetryMessage}
-                          />
+                <div className="relative flex min-h-0 flex-1 flex-col">
+                  <div ref={messagesViewportRef} onScroll={onMessagesScroll} aria-label="Mensagens da conversa" className="dashboard-grid-bg min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3 sm:px-4" style={{ overflowAnchor: 'none' }}>
+                    <div ref={messagesContentRef} className="space-y-3">
+                      {isClosed && (
+                        <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                          Conversa encerrada. Reabra para enviar novas mensagens.
                         </div>
-                      );
-                    })
+                      )}
+                      {allMessages.length > 0 && (
+                        <div className="flex justify-center pb-1">
+                          {hasOlderMessages ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => { void handleLoadOlderMessages(); }}
+                              disabled={loadingOlderMessages}
+                            >
+                              {loadingOlderMessages
+                                ? <RefreshCw className="h-4 w-4 animate-spin" />
+                                : <ChevronUp className="h-4 w-4" />}
+                              {loadingOlderMessages ? 'Carregando histórico...' : 'Carregar mensagens anteriores'}
+                            </Button>
+                          ) : (
+                            <span className="rounded-full bg-white/90 px-3 py-1 text-xs text-gray-500 shadow-sm dark:bg-gray-900/90 dark:text-gray-400">
+                              Início da conversa
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      {messagesLoading && allMessages.length === 0 ? (
+                        <Loading text="Carregando mensagens..." />
+                      ) : messagesError && allMessages.length === 0 ? (
+                        <EmptyState
+                          icon={XCircle}
+                          title="Não foi possível carregar as mensagens"
+                          description={extractApiErrorMessage(
+                            messagesLoadError,
+                            'Tente abrir a conversa novamente.',
+                          )}
+                          action={
+                            <Button variant="outline" onClick={() => { void refetchMessages(); }}>
+                              Tentar novamente
+                            </Button>
+                          }
+                        />
+                      ) : allMessages.length === 0 ? (
+                        <EmptyState
+                          icon={User}
+                          title="Nenhuma mensagem ainda"
+                          description="Assim que o lead ou o agente enviarem mensagens, elas aparecem aqui."
+                        />
+                      ) : (
+                        allMessages.map((msg, index) => {
+                          const day = messageDayLabel(msg.timestamp);
+                          const previousDay = index > 0
+                            ? messageDayLabel(allMessages[index - 1].timestamp)
+                            : null;
+                          return (
+                            <div key={msg.id} className="space-y-3">
+                              {day !== previousDay && (
+                                <div className="flex items-center justify-center py-1">
+                                  <span className="rounded-md bg-white/90 px-2.5 py-1 text-[11px] font-medium text-gray-500 shadow-sm dark:bg-gray-900/90 dark:text-gray-400">
+                                    {day}
+                                  </span>
+                                </div>
+                              )}
+                              <ChatBubble
+                                message={msg}
+                                customerName={activeConversation.customerName}
+                                onRetry={handleRetryMessage}
+                              />
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+                  {showLatestButton && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="absolute bottom-3 right-4 shadow-lg"
+                      onClick={scrollToLatest}
+                    >
+                      <ArrowDown className="h-4 w-4" /> Últimas mensagens
+                    </Button>
                   )}
-                  <div ref={messagesEndRef} />
                 </div>
 
                 {!canReply && !isClosed && (
