@@ -2,15 +2,17 @@ import { DashboardStatCard } from '@/components/dashboard/DashboardWidgets';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Loading, SkeletonTable } from '@/components/ui/EmptyState';
-import { OrdersEmptyState, OrdersMercosHint } from '@/components/ui/GuidedEmptyState';
+import { OrdersEmptyState } from '@/components/ui/GuidedEmptyState';
 import { Modal } from '@/components/ui/Modal';
 import { Pagination } from '@/components/ui/Pagination';
 import { Search } from '@/components/ui/Search';
 import { Select } from '@/components/ui/Select';
 import { Table } from '@/components/ui/Table';
-import { useMercosSync } from '@/hooks/useMercosSync';
-import { usePermissions } from '@/hooks/usePermissions';
 import { useOrders, useSalesMetrics } from '@/hooks/useQueries';
+import { useNotification } from '@/contexts/NotificationContext';
+import { commercialBiService } from '@/services/commercialBi.service';
+import { extractApiErrorMessage } from '@/utils/apiErrors';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   formatCurrency,
   formatDate,
@@ -54,9 +56,8 @@ export function OrdersPage() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [selected, setSelected] = useState<Order | null>(null);
-  const { can } = usePermissions();
-  const canSync = can('manageIntegrations');
-  const syncMutation = useMercosSync();
+  const queryClient = useQueryClient();
+  const { addToast } = useNotification();
 
   const { data, isLoading } = useOrders({ page, pageSize: 10, search, status: status || undefined });
   const { data: metrics } = useSalesMetrics();
@@ -70,10 +71,28 @@ export function OrdersPage() {
     [metrics],
   );
 
-  const handleSync = () => {
-    if (!canSync) return;
-    syncMutation.mutate('orders');
-  };
+  const refreshMutation = useMutation({
+    mutationFn: () => commercialBiService.analyze(30),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['orders'] }),
+        queryClient.invalidateQueries({ queryKey: ['sales-metrics'] }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+      ]);
+      addToast({
+        type: 'success',
+        title: 'Pedidos atualizados',
+        message: 'A lista do ChatBô foi recalculada para o mês atual.',
+      });
+    },
+    onError: (error) => {
+      addToast({
+        type: 'error',
+        title: 'Não foi possível atualizar',
+        message: extractApiErrorMessage(error),
+      });
+    },
+  });
 
   if (isLoading) {
     return (
@@ -149,22 +168,18 @@ export function OrdersPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Pedidos</h1>
           <p className="text-gray-500 dark:text-gray-400">
-            Pedidos do WhatsApp (agent) e do Mercos — aparecem aqui automaticamente após fechamento
+            Pedidos atribuídos aos atendimentos do ChatBô no mês atual.
           </p>
         </div>
-        {canSync && (
-          <Button
-            variant="outline"
-            onClick={handleSync}
-            loading={syncMutation.isPending}
-          >
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Sincronizar pedidos
-          </Button>
-        )}
+        <Button
+          variant="outline"
+          onClick={() => refreshMutation.mutate()}
+          loading={refreshMutation.isPending}
+        >
+          <RefreshCw className="mr-2 h-4 w-4" />
+          Atualizar pedidos
+        </Button>
       </div>
-
-      {!isEmpty && <OrdersMercosHint />}
 
       {!isEmpty && metrics && (
         <div className="grid gap-4 sm:grid-cols-3">
@@ -263,7 +278,7 @@ export function OrdersPage() {
               </div>
               {selected.customerId && (
                 <div className="sm:col-span-2">
-                  <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">ID Mercos (cliente)</dt>
+                  <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">Contato relacionado</dt>
                   <dd className="mt-1 font-mono text-xs text-gray-600 dark:text-gray-400">{selected.customerId}</dd>
                 </div>
               )}
@@ -272,8 +287,8 @@ export function OrdersPage() {
             {isOrderQuote(selected) && (
               <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-100">
                 {selected.total <= 0
-                  ? 'Orçamento vazio no Mercos — vincule um cliente e produtos antes de confirmar.'
-                  : 'Para virar pedido confirmado, aprove o orçamento no Mercos e sincronize novamente.'}
+                  ? 'Oportunidade sem valor confirmado. Revise a negociação antes de concluir.'
+                  : 'Confirme a venda no atendimento para que ela entre nos resultados do ChatBô.'}
               </p>
             )}
           </div>

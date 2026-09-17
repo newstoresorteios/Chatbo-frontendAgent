@@ -24,13 +24,11 @@ import {
   Headphones,
   LogOut,
   Megaphone,
-  Package,
   Settings,
   Shield,
   ShoppingCart,
   SlidersHorizontal,
   Sparkles,
-  Users,
   X,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -46,8 +44,6 @@ function buildNavSections(settingsChildren: NavItem[]): NavSection[] {
     { title: 'OPERAÇÃO', items: [
       { to: '/dashboard', icon: Gauge, label: 'Painel Comercial', permission: 'viewFinancial', roles: ['owner', 'admin', 'supervisor'] },
       { to: '/atendimento', icon: Headphones, label: 'Central de Conversão' },
-      { to: '/contatos', icon: Users, label: 'Clientes' },
-      { to: '/produtos', icon: Package, label: 'Produtos' },
       { to: '/pedidos', icon: ShoppingCart, label: 'Pedidos', permission: 'viewFinancial', roles: ['owner', 'admin', 'supervisor'] },
       { to: '/funil', icon: GitBranch, label: 'Funil de Vendas', permission: 'viewFinancial', roles: ['owner', 'admin', 'supervisor'] },
     ] },

@@ -209,16 +209,11 @@ export function OrdersEmptyState({ searched }: { searched: boolean }) {
     <EmptyState
       icon={ShoppingCart}
       title="Nenhum pedido ainda"
-      description="Pedidos fechados pelo agente e pelos canais conectados aparecem aqui automaticamente."
+      description="Os pedidos atribuídos aos atendimentos do ChatBô neste mês aparecerão aqui automaticamente."
       action={
-        <div className="flex flex-wrap justify-center gap-2">
-          <Button size="sm" onClick={() => navigate('/configuracoes?tab=mercos')}>
-            Ver fontes de dados
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate('/configuracoes?tab=sistema')}>
-            Ver status do sistema
-          </Button>
-        </div>
+        <Button size="sm" onClick={() => navigate('/atendimento')}>
+          Abrir Central de Conversão
+        </Button>
       }
     />
   );

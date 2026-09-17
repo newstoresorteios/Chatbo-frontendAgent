@@ -10,6 +10,7 @@ import {
 } from '@/data/mocks';
 import { delay } from '@/utils';
 import type {
+  CommercialBiSnapshot,
   Customer,
   CustomerDetail,
   Product,
@@ -17,6 +18,41 @@ import type {
   ListParams,
   PaginatedResponse,
 } from '@/types';
+
+function textValue(value: unknown, fallback = ''): string {
+  return typeof value === 'string' || typeof value === 'number' ? String(value) : fallback;
+}
+
+function numberValue(value: unknown): number {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function snapshotOrders(snapshot: CommercialBiSnapshot | null): Order[] {
+  const allowedStatuses = new Set<Order['status']>([
+    'pending',
+    'processing',
+    'shipped',
+    'delivered',
+    'cancelled',
+  ]);
+  const updatedAt = snapshot?.completedAt || snapshot?.createdAt || '';
+
+  return (snapshot?.entities?.orders ?? []).map((row, index) => {
+    const id = textValue(row.id, `chatbo-order-${index}`);
+    const rawStatus = textValue(row.status, 'pending') as Order['status'];
+    return {
+      id,
+      number: textValue(row.number, id),
+      customerId: textValue(row.customerEmail, textValue(row.customerPhone)),
+      customerName: textValue(row.customerName, 'Contato ChatBô'),
+      status: allowedStatuses.has(rawStatus) ? rawStatus : 'pending',
+      total: numberValue(row.total),
+      createdAt: textValue(row.createdAt, updatedAt),
+      items: numberValue(row.items) || 1,
+    };
+  });
+}
 
 export const customersService = {
   getCustomers: async (params: ListParams = {}): Promise<PaginatedResponse<Customer>> => {
@@ -76,7 +112,15 @@ export const ordersService = {
       }
       return paginate(items, page, pageSize);
     }
-    const { data } = await api.get<PaginatedResponse<Order>>('/pedidos', { params });
-    return data;
+    const { data } = await api.get<{ item: CommercialBiSnapshot | null }>('/commercial-bi/latest');
+    let items = snapshotOrders(data.item ?? null);
+    if (search) {
+      items = filterBySearch(items, search, ['number', 'customerName']);
+    }
+    if (status) {
+      items = items.filter((order) => order.status === status);
+    }
+    items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return paginate(items, page, pageSize);
   },
 };

@@ -18,9 +18,9 @@ export function getOrderTypeLabel(order: Order): 'Orçamento' | 'Pedido' | 'Canc
 }
 
 export const orderStatusDescriptions: Record<OrderStatus, string> = {
-  pending: 'Orçamento no Mercos — confirme no ERP para virar pedido.',
-  processing: 'Pedido confirmado ou faturado — em processamento no Mercos.',
+  pending: 'Oportunidade identificada pelo ChatBô e aguardando confirmação comercial.',
+  processing: 'Pedido confirmado e em processamento.',
   shipped: 'Enviado ou em trânsito — aguardando entrega ao cliente.',
   delivered: 'Entregue — receita concretizada nos relatórios.',
-  cancelled: 'Pedido cancelado no Mercos.',
+  cancelled: 'Pedido cancelado.',
 };
