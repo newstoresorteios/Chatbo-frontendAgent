@@ -22,17 +22,17 @@ function MessageText({ text }: { text: string }) {
 const senderConfig = {
   customer: {
     align: 'justify-start',
-    bubble: 'bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700 rounded-tl-sm',
+    bubble: 'bg-white border border-gray-200 text-gray-800 shadow-sm dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 rounded-tl-md',
     label: null,
   },
   agent: {
     align: 'justify-end',
-    bubble: 'bg-primary-600 text-white rounded-tr-sm',
+    bubble: 'bg-primary-600 text-white shadow-sm shadow-primary-950/10 rounded-tr-md',
     label: 'Atendente',
   },
   ai: {
     align: 'justify-end',
-    bubble: 'bg-primary-100 text-primary-900 dark:bg-primary-900/40 dark:text-primary-100 rounded-tr-sm',
+    bubble: 'border border-primary-100 bg-primary-50 text-primary-950 shadow-sm dark:border-primary-800 dark:bg-primary-950/50 dark:text-primary-100 rounded-tr-md',
     label: 'IA',
   },
 };
@@ -46,14 +46,14 @@ export function ChatBubble({ message, customerName, onRetry }: ChatBubbleProps) 
       {isCustomer && customerName && (
         <Avatar name={customerName} size="sm" className="mt-1 shrink-0" />
       )}
-      <div className={cn('max-w-[75%]', !isCustomer && 'flex flex-col items-end')}>
+      <div className={cn('max-w-[82%] sm:max-w-[72%]', !isCustomer && 'flex flex-col items-end')}>
         {config.label && (
           <span className="mb-1 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
             {message.sender === 'ai' ? <Bot className="h-3 w-3" /> : <User className="h-3 w-3" />}
             {config.label}
           </span>
         )}
-        <div className={cn('min-w-0 rounded-2xl px-4 py-2.5 text-sm', config.bubble)}>
+        <div className={cn('min-w-0 rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed', config.bubble)}>
           {message.mediaType === 'image' && message.mediaUrl && (
             <a href={message.mediaUrl} target="_blank" rel="noopener noreferrer" aria-label="Abrir imagem">
               <img src={message.mediaUrl} alt={message.mediaFilename || 'Imagem recebida'}

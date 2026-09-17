@@ -638,11 +638,11 @@ export function ConversationsPage() {
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden">
-      <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-gray-200/80 bg-white/95 px-3 py-2 dark:border-white/10 dark:bg-gray-950/90">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-gray-50 dark:bg-gray-950">
+      <div className="m-2 mb-0 flex shrink-0 flex-wrap items-center gap-3 rounded-2xl border border-gray-200 bg-white px-3 py-2.5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:px-4">
         <div className="flex min-w-0 items-center gap-2">
-          <Target className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
-          <h1 className="truncate font-display text-base font-bold text-gray-950 dark:text-white">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-600 dark:bg-primary-950 dark:text-primary-300"><Target className="h-4 w-4" /></span>
+          <h1 className="truncate font-display text-base font-bold tracking-tight text-gray-950 dark:text-white">
             Central de Conversão
           </h1>
           <Badge variant="info" className="shrink-0">
@@ -735,14 +735,18 @@ export function ConversationsPage() {
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 overflow-hidden bg-white dark:bg-gray-950">
+      <div className="m-2 flex min-h-0 flex-1 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-950">
         <aside
           aria-label="Lista de atendimentos"
-          className={`flex w-full shrink-0 flex-col border-r border-gray-200 md:w-72 lg:w-80 dark:border-gray-800 ${
+          className={`flex w-full shrink-0 flex-col border-r border-gray-200 bg-gray-50/80 md:w-80 lg:w-[22rem] dark:border-gray-800 dark:bg-gray-950 ${
             activeConversationId ? 'hidden md:flex' : 'flex'
           }`}
         >
-          <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="flex h-12 shrink-0 items-center justify-between border-b border-gray-200 px-4 dark:border-gray-800">
+            <span className="text-xs font-bold uppercase tracking-[0.12em] text-gray-500">Conversas</span>
+            <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300">{displayList.length}</span>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto py-1">
             {isLoading ? (
               <div className="p-6">
                 <Loading text="Carregando conversas..." />
@@ -758,6 +762,13 @@ export function ConversationsPage() {
                   conversation={conv}
                   active={conv.id === activeConversationId}
                   animateWaiting={shouldFlash}
+                  onPrefetch={() => {
+                    void queryClient.prefetchQuery({
+                      queryKey: ['messages', conv.id],
+                      queryFn: () => conversationsService.getMessages(conv.id),
+                      staleTime: 5_000,
+                    });
+                  }}
                   onClick={() => {
                     if (conv.id === activeConversationId) scrollToLatest();
                     setActiveConversationId(conv.id);
@@ -772,7 +783,7 @@ export function ConversationsPage() {
         <section className={`min-h-0 min-w-0 flex-1 flex-col overflow-hidden ${activeConversationId ? 'flex' : 'hidden md:flex'}`}>
           {activeConversation ? (
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-              <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-blue-200/60 bg-gradient-to-r from-blue-50/95 via-white to-white px-3 py-2 dark:border-blue-900/40 dark:from-blue-950/40 dark:via-gray-950 dark:to-gray-950">
+              <div className="flex min-h-16 shrink-0 flex-wrap items-center justify-between gap-2 border-b border-gray-200 bg-white px-3 py-2.5 dark:border-gray-800 dark:bg-gray-950 sm:px-4">
                 <div className="flex min-w-0 flex-1 basis-48 items-center gap-2">
                   <Button
                     variant="ghost"
@@ -859,10 +870,10 @@ export function ConversationsPage() {
                 </div>
               </div>
 
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-slate-50 dark:bg-[#0b1220]">
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#f4f7fb] dark:bg-[#0c121d]">
                 <div className="relative flex min-h-0 flex-1 flex-col">
-                  <div ref={messagesViewportRef} onScroll={onMessagesScroll} aria-label="Mensagens da conversa" className="dashboard-grid-bg min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3 sm:px-4" style={{ overflowAnchor: 'none' }}>
-                    <div ref={messagesContentRef} className="space-y-3">
+                  <div ref={messagesViewportRef} onScroll={onMessagesScroll} aria-label="Mensagens da conversa" className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-6" style={{ overflowAnchor: 'none' }}>
+                    <div ref={messagesContentRef} className="mx-auto max-w-5xl space-y-3">
                       {isClosed && (
                         <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
                           Conversa encerrada. Reabra para enviar novas mensagens.
