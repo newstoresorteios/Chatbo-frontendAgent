@@ -35,7 +35,7 @@ export function ConversationCard({ conversation, active, pinned, animateWaiting 
       onMouseEnter={onPrefetch}
       onFocus={onPrefetch}
       className={cn(
-        'group mx-2 my-1.5 flex w-[calc(100%-1rem)] items-start gap-3 rounded-xl border p-3 text-left transition-all duration-150',
+        'group mx-2 my-1 flex min-h-[72px] w-[calc(100%-1rem)] items-start gap-3 rounded-xl border p-3 text-left transition-all duration-150 md:my-1.5',
         active
           ? 'border-primary-200 bg-primary-50 shadow-sm ring-1 ring-primary-100 dark:border-primary-800 dark:bg-primary-950/40 dark:ring-primary-900'
           : 'border-transparent bg-transparent hover:border-gray-200 hover:bg-white hover:shadow-sm dark:hover:border-gray-700 dark:hover:bg-gray-900',
@@ -58,7 +58,7 @@ export function ConversationCard({ conversation, active, pinned, animateWaiting 
         <p className={cn('mt-1 truncate text-sm text-gray-500 dark:text-gray-400', conversation.unreadCount > 0 && 'font-medium text-gray-700 dark:text-gray-200')}>
           {conversation.lastMessage || 'Sem mensagens ainda'}
         </p>
-        <div className="mt-2.5 flex min-w-0 items-center gap-1.5">
+        <div className="mt-2 flex min-w-0 items-center gap-1.5 md:mt-2.5">
           <Badge variant={handoffWaiting ? 'danger' : statusVariant[status]}>
             {handoffWaiting ? 'Aguardando humano' : statusLabel[status]}
           </Badge>

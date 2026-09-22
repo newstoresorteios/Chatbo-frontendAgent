@@ -63,7 +63,7 @@ export function MessageInput({
   };
 
   return (
-    <div className="relative border-t border-gray-200 bg-white px-3 py-3 dark:border-gray-800 dark:bg-gray-950 sm:px-4">
+    <div className="relative bg-white px-2 py-2 dark:bg-gray-950 sm:px-4 sm:py-3">
       {showEmoji && (
         <div className="absolute bottom-full left-4 mb-2 flex flex-wrap gap-1 rounded-xl border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-700 dark:bg-gray-800">
           {EMOJIS.map((e) => (
@@ -93,8 +93,8 @@ export function MessageInput({
           <button type="button" onClick={() => setSelectedFile(null)} aria-label="Remover anexo"><X className="h-4 w-4" /></button>
         </div>
       )}
-      <div className="flex items-end gap-2 rounded-2xl border border-gray-200 bg-gray-50 p-1.5 shadow-sm transition focus-within:border-primary-300 focus-within:ring-4 focus-within:ring-primary-500/10 dark:border-gray-700 dark:bg-gray-900">
-        <div className="flex gap-0.5">
+      <div className="flex items-end gap-1 rounded-2xl border border-gray-200 bg-gray-50 p-1 shadow-sm transition focus-within:border-primary-300 focus-within:ring-4 focus-within:ring-primary-500/10 dark:border-gray-700 dark:bg-gray-900 sm:gap-2 sm:p-1.5">
+        <div className="flex gap-0 sm:gap-0.5">
           <Button
             variant="ghost"
             size="icon"
@@ -124,7 +124,7 @@ export function MessageInput({
           disabled={disabled}
           rows={1}
           className={cn(
-            'max-h-32 min-h-[40px] flex-1 resize-none border-0 bg-transparent px-2 py-2 text-sm focus:outline-none focus:ring-0 dark:text-gray-100',
+            'max-h-32 min-h-[40px] min-w-0 flex-1 resize-none border-0 bg-transparent px-1.5 py-2 text-sm focus:outline-none focus:ring-0 dark:text-gray-100 sm:px-2',
             disabled && 'opacity-50',
           )}
         />

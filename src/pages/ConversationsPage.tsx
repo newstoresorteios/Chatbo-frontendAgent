@@ -38,6 +38,7 @@ import {
   ChevronUp,
   Clock3,
   Maximize2,
+  MoreVertical,
   Minimize2,
   Package,
   RefreshCw,
@@ -109,6 +110,7 @@ export function ConversationsPage() {
   const [hasOlderMessages, setHasOlderMessages] = useState(true);
   const [closeOpen, setCloseOpen] = useState(false);
   const [contextOpen, setContextOpen] = useState(false);
+  const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
   const [transferAgent, setTransferAgent] = useState('');
   const [reserveProduct, setReserveProduct] = useState('');
   const [closeNote, setCloseNote] = useState('');
@@ -324,6 +326,8 @@ export function ConversationsPage() {
   useEffect(() => {
     setHasOlderMessages(true);
     setLoadingOlderMessages(false);
+    setMobileActionsOpen(false);
+    setContextOpen(false);
   }, [activeConversationId]);
 
   useEffect(() => {
@@ -639,10 +643,10 @@ export function ConversationsPage() {
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-gray-50 dark:bg-gray-950">
-      <div className="m-2 mb-0 flex shrink-0 flex-wrap items-center gap-3 rounded-2xl border border-gray-200 bg-white px-3 py-2.5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:px-4">
-        <div className="flex min-w-0 items-center gap-2">
+      <div className={`${activeConversationId ? 'hidden md:flex' : 'flex'} m-0 shrink-0 flex-wrap items-center gap-2 border-x-0 border-t-0 border-b border-gray-200 bg-white px-3 py-2 shadow-sm dark:border-gray-800 dark:bg-gray-900 md:m-2 md:mb-0 md:gap-3 md:rounded-2xl md:border md:px-4 md:py-2.5`}>
+        <div className="flex w-full min-w-0 items-center gap-2 md:w-auto">
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-600 dark:bg-primary-950 dark:text-primary-300"><Target className="h-4 w-4" /></span>
-          <h1 className="truncate font-display text-base font-bold tracking-tight text-gray-950 dark:text-white">
+          <h1 className="min-w-0 flex-1 truncate font-display text-base font-bold tracking-tight text-gray-950 dark:text-white md:flex-none">
             Central de Conversão
           </h1>
           <Badge variant="info" className="shrink-0">
@@ -696,7 +700,7 @@ export function ConversationsPage() {
             onChange={(e) => setStatusFilter(e.target.value)}
           />
         </div>
-        <div className="flex w-full flex-wrap items-center gap-2 border-t border-gray-100 pt-2 dark:border-gray-800">
+        <div className="flex w-full items-center gap-2 overflow-x-auto border-t border-gray-100 pt-2 [scrollbar-width:none] dark:border-gray-800 [&::-webkit-scrollbar]:hidden">
           <Button
             type="button"
             size="sm"
@@ -709,40 +713,41 @@ export function ConversationsPage() {
             }}
           >
             <Clock3 className="h-4 w-4" />
-            Aguardando atendimento
+            <span className="whitespace-nowrap"><span className="md:hidden">Aguardando</span><span className="hidden md:inline">Aguardando atendimento</span></span>
             <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-800 dark:bg-red-950 dark:text-red-100">{waitingCount}</span>
           </Button>
           {hasActiveFilters && <Button type="button" size="sm" variant="ghost" onClick={() => {
             setStatusFilter('all'); setFilter('all'); setSearchQuery('');
           }}>Mostrar todos</Button>}
-          <span role="status" className="text-xs text-gray-500 dark:text-gray-400">
+          <span role="status" className="hidden text-xs text-gray-500 dark:text-gray-400 md:inline">
             {isAttending && waitingCount > 0
               ? 'Alerta pausado enquanto você atende. A fila continua sendo atualizada.'
               : statusFilter === 'waiting' ? `${filtered.length} atendimento(s) na fila com os filtros atuais` : ''}
           </span>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            className="ml-auto"
-            aria-pressed={isInboxExpanded}
-            title={isInboxExpanded ? 'Sair da tela cheia (Esc)' : 'Usar toda a tela para atender'}
-            onClick={() => setInboxExpanded(!isInboxExpanded)}
-          >
-            {isInboxExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-            {isInboxExpanded ? 'Sair da tela cheia' : 'Tela cheia'}
-          </Button>
+          <div className="ml-auto hidden md:block">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              aria-pressed={isInboxExpanded}
+              title={isInboxExpanded ? 'Sair da tela cheia (Esc)' : 'Usar toda a tela para atender'}
+              onClick={() => setInboxExpanded(!isInboxExpanded)}
+            >
+              {isInboxExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              {isInboxExpanded ? 'Sair da tela cheia' : 'Tela cheia'}
+            </Button>
+          </div>
         </div>
       </div>
 
-      <div className="m-2 flex min-h-0 flex-1 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-950">
+      <div className="m-0 flex min-h-0 flex-1 overflow-hidden border-0 bg-white shadow-sm dark:bg-gray-950 md:m-2 md:rounded-2xl md:border md:border-gray-200 md:dark:border-gray-800">
         <aside
           aria-label="Lista de atendimentos"
           className={`flex w-full shrink-0 flex-col border-r border-gray-200 bg-gray-50/80 md:w-80 lg:w-[22rem] dark:border-gray-800 dark:bg-gray-950 ${
             activeConversationId ? 'hidden md:flex' : 'flex'
           }`}
         >
-          <div className="flex h-12 shrink-0 items-center justify-between border-b border-gray-200 px-4 dark:border-gray-800">
+          <div className="flex h-11 shrink-0 items-center justify-between border-b border-gray-200 px-4 md:h-12 dark:border-gray-800">
             <span className="text-xs font-bold uppercase tracking-[0.12em] text-gray-500">Conversas</span>
             <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300">{displayList.length}</span>
           </div>
@@ -783,7 +788,7 @@ export function ConversationsPage() {
         <section className={`min-h-0 min-w-0 flex-1 flex-col overflow-hidden ${activeConversationId ? 'flex' : 'hidden md:flex'}`}>
           {activeConversation ? (
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-              <div className="flex min-h-16 shrink-0 flex-wrap items-center justify-between gap-2 border-b border-gray-200 bg-white px-3 py-2.5 dark:border-gray-800 dark:bg-gray-950 sm:px-4">
+              <div className="relative flex h-14 shrink-0 items-center gap-2 border-b border-gray-200 bg-white px-2 py-1.5 dark:border-gray-800 dark:bg-gray-950 md:h-auto md:min-h-16 md:flex-wrap md:justify-between md:px-4 md:py-2.5">
                 <div className="flex min-w-0 flex-1 basis-48 items-center gap-2">
                   <Button
                     variant="ghost"
@@ -799,27 +804,29 @@ export function ConversationsPage() {
                   >
                     <ArrowLeft className="h-5 w-5" />
                   </Button>
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="truncate text-sm font-semibold text-gray-900 dark:text-white sm:text-base">
                         {activeConversation.customerName}
                       </h3>
-                      <Badge variant={STATUS_VARIANTS[activeConversation.status] ?? STATUS_VARIANTS.active}>
-                        {STATUS_LABELS[activeConversation.status] ?? activeConversation.status}
-                      </Badge>
-                      <span className="text-xs text-gray-500">
+                      <span className="hidden sm:contents">
+                        <Badge variant={STATUS_VARIANTS[activeConversation.status] ?? STATUS_VARIANTS.active}>
+                          {STATUS_LABELS[activeConversation.status] ?? activeConversation.status}
+                        </Badge>
+                      </span>
+                      <span className="hidden text-xs text-gray-500 sm:inline">
                         {messagesLoading && allMessages.length === 0
                           ? '...'
                           : `${allMessages.length} msgs`}
                       </span>
-                      <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+                      <span className="hidden items-center gap-1 text-xs text-emerald-600 sm:inline-flex dark:text-emerald-400">
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                         ao vivo
                       </span>
                     </div>
-                    <div className="mt-0.5 flex flex-wrap items-center gap-2">
+                    <div className="mt-0.5 flex min-w-0 items-center gap-1.5">
                       <ChannelBadge channel={activeConversation.channel} />
-                      <span className="truncate text-xs text-gray-400">Histórico do contato{(activeConversation.sessionIds?.length ?? 0) > 1 ? ` · ${activeConversation.sessionIds!.length} atendimentos reunidos` : ''}</span>
+                      <span className="truncate text-xs text-gray-400"><span className="hidden sm:inline">Histórico do contato</span>{(activeConversation.sessionIds?.length ?? 0) > 1 ? ` · ${activeConversation.sessionIds!.length} atendimentos` : ''}</span>
                       {activeConversation.assignedName && (
                         <span className="truncate text-xs text-gray-500">
                           · {activeConversation.assignedName}
@@ -829,7 +836,7 @@ export function ConversationsPage() {
                     </div>
                   </div>
                 </div>
-                <div className="ml-auto flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+                <div className="ml-auto hidden shrink-0 flex-wrap items-center justify-end gap-1.5 md:flex">
                   {!isClosed && !isAssignedToMe && user && (
                     <Button
                       variant="primary"
@@ -868,11 +875,73 @@ export function ConversationsPage() {
                     <RefreshCw className="h-4 w-4" /> Transferir
                   </Button>
                 </div>
+                <div className="ml-auto flex shrink-0 items-center gap-1 md:hidden">
+                  {!isClosed && !isAssignedToMe && user && (
+                    <Button
+                      variant="primary"
+                      size="icon"
+                      onClick={() => activeConversationId && assumeMutation.mutate(activeConversationId)}
+                      disabled={assumeMutation.isPending}
+                      title="Assumir conversa"
+                      aria-label="Assumir conversa"
+                    >
+                      <UserCheck className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setMobileActionsOpen((open) => !open)}
+                    aria-expanded={mobileActionsOpen}
+                    aria-label="Mais ações"
+                  >
+                    <MoreVertical className="h-5 w-5" />
+                  </Button>
+                </div>
+                {mobileActionsOpen && (
+                  <>
+                    <button
+                      type="button"
+                      className="fixed inset-0 z-30 md:hidden"
+                      aria-label="Fechar menu de ações"
+                      onClick={() => setMobileActionsOpen(false)}
+                    />
+                    <div className="absolute right-2 top-12 z-40 min-w-48 overflow-hidden rounded-xl border border-gray-200 bg-white p-1.5 shadow-xl dark:border-gray-700 dark:bg-gray-900 md:hidden">
+                      {isClosed ? (
+                        <button
+                          type="button"
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
+                          onClick={() => { setMobileActionsOpen(false); reopenMutation.mutate(); }}
+                          disabled={reopenMutation.isPending}
+                        >
+                          <RefreshCw className="h-4 w-4" /> Reabrir conversa
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm hover:bg-gray-100 disabled:opacity-50 dark:hover:bg-gray-800"
+                          onClick={() => { setMobileActionsOpen(false); setCloseOpen(true); }}
+                          disabled={!canReply}
+                        >
+                          <CheckCircle2 className="h-4 w-4" /> Concluir atendimento
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm hover:bg-gray-100 disabled:opacity-50 dark:hover:bg-gray-800"
+                        onClick={() => { setMobileActionsOpen(false); setTransferOpen(true); }}
+                        disabled={isClosed || !canReply}
+                      >
+                        <RefreshCw className="h-4 w-4" /> Transferir conversa
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#f4f7fb] dark:bg-[#0c121d]">
                 <div className="relative flex min-h-0 flex-1 flex-col">
-                  <div ref={messagesViewportRef} onScroll={onMessagesScroll} aria-label="Mensagens da conversa" className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-6" style={{ overflowAnchor: 'none' }}>
+                  <div ref={messagesViewportRef} onScroll={onMessagesScroll} aria-label="Mensagens da conversa" className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2.5 py-3 sm:px-6 sm:py-4" style={{ overflowAnchor: 'none' }}>
                     <div ref={messagesContentRef} className="mx-auto max-w-5xl space-y-3">
                       {isClosed && (
                         <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
@@ -961,9 +1030,9 @@ export function ConversationsPage() {
                 </div>
 
                 {!canReply && !isClosed && (
-                  <div className="shrink-0 border-t border-amber-200/60 bg-amber-50 px-3 py-2.5 dark:border-amber-900/40 dark:bg-amber-950/30">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="text-sm text-amber-800 dark:text-amber-200">
+                  <div className="shrink-0 border-t border-amber-200/60 bg-amber-50 px-3 py-2 dark:border-amber-900/40 dark:bg-amber-950/30 md:py-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-xs text-amber-800 dark:text-amber-200 md:text-sm">
                         Assuma a conversa para pausar o agente e falar com o cliente.
                       </p>
                       {user && (
@@ -973,14 +1042,14 @@ export function ConversationsPage() {
                           onClick={() => activeConversationId && assumeMutation.mutate(activeConversationId)}
                           disabled={assumeMutation.isPending}
                         >
-                          <UserCheck className="h-4 w-4" /> Assumir agora
+                          <UserCheck className="h-4 w-4" /> <span className="hidden sm:inline">Assumir agora</span><span className="sm:hidden">Assumir</span>
                         </Button>
                       )}
                     </div>
                   </div>
                 )}
 
-                <div className="shrink-0 border-t border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
+                <div className="shrink-0 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] dark:border-gray-800 dark:bg-gray-950">
                   <MessageInput
                     onSend={handleSend}
                     onSendFile={handleSendFile}

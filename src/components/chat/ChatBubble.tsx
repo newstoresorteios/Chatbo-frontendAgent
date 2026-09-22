@@ -46,7 +46,7 @@ export function ChatBubble({ message, customerName, onRetry }: ChatBubbleProps) 
       {isCustomer && customerName && (
         <Avatar name={customerName} size="sm" className="mt-1 shrink-0" />
       )}
-      <div className={cn('max-w-[82%] sm:max-w-[72%]', !isCustomer && 'flex flex-col items-end')}>
+      <div className={cn('max-w-[88%] sm:max-w-[72%]', !isCustomer && 'flex flex-col items-end')}>
         {config.label && (
           <span className="mb-1 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
             {message.sender === 'ai' ? <Bot className="h-3 w-3" /> : <User className="h-3 w-3" />}

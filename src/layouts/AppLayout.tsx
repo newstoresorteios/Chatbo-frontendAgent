@@ -10,9 +10,10 @@ export function AppLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { pathname } = useLocation();
-  const { isInboxExpanded } = useChat();
+  const { isInboxExpanded, activeConversationId } = useChat();
   const isInbox = /^\/(atendimento|conversas)\/?$/.test(pathname);
   const expanded = isInbox && isInboxExpanded;
+  const mobileConversationOpen = isInbox && Boolean(activeConversationId);
 
   return (
     <div className="flex h-dvh overflow-hidden bg-slate-50 text-gray-900 dark:bg-chatbo-background dark:text-slate-100">
@@ -24,7 +25,11 @@ export function AppLayout() {
         onMobileClose={() => setMobileOpen(false)}
       />}
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        {!expanded && <Header onMenuClick={() => setMobileOpen(true)} />}
+        {!expanded && (
+          <div className={cn(mobileConversationOpen ? 'hidden md:contents' : 'contents')}>
+            <Header onMenuClick={() => setMobileOpen(true)} />
+          </div>
+        )}
         <main id="app-scroll-container" className={cn(
           'dashboard-grid-bg relative z-0 min-h-0 flex-1 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.08),transparent_34%),radial-gradient(circle_at_top_right,rgba(139,92,246,0.08),transparent_30%)]',
           isInbox ? 'overflow-hidden' : 'overflow-y-auto p-4 lg:p-6',
