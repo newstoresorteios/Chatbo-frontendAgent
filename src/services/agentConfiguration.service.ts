@@ -6,6 +6,7 @@ export interface AgentConfigurationField {
   key: string;
   label: string;
   description: string;
+  whenUsed?: string;
   type: 'integer' | 'number' | 'select' | 'boolean' | 'text' | 'textarea';
   group: string;
   min?: number;

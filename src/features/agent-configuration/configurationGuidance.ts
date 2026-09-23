@@ -403,6 +403,9 @@ message.learning_reflection_system|Instrução para analisar falhas|Orienta a IA
 `);
 
 export function getConfigurationGuidance(field: AgentConfigurationField): ConfigurationGuidance {
+  if (field.whenUsed?.trim()) return {
+    label: field.label, purpose: field.description, whenUsed: field.whenUsed, section: field.group,
+  };
   if (help[field.key]) return help[field.key];
   if (field.target === 'message') {
     const flow = field.key.replace(/^message\./, '').replace(/\.[a-f0-9]{10}$/, '');

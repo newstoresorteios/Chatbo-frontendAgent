@@ -23,6 +23,11 @@ const fields = [
 const published = { historyTurns: 12, acceptsTradeIn: true, 'message.greeting': 'Olá, nossa loja entrega em Curitiba.', agentCanAppraise: false, newSetting: 0.5 };
 const keys = (groups) => groups.flatMap(([, items]) => items.map((item) => item.key));
 
+test('published catalog guidance overrides local copy without new frontend mappings', () => {
+  const field = { ...fields[0], description: 'Descrição publicada pelo catálogo.', whenUsed: 'Uso informado pelo banco.', group: 'Qualidade e custo do agente' };
+  assert.deepEqual(getConfigurationGuidance(field), { label: field.label, purpose: field.description, whenUsed: field.whenUsed, section: field.group });
+});
+
 test('every current catalog field has purpose and a documented usage point', async () => {
   const catalog = JSON.parse(await readFile(new URL('./fixtures/agent-configuration-fields.json', import.meta.url), 'utf8'));
   const missing = catalog.filter((field) => getConfigurationGuidance(field).section === 'Outras configurações');
