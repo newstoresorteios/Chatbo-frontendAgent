@@ -12,6 +12,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Search } from '@/components/ui/Search';
 import { Select } from '@/components/ui/Select';
 import { useAuth } from '@/contexts/AuthContext';
+import { useInboxEvents } from '@/hooks/useInboxEvents';
 import { useChat } from '@/contexts/ChatContext';
 import { useNotification } from '@/contexts/NotificationContext';
 import {
@@ -103,6 +104,7 @@ export function ConversationsPage() {
   } = useChat();
 
   const { user } = useAuth();
+  useInboxEvents(user ? `${user.id}:${user.workspaceId ?? ''}` : null);
   const { count: waitingCount, shouldFlash, isAttending } = useUnclaimedConversationAlert();
   const [transferOpen, setTransferOpen] = useState(false);
   const [reserveOpen, setReserveOpen] = useState(false);
