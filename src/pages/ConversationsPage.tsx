@@ -13,6 +13,7 @@ import { Search } from '@/components/ui/Search';
 import { Select } from '@/components/ui/Select';
 import { useAuth } from '@/contexts/AuthContext';
 import { useInboxEvents } from '@/hooks/useInboxEvents';
+import { useInboxSound } from '@/hooks/useInboxSound';
 import { useChat } from '@/contexts/ChatContext';
 import { useNotification } from '@/contexts/NotificationContext';
 import {
@@ -43,6 +44,8 @@ import {
   Minimize2,
   Package,
   RefreshCw,
+  Volume2,
+  VolumeX,
   ShoppingCart,
   Sparkles,
   Target,
@@ -104,7 +107,8 @@ export function ConversationsPage() {
   } = useChat();
 
   const { user } = useAuth();
-  useInboxEvents(user ? `${user.id}:${user.workspaceId ?? ''}` : null);
+  const inboxSound = useInboxSound();
+  useInboxEvents(user ? `${user.id}:${user.workspaceId ?? ''}` : null, inboxSound.notify, inboxSound.enabled);
   const { count: waitingCount, shouldFlash, isAttending } = useUnclaimedConversationAlert();
   const [transferOpen, setTransferOpen] = useState(false);
   const [reserveOpen, setReserveOpen] = useState(false);
@@ -659,6 +663,13 @@ export function ConversationsPage() {
             Ao vivo
             {dataUpdatedAt ? ` · ${new Date(dataUpdatedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}` : ''}
           </span>
+          <Button variant="ghost" size="sm" onClick={() => { void inboxSound.toggle(); }}
+            aria-pressed={inboxSound.enabled}
+            title={inboxSound.enabled ? 'Silenciar novas mensagens' : 'Ativar som de novas mensagens (toca uma amostra)'}>
+            {inboxSound.enabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+            {inboxSound.enabled ? 'Som ligado' : 'Ativar som'}
+          </Button>
+          {inboxSound.error && <span role="status" className="text-xs text-red-500">{inboxSound.error}</span>}
           <Button
             variant="ghost"
             size="sm"

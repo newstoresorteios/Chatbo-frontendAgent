@@ -5,6 +5,7 @@ export interface InboxEvent {
   cursor: string;
   changed: boolean;
   realtime: boolean;
+  incoming?: { cursor: string; at: number };
 }
 
 export async function waitForInboxEvent(cursor: string, signal: AbortSignal): Promise<InboxEvent> {
