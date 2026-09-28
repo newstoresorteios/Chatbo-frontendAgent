@@ -375,7 +375,7 @@ export function SystemAdminPage() {
                   <Input
                     label={dataSourceQuery.data?.hasToken ? 'Token interno (deixe em branco para manter)' : 'Token interno'}
                     type="password"
-                    placeholder={dataSourceProvider === 'mercos' ? 'MERCOS_ADAPTER_TOKEN' : 'TRAY_ADAPTER_TOKEN'}
+                    placeholder={dataSourceProvider === 'mercos' ? 'MERCOS_ADAPTOR_API_KEY' : 'TRAY_ADAPTER_TOKEN'}
                     value={adapterToken}
                     onChange={(e) => setAdapterToken(e.target.value)}
                   />
