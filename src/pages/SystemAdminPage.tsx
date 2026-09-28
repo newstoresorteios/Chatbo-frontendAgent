@@ -62,6 +62,7 @@ export function SystemAdminPage() {
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
   const [adminRole, setAdminRole] = useState<'owner' | 'admin'>('admin');
+  const [dataSourceProvider, setDataSourceProvider] = useState<'mercos' | 'tray'>('tray');
   const [adapterBaseUrl, setAdapterBaseUrl] = useState('');
   const [adapterToken, setAdapterToken] = useState('');
 
@@ -79,6 +80,7 @@ export function SystemAdminPage() {
 
   useEffect(() => {
     if (!dataSourceQuery.data) return;
+    setDataSourceProvider(dataSourceQuery.data.provider || 'tray');
     setAdapterBaseUrl(dataSourceQuery.data.adapterBaseUrl || '');
     setAdapterToken('');
   }, [dataSourceQuery.data, selectedCompany?.id]);
@@ -146,6 +148,7 @@ export function SystemAdminPage() {
   const saveDataSourceMutation = useMutation({
     mutationFn: () =>
       systemAdminService.saveDataSource(selectedCompany!.id, {
+        provider: dataSourceProvider,
         adapterBaseUrl: adapterBaseUrl.trim(),
         adapterToken: adapterToken.trim(),
         enabled: true,
@@ -153,7 +156,7 @@ export function SystemAdminPage() {
     onSuccess: async () => {
       addToast({
         title: 'Fonte de dados salva',
-        message: 'TRAYadaptor apontado para esta empresa.',
+        message: `${dataSourceProvider === 'mercos' ? 'MercosAdaptor' : 'TRAYadaptor'} apontado para esta empresa.`,
         type: 'success',
       });
       setAdapterToken('');
@@ -173,20 +176,20 @@ export function SystemAdminPage() {
       systemAdminService.testDataSource(
         selectedCompany!.id,
         adapterBaseUrl.trim() && adapterToken.trim()
-          ? { adapterBaseUrl: adapterBaseUrl.trim(), adapterToken: adapterToken.trim() }
+          ? { provider: dataSourceProvider, adapterBaseUrl: adapterBaseUrl.trim(), adapterToken: adapterToken.trim() }
           : undefined,
       ),
     onSuccess: (result) => {
       addToast({
         title: 'Conexão OK',
-        message: `TRAYadaptor respondeu${typeof result.sampleProducts === 'number' ? ` · ${result.sampleProducts} produto(s) amostra` : ''}.`,
+        message: `${result.provider === 'mercos' ? 'MercosAdaptor' : 'TRAYadaptor'} respondeu${typeof result.sampleProducts === 'number' ? ` · ${result.sampleProducts} produto(s) amostra` : ''}.`,
         type: 'success',
       });
     },
     onError: (error) => {
       addToast({
         title: 'Falha no teste',
-        message: extractApiErrorMessage(error, 'Não foi possível falar com o TRAYadaptor.'),
+        message: extractApiErrorMessage(error, `Não foi possível falar com o ${dataSourceProvider === 'mercos' ? 'MercosAdaptor' : 'TRAYadaptor'}.`),
         type: 'error',
       });
     },
@@ -204,7 +207,7 @@ export function SystemAdminPage() {
     onError: (error) => {
       addToast({
         title: 'Falha na análise BI',
-        message: extractApiErrorMessage(error, 'Verifique o TRAYadaptor e a OpenAI.'),
+        message: extractApiErrorMessage(error, 'Verifique o adaptor comercial e a OpenAI.'),
         type: 'error',
       });
     },
@@ -340,24 +343,39 @@ export function SystemAdminPage() {
 
                 <div className="rounded-xl border border-slate-600 bg-slate-950/50 p-3 space-y-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-sm font-semibold text-white">Fonte de dados · TRAYadaptor</p>
+                    <p className="text-sm font-semibold text-white">
+                      Fonte de dados · {dataSourceProvider === 'mercos' ? 'MercosAdaptor' : 'TRAYadaptor'}
+                    </p>
                     <Badge variant={dataSourceQuery.data?.enabled ? 'success' : 'default'}>
                       {dataSourceQuery.data?.status || 'disconnected'}
                     </Badge>
                   </div>
                   <p className="text-xs text-slate-300">
-                    A config Tray fica no adaptor. Aqui só apontamos a URL + token interno.
+                    A configuração da plataforma fica no adaptor. Aqui apontamos a URL + token interno por empresa.
                   </p>
+                  <Select
+                    label="Plataforma da empresa"
+                    value={dataSourceProvider}
+                    onChange={(e) => {
+                      setDataSourceProvider(e.target.value as 'mercos' | 'tray');
+                      setAdapterBaseUrl('');
+                      setAdapterToken('');
+                    }}
+                    options={[
+                      { value: 'mercos', label: 'Mercos · MercosAdaptor' },
+                      { value: 'tray', label: 'Tray · TRAYadaptor' },
+                    ]}
+                  />
                   <Input
-                    label="URL do TRAYadaptor"
-                    placeholder="https://tray-adapter.onrender.com"
+                    label={`URL do ${dataSourceProvider === 'mercos' ? 'MercosAdaptor' : 'TRAYadaptor'}`}
+                    placeholder={dataSourceProvider === 'mercos' ? 'https://mercos-adaptor.onrender.com' : 'https://tray-adapter.onrender.com'}
                     value={adapterBaseUrl}
                     onChange={(e) => setAdapterBaseUrl(e.target.value)}
                   />
                   <Input
                     label={dataSourceQuery.data?.hasToken ? 'Token interno (deixe em branco para manter)' : 'Token interno'}
                     type="password"
-                    placeholder="TRAY_ADAPTER_TOKEN"
+                    placeholder={dataSourceProvider === 'mercos' ? 'MERCOS_ADAPTER_TOKEN' : 'TRAY_ADAPTER_TOKEN'}
                     value={adapterToken}
                     onChange={(e) => setAdapterToken(e.target.value)}
                   />
@@ -367,7 +385,14 @@ export function SystemAdminPage() {
                   <div className="grid gap-2 sm:grid-cols-3">
                     <Button
                       variant="outline"
-                      disabled={!selectedCompany || !adapterBaseUrl.trim() || (!adapterToken.trim() && !dataSourceQuery.data?.hasToken)}
+                      disabled={
+                        !selectedCompany ||
+                        !adapterBaseUrl.trim() ||
+                        (!adapterToken.trim() && !(
+                          dataSourceQuery.data?.provider === dataSourceProvider &&
+                          dataSourceQuery.data?.hasToken
+                        ))
+                      }
                       loading={saveDataSourceMutation.isPending}
                       onClick={() => saveDataSourceMutation.mutate()}
                     >
@@ -375,7 +400,13 @@ export function SystemAdminPage() {
                     </Button>
                     <Button
                       variant="secondary"
-                      disabled={!selectedCompany}
+                      disabled={
+                        !selectedCompany ||
+                        (
+                          dataSourceQuery.data?.provider !== dataSourceProvider &&
+                          (!adapterBaseUrl.trim() || !adapterToken.trim())
+                        )
+                      }
                       loading={testDataSourceMutation.isPending}
                       onClick={() => testDataSourceMutation.mutate()}
                     >

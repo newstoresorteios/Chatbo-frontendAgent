@@ -49,7 +49,7 @@ export interface UsageRow {
 }
 
 export interface CompanyDataSource {
-  provider: 'tray' | string;
+  provider: 'mercos' | 'tray';
   enabled: boolean;
   adapterBaseUrl: string;
   hasToken: boolean;
@@ -59,7 +59,7 @@ export interface CompanyDataSource {
 }
 
 export interface SaveCompanyDataSourcePayload {
-  provider?: 'tray';
+  provider: 'mercos' | 'tray';
   adapterBaseUrl: string;
   adapterToken?: string;
   enabled?: boolean;
@@ -100,7 +100,6 @@ export const systemAdminService = {
   ): Promise<CompanyDataSource> =>
     (
       await api.put<CompanyDataSource>(`/system/companies/${companyId}/data-source`, {
-        provider: 'tray',
         enabled: true,
         ...payload,
       })
@@ -109,8 +108,8 @@ export const systemAdminService = {
   testDataSource: async (
     companyId: string,
     payload?: Partial<SaveCompanyDataSourcePayload>,
-  ): Promise<{ ok: boolean; sampleProducts?: number }> =>
-    (await api.post<{ ok: boolean; sampleProducts?: number }>(
+  ): Promise<{ ok: boolean; provider?: 'mercos' | 'tray'; sampleProducts?: number }> =>
+    (await api.post<{ ok: boolean; provider?: 'mercos' | 'tray'; sampleProducts?: number }>(
       `/system/companies/${companyId}/data-source/test`,
       payload ?? {},
     )).data,
