@@ -153,6 +153,39 @@ html.dark {
     background-clip: text;
   }
 
+  .marketing-surface {
+    background: #020b18;
+    color: #f8fafc;
+  }
+
+  .marketing-surface .text-slate-300,
+  .marketing-surface .text-gray-300 {
+    color: #e2e8f0;
+  }
+
+  .marketing-surface .text-slate-400,
+  .marketing-surface .text-gray-400,
+  .marketing-surface .text-gray-500 {
+    color: #b8c5d6;
+  }
+
+  .marketing-surface [class~="border-white/5"] {
+    border-color: rgb(148 163 184 / 0.22);
+  }
+
+  .marketing-surface [class~="bg-gray-900/50"],
+  .marketing-surface [class~="bg-gray-900/60"] {
+    background-color: rgb(15 23 42 / 0.82);
+  }
+
+  .hero-grid {
+    background-image:
+      linear-gradient(rgb(56 189 248 / 0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(56 189 248 / 0.055) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: linear-gradient(to bottom, black 0%, transparent 92%);
+  }
+
   .dashboard-grid-bg {
     background-image:
       linear-gradient(rgb(34 211 238 / 0.08) 1px, transparent 1px),

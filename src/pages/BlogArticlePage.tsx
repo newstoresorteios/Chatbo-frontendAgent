@@ -1,5 +1,6 @@
 import { BlogCard } from '@/components/blog/BlogCard';
 import { LandingFooter, LandingNavbar } from '@/components/landing/LandingLayout';
+import { WhatsAppCta } from '@/components/landing/WhatsAppCta';
 import { SeoHead } from '@/components/seo/SeoHead';
 import { formatArticleDate, getBlogArticle, getBlogArticleByUrl, relatedBlogArticles } from '@/content/blog';
 import { ArrowLeft, ArrowRight, Check, Clock3, ExternalLink, Quote, Sparkles } from 'lucide-react';
@@ -52,7 +53,7 @@ export function BlogArticlePage() {
   const relatedSolutions = article.relatedSolutions.map(getBlogArticleByUrl).filter((item) => item !== undefined);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="marketing-surface min-h-screen bg-slate-950 text-white">
       <SeoHead title={article.seoTitle} description={article.seoDescription} path={article.targetUrl} type="article" publishedTime={article.date} modifiedTime={article.updated} jsonLd={schemas} />
       <LandingNavbar />
       <main>
@@ -101,6 +102,7 @@ export function BlogArticlePage() {
         <section className="border-t border-white/10 bg-slate-900/35 py-16"><div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><p className="text-sm font-bold uppercase tracking-[0.16em] text-cyan-300">Continue aprendendo</p><h2 className="mt-3 text-3xl font-bold">Artigos relacionados</h2><div className="mt-8 grid gap-6 md:grid-cols-3">{related.map((item) => <BlogCard key={item.slug} article={item} />)}</div></div></section>
       </main>
       <LandingFooter />
+      <WhatsAppCta />
     </div>
   );
 }

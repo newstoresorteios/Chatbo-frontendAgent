@@ -104,7 +104,7 @@ export function LandingChatDemo() {
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5 }}
-      className="relative mx-auto mt-16 max-w-5xl"
+      className="relative mx-auto max-w-5xl"
     >
       <div className="rounded-2xl border border-slate-400/25 bg-slate-900/95 p-2 shadow-2xl shadow-blue-900/30 backdrop-blur">
         <div className="flex items-center gap-2 border-b border-slate-400/20 px-4 py-3">

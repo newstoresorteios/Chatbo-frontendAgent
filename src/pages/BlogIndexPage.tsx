@@ -1,5 +1,6 @@
 import { BlogCard } from '@/components/blog/BlogCard';
 import { LandingFooter, LandingNavbar } from '@/components/landing/LandingLayout';
+import { WhatsAppCta } from '@/components/landing/WhatsAppCta';
 import { SeoHead } from '@/components/seo/SeoHead';
 import { blogArticles, blogCategories } from '@/content/blog';
 import { BookOpenText, Search, Sparkles } from 'lucide-react';
@@ -37,7 +38,7 @@ export function BlogIndexPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="marketing-surface min-h-screen bg-slate-950 text-white">
       <SeoHead
         title="Blog ChatBô | Chatbot com IA, WhatsApp e vendas"
         description="Guias práticos e aprofundados sobre chatbot com IA, atendimento no WhatsApp, automação comercial, CRM, vendas e experiência do cliente."
@@ -84,6 +85,7 @@ export function BlogIndexPage() {
         </section>
       </main>
       <LandingFooter />
+      <WhatsAppCta />
     </div>
   );
 }

@@ -3,6 +3,8 @@ import { LandingChatDemo } from '@/components/landing/LandingChatDemo';
 import { AuroraBackground } from '@/components/landing/AuroraBackground';
 import { Marquee } from '@/components/landing/Marquee';
 import { ScrollProgress } from '@/components/landing/ScrollProgress';
+import { WhatsAppCta } from '@/components/landing/WhatsAppCta';
+import { CHATBO_WHATSAPP_URL } from '@/constants/contact';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { BlogCard } from '@/components/blog/BlogCard';
 import { homeBlogHighlights } from '@/content/homeBlogHighlights';
@@ -183,99 +185,55 @@ export function LandingPage() {
   if (isAuthenticated) return <Navigate to={defaultAppHome(user)} replace />;
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="marketing-surface min-h-screen bg-gray-950 text-white">
       <SeoHead title="ChatBô | Atendimento e vendas com inteligência artificial" description={siteEntity.description} path="/" jsonLd={siteStructuredData} />
       <ScrollProgress />
       <LandingNavbar />
 
       {/* Hero */}
-      <section className="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-32">
+      <section className="relative overflow-hidden border-b border-white/10 pt-28 pb-16 sm:pt-36 sm:pb-24">
         <AuroraBackground />
+        <div className="hero-grid pointer-events-none absolute inset-0" />
 
-        <div className="relative mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 text-sm font-semibold text-blue-200"
-          >
-            <Sparkles className="h-4 w-4" /> IA comercial para receita
-          </motion.div>
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
+            <div>
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-300/35 bg-cyan-300/10 px-4 py-2 text-sm font-bold text-cyan-100">
+                <Sparkles className="h-4 w-4" /> IA COMERCIAL + TIME HUMANO
+              </motion.div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mx-auto max-w-4xl font-display text-4xl font-bold leading-tight tracking-tight text-slate-50 sm:text-5xl lg:text-[3.4rem]"
-          >
-            Transforme conversas em vendas com a IA comercial do <span className="landing-gradient-text">ChatBô</span>
-          </motion.h1>
+              <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="max-w-3xl font-display text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
+                Transforme cada conversa em uma <span className="landing-gradient-text">oportunidade de venda.</span>
+              </motion.h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-300"
-          >
-            Centralize canais, qualifique leads, gere respostas inteligentes e acompanhe oportunidades em um cockpit feito para acelerar receita.
-          </motion.p>
+              <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-6 max-w-2xl text-lg font-medium leading-8 text-slate-200 sm:text-xl">
+                Centralize canais, qualifique leads e acompanhe o funil com IA — sem tirar o controle da sua equipe comercial.
+              </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
-          >
-            <Button size="lg" className="min-w-[200px]" onClick={() => navigate('/login')}>
-              Começar teste grátis <ArrowRight className="h-4 w-4" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="min-w-[200px] border-slate-400/50 text-white hover:border-cyan-300/70 hover:bg-cyan-400/10 focus-visible:ring-cyan-300"
-              onClick={() => navigate('/login')}
-            >
-              Entrar na plataforma
-            </Button>
-          </motion.div>
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-9 flex flex-col gap-3 sm:flex-row">
+                <Button size="lg" className="min-w-[210px] bg-blue-600 shadow-lg shadow-blue-950/40 hover:bg-blue-500" onClick={() => navigate('/login')}>
+                  Começar teste grátis <ArrowRight className="h-4 w-4" />
+                </Button>
+                <a href={CHATBO_WHATSAPP_URL} target="_blank" rel="noreferrer" className="inline-flex min-h-11 min-w-[210px] items-center justify-center gap-2 rounded-xl border border-emerald-300/50 bg-emerald-400/10 px-5 py-2.5 font-bold text-emerald-200 transition hover:bg-emerald-400 hover:text-emerald-950">
+                  <MessageCircle className="h-5 w-5" /> Falar com especialista
+                </a>
+              </motion.div>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="mt-4 text-sm text-slate-400"
-          >
-            5 dias grátis · Treinamento incluso · Sem cartão
-          </motion.p>
+              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-5 text-sm font-medium text-slate-300">
+                5 dias grátis <span className="px-2 text-cyan-300">•</span> Treinamento incluso <span className="px-2 text-cyan-300">•</span> Sem cartão
+              </motion.p>
+            </div>
 
-          <LandingChatDemo />
+            <div className="rounded-[2rem] border border-cyan-200/20 bg-slate-950/70 p-2 shadow-[0_30px_100px_rgba(2,132,199,.2)] sm:p-4">
+              <LandingChatDemo />
+            </div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.55 }}
-            className="mt-12"
-          >
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
-              Feito para operações comerciais em movimento
-            </p>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }} className="mt-14 border-t border-white/10 pt-8">
+            <p className="mb-4 text-center text-xs font-bold uppercase tracking-[0.22em] text-slate-300">Feito para operações comerciais em movimento</p>
             <Marquee duration={28}>
-              {segments.map((seg) => (
-                <span
-                  key={seg}
-                  className="mx-2 shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-5 py-2 text-sm font-medium text-slate-400 transition-colors hover:border-blue-500/30 hover:text-white"
-                >
-                  {seg}
-                </span>
-              ))}
+              {segments.map((seg) => <span key={seg} className="mx-2 shrink-0 rounded-full border border-slate-500/40 bg-slate-900/80 px-5 py-2 text-sm font-semibold text-slate-200">{seg}</span>)}
             </Marquee>
-          </motion.div>
-
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ repeat: Infinity, duration: 2 }}
-            className="mt-8 flex justify-center"
-          >
-            <ChevronDown className="h-6 w-6 text-slate-400" />
           </motion.div>
         </div>
       </section>
@@ -323,7 +281,7 @@ export function LandingPage() {
       <LandingSection id="canais">
         <div className="text-center">
           <h2 className="text-3xl font-bold sm:text-4xl">
-            Leads de todos os canais em uma so tela
+            Leads de todos os canais em uma só tela
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-slate-300">
             Conversas, histórico e oportunidades conectadas para vender com mais velocidade.
@@ -575,6 +533,7 @@ export function LandingPage() {
       </LandingSection>
 
       <LandingFooter />
+      <WhatsAppCta />
     </div>
   );
 }
