@@ -1,0 +1,1137 @@
+[
+  {
+    "keyword": "chatbot para WhatsApp",
+    "variations": [
+      "chatbot WhatsApp com IA",
+      "chatbot com inteligência artificial",
+      "chatbot inteligente para WhatsApp"
+    ],
+    "cluster": "WhatsApp + IA",
+    "intent": "commercial",
+    "funnel": "BOFU",
+    "pageType": "pillar",
+    "targetUrl": "/solucoes/chatbot-whatsapp",
+    "primaryKeyword": "chatbot para WhatsApp",
+    "secondaryKeywords": [
+      "chatbot WhatsApp com IA",
+      "chatbot com inteligência artificial",
+      "chatbot inteligente para WhatsApp",
+      "chatbot com IA",
+      "chatbot para WhatsApp",
+      "automação de atendimento",
+      "ChatBô"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "chatbot WhatsApp com IA",
+      "chatbot com inteligência artificial",
+      "chatbot inteligente para WhatsApp"
+    ],
+    "questions": [
+      "O que é chatbot para WhatsApp?",
+      "Como funciona chatbot para WhatsApp?",
+      "Quais são os benefícios de chatbot para WhatsApp?",
+      "Quais são as limitações de chatbot para WhatsApp?",
+      "Quando vale a pena usar chatbot para WhatsApp?",
+      "Quanto custa implementar chatbot para WhatsApp?",
+      "Como implementar chatbot para WhatsApp?",
+      "chatbot para WhatsApp pode transferir para um atendente humano?",
+      "chatbot para WhatsApp pode consultar sistemas da empresa?",
+      "Como medir o resultado de chatbot para WhatsApp?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "IA para WhatsApp",
+    "variations": [
+      "inteligência artificial para WhatsApp",
+      "IA no WhatsApp"
+    ],
+    "cluster": "WhatsApp + IA",
+    "intent": "informational",
+    "funnel": "TOFU",
+    "pageType": "pillar",
+    "targetUrl": "/solucoes/ia-para-whatsapp",
+    "primaryKeyword": "IA para WhatsApp",
+    "secondaryKeywords": [
+      "inteligência artificial para WhatsApp",
+      "IA no WhatsApp",
+      "IA para WhatsApp",
+      "IA para Whats",
+      "chatbot com IA",
+      "ChatBô"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "inteligência artificial para WhatsApp",
+      "IA no WhatsApp"
+    ],
+    "questions": [
+      "O que é IA para WhatsApp?",
+      "Como funciona IA para WhatsApp?",
+      "Quais são os benefícios de IA para WhatsApp?",
+      "Quais são as limitações de IA para WhatsApp?",
+      "Quando vale a pena usar IA para WhatsApp?",
+      "Quanto custa implementar IA para WhatsApp?",
+      "Como implementar IA para WhatsApp?",
+      "IA para WhatsApp pode transferir para um atendente humano?",
+      "IA para WhatsApp pode consultar sistemas da empresa?",
+      "Como medir o resultado de IA para WhatsApp?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "atendimento com IA",
+    "variations": [
+      "IA para atendimento ao cliente",
+      "automação de atendimento"
+    ],
+    "cluster": "Atendimento com IA",
+    "intent": "commercial",
+    "funnel": "MOFU",
+    "pageType": "pillar",
+    "targetUrl": "/solucoes/atendimento-com-ia",
+    "primaryKeyword": "atendimento com IA",
+    "secondaryKeywords": [
+      "IA para atendimento ao cliente",
+      "automação de atendimento",
+      "atendimento automatizado com IA",
+      "atendimento automatizado com IA para empresas",
+      "Tironi Tech",
+      "inteligência artificial empresarial",
+      "automação com IA"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "IA para atendimento ao cliente",
+      "automação de atendimento"
+    ],
+    "questions": [
+      "O que é atendimento com IA?",
+      "Como funciona atendimento com IA?",
+      "Quais são os benefícios de atendimento com IA?",
+      "Quais são as limitações de atendimento com IA?",
+      "Quando vale a pena usar atendimento com IA?",
+      "Quanto custa implementar atendimento com IA?",
+      "Como implementar atendimento com IA?",
+      "atendimento com IA pode transferir para um atendente humano?",
+      "atendimento com IA pode consultar sistemas da empresa?",
+      "Como medir o resultado de atendimento com IA?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "chatbot para empresas",
+    "variations": [
+      "chatbot empresarial",
+      "chatbot vale a pena"
+    ],
+    "cluster": "Chatbot + IA",
+    "intent": "commercial",
+    "funnel": "MOFU",
+    "pageType": "pillar",
+    "targetUrl": "/solucoes/chatbot-para-empresas",
+    "primaryKeyword": "chatbot para empresas",
+    "secondaryKeywords": [
+      "chatbot empresarial",
+      "chatbot vale a pena",
+      "chatbot para empresas",
+      "chatbot com inteligência artificial"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "chatbot empresarial",
+      "chatbot vale a pena"
+    ],
+    "questions": [
+      "O que é chatbot para empresas?",
+      "Como funciona chatbot para empresas?",
+      "Quais são os benefícios de chatbot para empresas?",
+      "Quais são as limitações de chatbot para empresas?",
+      "Quando vale a pena usar chatbot para empresas?",
+      "Quanto custa implementar chatbot para empresas?",
+      "Como implementar chatbot para empresas?",
+      "chatbot para empresas pode transferir para um atendente humano?",
+      "chatbot para empresas pode consultar sistemas da empresa?",
+      "Como medir o resultado de chatbot para empresas?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "chatbot para vendas",
+    "variations": [
+      "IA para vendas no WhatsApp",
+      "chatbot de vendas"
+    ],
+    "cluster": "Vendas com IA",
+    "intent": "commercial",
+    "funnel": "BOFU",
+    "pageType": "pillar",
+    "targetUrl": "/solucoes/chatbot-para-vendas",
+    "primaryKeyword": "chatbot para vendas",
+    "secondaryKeywords": [
+      "IA para vendas no WhatsApp",
+      "chatbot de vendas",
+      "IA para WhatsApp",
+      "IA para Whats",
+      "chatbot com IA",
+      "ChatBô"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "IA para vendas no WhatsApp",
+      "chatbot de vendas"
+    ],
+    "questions": [
+      "O que é chatbot para vendas?",
+      "Como funciona chatbot para vendas?",
+      "Quais são os benefícios de chatbot para vendas?",
+      "Quais são as limitações de chatbot para vendas?",
+      "Quando vale a pena usar chatbot para vendas?",
+      "Quanto custa implementar chatbot para vendas?",
+      "Como implementar chatbot para vendas?",
+      "chatbot para vendas pode transferir para um atendente humano?",
+      "chatbot para vendas pode consultar sistemas da empresa?",
+      "Como medir o resultado de chatbot para vendas?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "agente de IA para vendas",
+    "variations": [
+      "agentes de vendas com IA",
+      "IA comercial para vendas"
+    ],
+    "cluster": "Agentes de IA",
+    "intent": "commercial",
+    "funnel": "BOFU",
+    "pageType": "pillar",
+    "targetUrl": "/solucoes/agente-ia-para-vendas",
+    "primaryKeyword": "agente de IA para vendas",
+    "secondaryKeywords": [
+      "agentes de vendas com IA",
+      "IA comercial para vendas",
+      "agente de IA para vendas",
+      "agente de IA para vendas para empresas",
+      "Tironi Tech",
+      "inteligência artificial empresarial",
+      "automação com IA"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "agentes de vendas com IA",
+      "IA comercial para vendas"
+    ],
+    "questions": [
+      "O que é agente de IA para vendas?",
+      "Como funciona agente de IA para vendas?",
+      "Quais são os benefícios de agente de IA para vendas?",
+      "Quais são as limitações de agente de IA para vendas?",
+      "Quando vale a pena usar agente de IA para vendas?",
+      "Quanto custa implementar agente de IA para vendas?",
+      "Como implementar agente de IA para vendas?",
+      "agente de IA para vendas pode transferir para um atendente humano?",
+      "agente de IA para vendas pode consultar sistemas da empresa?",
+      "Como medir o resultado de agente de IA para vendas?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "agente de IA para atendimento",
+    "variations": [
+      "agente virtual com IA",
+      "agente de atendimento IA"
+    ],
+    "cluster": "Agentes de IA",
+    "intent": "commercial",
+    "funnel": "BOFU",
+    "pageType": "pillar",
+    "targetUrl": "/solucoes/agente-ia-para-atendimento",
+    "primaryKeyword": "agente de IA para atendimento",
+    "secondaryKeywords": [
+      "agente virtual com IA",
+      "agente de atendimento IA",
+      "agente de IA para atendimento",
+      "agente de IA para atendimento para empresas",
+      "Tironi Tech",
+      "inteligência artificial empresarial",
+      "automação com IA"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "agente virtual com IA",
+      "agente de atendimento IA"
+    ],
+    "questions": [
+      "O que é agente de IA para atendimento?",
+      "Como funciona agente de IA para atendimento?",
+      "Quais são os benefícios de agente de IA para atendimento?",
+      "Quais são as limitações de agente de IA para atendimento?",
+      "Quando vale a pena usar agente de IA para atendimento?",
+      "Quanto custa implementar agente de IA para atendimento?",
+      "Como implementar agente de IA para atendimento?",
+      "agente de IA para atendimento pode transferir para um atendente humano?",
+      "agente de IA para atendimento pode consultar sistemas da empresa?",
+      "Como medir o resultado de agente de IA para atendimento?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "atendimento omnichannel com IA",
+    "variations": [
+      "chatbot omnichannel",
+      "plataforma omnichannel com IA"
+    ],
+    "cluster": "Omnichannel",
+    "intent": "commercial",
+    "funnel": "MOFU",
+    "pageType": "pillar",
+    "targetUrl": "/solucoes/atendimento-omnichannel",
+    "primaryKeyword": "atendimento omnichannel com IA",
+    "secondaryKeywords": [
+      "chatbot omnichannel",
+      "plataforma omnichannel com IA",
+      "atendimento omnichannel com IA",
+      "centralizar canais de atendimento",
+      "ChatBô omnichannel"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "chatbot omnichannel",
+      "plataforma omnichannel com IA"
+    ],
+    "questions": [
+      "O que é atendimento omnichannel com IA?",
+      "Como funciona atendimento omnichannel com IA?",
+      "Quais são os benefícios de atendimento omnichannel com IA?",
+      "Quais são as limitações de atendimento omnichannel com IA?",
+      "Quando vale a pena usar atendimento omnichannel com IA?",
+      "Quanto custa implementar atendimento omnichannel com IA?",
+      "Como implementar atendimento omnichannel com IA?",
+      "atendimento omnichannel com IA pode transferir para um atendente humano?",
+      "atendimento omnichannel com IA pode consultar sistemas da empresa?",
+      "Como medir o resultado de atendimento omnichannel com IA?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "chatbot para ecommerce",
+    "variations": [
+      "IA para ecommerce",
+      "chatbot integrado ao ecommerce"
+    ],
+    "cluster": "Ecommerce",
+    "intent": "commercial",
+    "funnel": "BOFU",
+    "pageType": "pillar",
+    "targetUrl": "/solucoes/chatbot-ecommerce",
+    "primaryKeyword": "chatbot para ecommerce",
+    "secondaryKeywords": [
+      "IA para ecommerce",
+      "chatbot integrado ao ecommerce",
+      "IA para WhatsApp em e-commerce",
+      "IA para WhatsApp",
+      "IA para Whats",
+      "chatbot com IA",
+      "ChatBô"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "IA para ecommerce",
+      "chatbot integrado ao ecommerce"
+    ],
+    "questions": [
+      "O que é chatbot para ecommerce?",
+      "Como funciona chatbot para ecommerce?",
+      "Quais são os benefícios de chatbot para ecommerce?",
+      "Quais são as limitações de chatbot para ecommerce?",
+      "Quando vale a pena usar chatbot para ecommerce?",
+      "Quanto custa implementar chatbot para ecommerce?",
+      "Como implementar chatbot para ecommerce?",
+      "chatbot para ecommerce pode transferir para um atendente humano?",
+      "chatbot para ecommerce pode consultar sistemas da empresa?",
+      "Como medir o resultado de chatbot para ecommerce?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "automação WhatsApp com IA",
+    "variations": [
+      "automatizar WhatsApp com IA",
+      "software para automatizar WhatsApp"
+    ],
+    "cluster": "Automação comercial",
+    "intent": "commercial",
+    "funnel": "BOFU",
+    "pageType": "pillar",
+    "targetUrl": "/solucoes/automacao-whatsapp",
+    "primaryKeyword": "automação WhatsApp com IA",
+    "secondaryKeywords": [
+      "automatizar WhatsApp com IA",
+      "software para automatizar WhatsApp",
+      "automação de WhatsApp com IA",
+      "automação de WhatsApp com IA para empresas",
+      "Tironi Tech",
+      "inteligência artificial empresarial",
+      "automação com IA"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "automatizar WhatsApp com IA",
+      "software para automatizar WhatsApp"
+    ],
+    "questions": [
+      "O que é automação WhatsApp com IA?",
+      "Como funciona automação WhatsApp com IA?",
+      "Quais são os benefícios de automação WhatsApp com IA?",
+      "Quais são as limitações de automação WhatsApp com IA?",
+      "Quando vale a pena usar automação WhatsApp com IA?",
+      "Quanto custa implementar automação WhatsApp com IA?",
+      "Como implementar automação WhatsApp com IA?",
+      "automação WhatsApp com IA pode transferir para um atendente humano?",
+      "automação WhatsApp com IA pode consultar sistemas da empresa?",
+      "Como medir o resultado de automação WhatsApp com IA?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "automação de vendas com IA",
+    "variations": [
+      "automação comercial com IA",
+      "automatizar vendas no WhatsApp"
+    ],
+    "cluster": "Automação comercial",
+    "intent": "commercial",
+    "funnel": "BOFU",
+    "pageType": "pillar",
+    "targetUrl": "/solucoes/automacao-vendas-ia",
+    "primaryKeyword": "automação de vendas com IA",
+    "secondaryKeywords": [
+      "automação comercial com IA",
+      "automatizar vendas no WhatsApp",
+      "automação de vendas WhatsApp",
+      "automação de vendas WhatsApp para empresas",
+      "Guia prático",
+      "Tironi Tech",
+      "ChatBô",
+      "automação com IA"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "automação comercial com IA",
+      "automatizar vendas no WhatsApp"
+    ],
+    "questions": [
+      "O que é automação de vendas com IA?",
+      "Como funciona automação de vendas com IA?",
+      "Quais são os benefícios de automação de vendas com IA?",
+      "Quais são as limitações de automação de vendas com IA?",
+      "Quando vale a pena usar automação de vendas com IA?",
+      "Quanto custa implementar automação de vendas com IA?",
+      "Como implementar automação de vendas com IA?",
+      "automação de vendas com IA pode transferir para um atendente humano?",
+      "automação de vendas com IA pode consultar sistemas da empresa?",
+      "Como medir o resultado de automação de vendas com IA?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "agente de IA para empresas",
+    "variations": [
+      "agente de IA personalizado",
+      "inteligência artificial para empresas"
+    ],
+    "cluster": "IA para empresas",
+    "intent": "commercial",
+    "funnel": "BOFU",
+    "pageType": "pillar",
+    "targetUrl": "/solucoes/agente-ia-para-empresas",
+    "primaryKeyword": "agente de IA para empresas",
+    "secondaryKeywords": [
+      "agente de IA personalizado",
+      "inteligência artificial para empresas",
+      "como usar inteligência artificial na minha empresa",
+      "IA para empresas",
+      "empresa de inteligência artificial",
+      "empresa de automação com IA",
+      "consultoria de IA para empresas",
+      "como implementar IA na empresa",
+      "implementação de IA em empresas",
+      "soluções de IA para empresas",
+      "agentes de IA para empresas",
+      "empresa de agentes de IA",
+      "desenvolvimento de agente de IA",
+      "quanto custa um agente de IA",
+      "como criar um agente de IA para empresa",
+      "Tironi Tech",
+      "ChatBô"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "agente de IA personalizado",
+      "inteligência artificial para empresas"
+    ],
+    "questions": [
+      "O que é agente de IA para empresas?",
+      "Como funciona agente de IA para empresas?",
+      "Quais são os benefícios de agente de IA para empresas?",
+      "Quais são as limitações de agente de IA para empresas?",
+      "Quando vale a pena usar agente de IA para empresas?",
+      "Quanto custa implementar agente de IA para empresas?",
+      "Como implementar agente de IA para empresas?",
+      "agente de IA para empresas pode transferir para um atendente humano?",
+      "agente de IA para empresas pode consultar sistemas da empresa?",
+      "Como medir o resultado de agente de IA para empresas?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "automação de atendimento",
+    "variations": [
+      "automatizar atendimento ao cliente",
+      "atendimento automatizado"
+    ],
+    "cluster": "Atendimento com IA",
+    "intent": "commercial",
+    "funnel": "MOFU",
+    "pageType": "pillar",
+    "targetUrl": "/solucoes/automacao-atendimento",
+    "primaryKeyword": "automação de atendimento",
+    "secondaryKeywords": [
+      "automatizar atendimento ao cliente",
+      "atendimento automatizado",
+      "como automatizar atendimento ao cliente",
+      "IA para atendimento ao cliente",
+      "atendimento automático com IA",
+      "agente de IA para atendimento",
+      "agente de IA para WhatsApp",
+      "IA para WhatsApp",
+      "chatbot com inteligência artificial",
+      "chatbot para WhatsApp",
+      "atendente virtual WhatsApp",
+      "automatizar atendimento WhatsApp",
+      "automação de atendimento ao cliente",
+      "Tironi Tech",
+      "ChatBô"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "automatizar atendimento ao cliente",
+      "atendimento automatizado"
+    ],
+    "questions": [
+      "O que é automação de atendimento?",
+      "Como funciona automação de atendimento?",
+      "Quais são os benefícios de automação de atendimento?",
+      "Quais são as limitações de automação de atendimento?",
+      "Quando vale a pena usar automação de atendimento?",
+      "Quanto custa implementar automação de atendimento?",
+      "Como implementar automação de atendimento?",
+      "automação de atendimento pode transferir para um atendente humano?",
+      "automação de atendimento pode consultar sistemas da empresa?",
+      "Como medir o resultado de automação de atendimento?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "IA para suporte ao cliente",
+    "variations": [
+      "chatbot para suporte",
+      "IA para SAC"
+    ],
+    "cluster": "Suporte/SAC",
+    "intent": "commercial",
+    "funnel": "BOFU",
+    "pageType": "pillar",
+    "targetUrl": "/solucoes/suporte-com-ia",
+    "primaryKeyword": "IA para suporte ao cliente",
+    "secondaryKeywords": [
+      "chatbot para suporte",
+      "IA para SAC",
+      "chatbot com IA para suporte",
+      "automação de suporte técnico",
+      "ChatBô atendimento"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "chatbot para suporte",
+      "IA para SAC"
+    ],
+    "questions": [
+      "O que é IA para suporte ao cliente?",
+      "Como funciona IA para suporte ao cliente?",
+      "Quais são os benefícios de IA para suporte ao cliente?",
+      "Quais são as limitações de IA para suporte ao cliente?",
+      "Quando vale a pena usar IA para suporte ao cliente?",
+      "Quanto custa implementar IA para suporte ao cliente?",
+      "Como implementar IA para suporte ao cliente?",
+      "IA para suporte ao cliente pode transferir para um atendente humano?",
+      "IA para suporte ao cliente pode consultar sistemas da empresa?",
+      "Como medir o resultado de IA para suporte ao cliente?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "como aumentar vendas pelo WhatsApp",
+    "variations": [
+      "como vender mais pelo WhatsApp",
+      "vendas conversacionais"
+    ],
+    "cluster": "Vendas com IA",
+    "intent": "informational",
+    "funnel": "TOFU",
+    "pageType": "guide",
+    "targetUrl": "/guias/como-aumentar-vendas-whatsapp",
+    "primaryKeyword": "como aumentar vendas pelo WhatsApp",
+    "secondaryKeywords": [
+      "como vender mais pelo WhatsApp",
+      "vendas conversacionais",
+      "como vender mais no WhatsApp",
+      "como vender mais com whats",
+      "fila de atendimento WhatsApp",
+      "priorização de leads",
+      "ChatBô"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "como vender mais pelo WhatsApp",
+      "vendas conversacionais"
+    ],
+    "questions": [
+      "O que é como aumentar vendas pelo WhatsApp?",
+      "Como funciona como aumentar vendas pelo WhatsApp?",
+      "Quais são os benefícios de como aumentar vendas pelo WhatsApp?",
+      "Quais são as limitações de como aumentar vendas pelo WhatsApp?",
+      "Quando vale a pena usar como aumentar vendas pelo WhatsApp?",
+      "Quanto custa implementar como aumentar vendas pelo WhatsApp?",
+      "Como implementar como aumentar vendas pelo WhatsApp?",
+      "como aumentar vendas pelo WhatsApp pode transferir para um atendente humano?",
+      "como aumentar vendas pelo WhatsApp pode consultar sistemas da empresa?",
+      "Como medir o resultado de como aumentar vendas pelo WhatsApp?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "como usar IA para atendimento ao cliente",
+    "variations": [
+      "IA para responder clientes",
+      "como usar IA no atendimento"
+    ],
+    "cluster": "Atendimento com IA",
+    "intent": "informational",
+    "funnel": "TOFU",
+    "pageType": "guide",
+    "targetUrl": "/guias/como-usar-ia-atendimento",
+    "primaryKeyword": "como usar IA para atendimento ao cliente",
+    "secondaryKeywords": [
+      "IA para responder clientes",
+      "como usar IA no atendimento",
+      "IA para atendimento ao cliente",
+      "IA para atendimento ao cliente para empresas",
+      "Guia prático",
+      "Tironi Tech",
+      "ChatBô",
+      "automação com IA"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "IA para responder clientes",
+      "como usar IA no atendimento"
+    ],
+    "questions": [
+      "O que é como usar IA para atendimento ao cliente?",
+      "Como funciona como usar IA para atendimento ao cliente?",
+      "Quais são os benefícios de como usar IA para atendimento ao cliente?",
+      "Quais são as limitações de como usar IA para atendimento ao cliente?",
+      "Quando vale a pena usar como usar IA para atendimento ao cliente?",
+      "Quanto custa implementar como usar IA para atendimento ao cliente?",
+      "Como implementar como usar IA para atendimento ao cliente?",
+      "como usar IA para atendimento ao cliente pode transferir para um atendente humano?",
+      "como usar IA para atendimento ao cliente pode consultar sistemas da empresa?",
+      "Como medir o resultado de como usar IA para atendimento ao cliente?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "como usar IA para vendas",
+    "variations": [
+      "IA para aumentar vendas",
+      "inteligência artificial em vendas"
+    ],
+    "cluster": "Vendas com IA",
+    "intent": "informational",
+    "funnel": "TOFU",
+    "pageType": "guide",
+    "targetUrl": "/guias/como-usar-ia-vendas",
+    "primaryKeyword": "como usar IA para vendas",
+    "secondaryKeywords": [
+      "IA para aumentar vendas",
+      "inteligência artificial em vendas",
+      "IA para vendas",
+      "IA para vendas para empresas",
+      "Tironi Tech",
+      "inteligência artificial empresarial",
+      "automação com IA"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "IA para aumentar vendas",
+      "inteligência artificial em vendas"
+    ],
+    "questions": [
+      "O que é como usar IA para vendas?",
+      "Como funciona como usar IA para vendas?",
+      "Quais são os benefícios de como usar IA para vendas?",
+      "Quais são as limitações de como usar IA para vendas?",
+      "Quando vale a pena usar como usar IA para vendas?",
+      "Quanto custa implementar como usar IA para vendas?",
+      "Como implementar como usar IA para vendas?",
+      "como usar IA para vendas pode transferir para um atendente humano?",
+      "como usar IA para vendas pode consultar sistemas da empresa?",
+      "Como medir o resultado de como usar IA para vendas?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "como implementar chatbot na empresa",
+    "variations": [
+      "como implementar chatbot no WhatsApp",
+      "implantação de chatbot"
+    ],
+    "cluster": "Chatbot + IA",
+    "intent": "informational",
+    "funnel": "MOFU",
+    "pageType": "guide",
+    "targetUrl": "/guias/como-implementar-chatbot",
+    "primaryKeyword": "como implementar chatbot na empresa",
+    "secondaryKeywords": [
+      "como implementar chatbot no WhatsApp",
+      "implantação de chatbot",
+      "como automatizar atendimento ao cliente",
+      "IA para atendimento ao cliente",
+      "atendimento automático com IA",
+      "agente de IA para atendimento",
+      "agente de IA para WhatsApp",
+      "IA para WhatsApp",
+      "chatbot com inteligência artificial",
+      "chatbot para WhatsApp",
+      "atendente virtual WhatsApp",
+      "automatizar atendimento WhatsApp",
+      "chatbot com IA para WhatsApp",
+      "Tironi Tech",
+      "ChatBô"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "como implementar chatbot no WhatsApp",
+      "implantação de chatbot"
+    ],
+    "questions": [
+      "O que é como implementar chatbot na empresa?",
+      "Como funciona como implementar chatbot na empresa?",
+      "Quais são os benefícios de como implementar chatbot na empresa?",
+      "Quais são as limitações de como implementar chatbot na empresa?",
+      "Quando vale a pena usar como implementar chatbot na empresa?",
+      "Quanto custa implementar como implementar chatbot na empresa?",
+      "Como implementar como implementar chatbot na empresa?",
+      "como implementar chatbot na empresa pode transferir para um atendente humano?",
+      "como implementar chatbot na empresa pode consultar sistemas da empresa?",
+      "Como medir o resultado de como implementar chatbot na empresa?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "chatbot vs agente de IA",
+    "variations": [
+      "chatbot tradicional vs chatbot com IA",
+      "diferença entre chatbot e agente de IA"
+    ],
+    "cluster": "Comparativos",
+    "intent": "commercial",
+    "funnel": "MOFU",
+    "pageType": "comparison",
+    "targetUrl": "/comparar/chatbot-vs-agente-de-ia",
+    "primaryKeyword": "chatbot vs agente de IA",
+    "secondaryKeywords": [
+      "chatbot tradicional vs chatbot com IA",
+      "diferença entre chatbot e agente de IA",
+      "agente de IA",
+      "chatbot"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "chatbot tradicional vs chatbot com IA",
+      "diferença entre chatbot e agente de IA"
+    ],
+    "questions": [
+      "O que é chatbot vs agente de IA?",
+      "Como funciona chatbot vs agente de IA?",
+      "Quais são os benefícios de chatbot vs agente de IA?",
+      "Quais são as limitações de chatbot vs agente de IA?",
+      "Quando vale a pena usar chatbot vs agente de IA?",
+      "Quanto custa implementar chatbot vs agente de IA?",
+      "Como implementar chatbot vs agente de IA?",
+      "chatbot vs agente de IA pode transferir para um atendente humano?",
+      "chatbot vs agente de IA pode consultar sistemas da empresa?",
+      "Como medir o resultado de chatbot vs agente de IA?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "quanto custa chatbot com IA",
+    "variations": [
+      "chatbot WhatsApp preço",
+      "preço de chatbot para WhatsApp"
+    ],
+    "cluster": "Preço/contratação",
+    "intent": "transactional",
+    "funnel": "BOFU",
+    "pageType": "article",
+    "targetUrl": "/blog/quanto-custa-chatbot-com-ia-whatsapp",
+    "primaryKeyword": "quanto custa chatbot com IA",
+    "secondaryKeywords": [
+      "chatbot WhatsApp preço",
+      "preço de chatbot para WhatsApp",
+      "quanto custa chatbot com IA",
+      "preço chatbot WhatsApp",
+      "valor chatbot para empresas"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "chatbot WhatsApp preço",
+      "preço de chatbot para WhatsApp"
+    ],
+    "questions": [
+      "O que é quanto custa chatbot com IA?",
+      "Como funciona quanto custa chatbot com IA?",
+      "Quais são os benefícios de quanto custa chatbot com IA?",
+      "Quais são as limitações de quanto custa chatbot com IA?",
+      "Quando vale a pena usar quanto custa chatbot com IA?",
+      "Quanto custa implementar quanto custa chatbot com IA?",
+      "Como implementar quanto custa chatbot com IA?",
+      "quanto custa chatbot com IA pode transferir para um atendente humano?",
+      "quanto custa chatbot com IA pode consultar sistemas da empresa?",
+      "Como medir o resultado de quanto custa chatbot com IA?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "melhor chatbot para WhatsApp",
+    "variations": [
+      "como escolher chatbot para WhatsApp",
+      "plataforma de chatbot WhatsApp"
+    ],
+    "cluster": "Preço/contratação",
+    "intent": "commercial",
+    "funnel": "BOFU",
+    "pageType": "comparison",
+    "targetUrl": "/comparar/melhor-chatbot-para-whatsapp",
+    "primaryKeyword": "melhor chatbot para WhatsApp",
+    "secondaryKeywords": [
+      "como escolher chatbot para WhatsApp",
+      "plataforma de chatbot WhatsApp",
+      "melhor chatbot para WhatsApp",
+      "chatbot WhatsApp com IA",
+      "plataforma de chatbot"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "como escolher chatbot para WhatsApp",
+      "plataforma de chatbot WhatsApp"
+    ],
+    "questions": [
+      "O que é melhor chatbot para WhatsApp?",
+      "Como funciona melhor chatbot para WhatsApp?",
+      "Quais são os benefícios de melhor chatbot para WhatsApp?",
+      "Quais são as limitações de melhor chatbot para WhatsApp?",
+      "Quando vale a pena usar melhor chatbot para WhatsApp?",
+      "Quanto custa implementar melhor chatbot para WhatsApp?",
+      "Como implementar melhor chatbot para WhatsApp?",
+      "melhor chatbot para WhatsApp pode transferir para um atendente humano?",
+      "melhor chatbot para WhatsApp pode consultar sistemas da empresa?",
+      "Como medir o resultado de melhor chatbot para WhatsApp?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "chatbot que consulta estoque",
+    "variations": [
+      "chatbot que consulta preços",
+      "IA para estoque e preço no WhatsApp"
+    ],
+    "cluster": "Ecommerce",
+    "intent": "commercial",
+    "funnel": "BOFU",
+    "pageType": "integration",
+    "targetUrl": "/integracoes/chatbot-estoque-preco",
+    "primaryKeyword": "chatbot que consulta estoque",
+    "secondaryKeywords": [
+      "chatbot que consulta preços",
+      "IA para estoque e preço no WhatsApp",
+      "consulta de estoque e preço por IA no WhatsApp",
+      "IA para WhatsApp",
+      "IA para Whats",
+      "chatbot com IA",
+      "ChatBô"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "chatbot que consulta preços",
+      "IA para estoque e preço no WhatsApp"
+    ],
+    "questions": [
+      "O que é chatbot que consulta estoque?",
+      "Como funciona chatbot que consulta estoque?",
+      "Quais são os benefícios de chatbot que consulta estoque?",
+      "Quais são as limitações de chatbot que consulta estoque?",
+      "Quando vale a pena usar chatbot que consulta estoque?",
+      "Quanto custa implementar chatbot que consulta estoque?",
+      "Como implementar chatbot que consulta estoque?",
+      "chatbot que consulta estoque pode transferir para um atendente humano?",
+      "chatbot que consulta estoque pode consultar sistemas da empresa?",
+      "Como medir o resultado de chatbot que consulta estoque?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "chatbot integrado ao CRM",
+    "variations": [
+      "WhatsApp integrado ao CRM",
+      "chatbot com CRM"
+    ],
+    "cluster": "Integrações",
+    "intent": "commercial",
+    "funnel": "BOFU",
+    "pageType": "integration",
+    "targetUrl": "/integracoes/chatbot-crm",
+    "primaryKeyword": "chatbot integrado ao CRM",
+    "secondaryKeywords": [
+      "WhatsApp integrado ao CRM",
+      "chatbot com CRM",
+      "chatbot integrado ao CRM",
+      "integração WhatsApp CRM",
+      "chatbot para vendas"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "WhatsApp integrado ao CRM",
+      "chatbot com CRM"
+    ],
+    "questions": [
+      "O que é chatbot integrado ao CRM?",
+      "Como funciona chatbot integrado ao CRM?",
+      "Quais são os benefícios de chatbot integrado ao CRM?",
+      "Quais são as limitações de chatbot integrado ao CRM?",
+      "Quando vale a pena usar chatbot integrado ao CRM?",
+      "Quanto custa implementar chatbot integrado ao CRM?",
+      "Como implementar chatbot integrado ao CRM?",
+      "chatbot integrado ao CRM pode transferir para um atendente humano?",
+      "chatbot integrado ao CRM pode consultar sistemas da empresa?",
+      "Como medir o resultado de chatbot integrado ao CRM?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "IA para qualificar leads",
+    "variations": [
+      "qualificação de leads com IA",
+      "chatbot para captação de leads"
+    ],
+    "cluster": "Leads",
+    "intent": "commercial",
+    "funnel": "MOFU",
+    "pageType": "article",
+    "targetUrl": "/blog/ia-para-qualificar-leads",
+    "primaryKeyword": "IA para qualificar leads",
+    "secondaryKeywords": [
+      "qualificação de leads com IA",
+      "chatbot para captação de leads",
+      "qualificação de leads",
+      "leads no WhatsApp",
+      "automação de vendas"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "qualificação de leads com IA",
+      "chatbot para captação de leads"
+    ],
+    "questions": [
+      "O que é IA para qualificar leads?",
+      "Como funciona IA para qualificar leads?",
+      "Quais são os benefícios de IA para qualificar leads?",
+      "Quais são as limitações de IA para qualificar leads?",
+      "Quando vale a pena usar IA para qualificar leads?",
+      "Quanto custa implementar IA para qualificar leads?",
+      "Como implementar IA para qualificar leads?",
+      "IA para qualificar leads pode transferir para um atendente humano?",
+      "IA para qualificar leads pode consultar sistemas da empresa?",
+      "Como medir o resultado de IA para qualificar leads?"
+    ],
+    "status": "published"
+  },
+  {
+    "keyword": "atendimento 24 horas com IA",
+    "variations": [
+      "WhatsApp fora do horário",
+      "atendimento automático 24 horas"
+    ],
+    "cluster": "Atendimento com IA",
+    "intent": "informational",
+    "funnel": "MOFU",
+    "pageType": "article",
+    "targetUrl": "/blog/atendimento-24-horas-com-ia",
+    "primaryKeyword": "atendimento 24 horas com IA",
+    "secondaryKeywords": [
+      "WhatsApp fora do horário",
+      "atendimento automático 24 horas",
+      "atendimento WhatsApp fora do horário",
+      "como automatizar WhatsApp",
+      "IA para atendimento ao cliente",
+      "atendimento noturno",
+      "automação de atendimento"
+    ],
+    "entities": [
+      "ChatBô",
+      "inteligência artificial",
+      "atendimento digital",
+      "WhatsApp",
+      "automação",
+      "empresas brasileiras",
+      "WhatsApp fora do horário",
+      "atendimento automático 24 horas"
+    ],
+    "questions": [
+      "O que é atendimento 24 horas com IA?",
+      "Como funciona atendimento 24 horas com IA?",
+      "Quais são os benefícios de atendimento 24 horas com IA?",
+      "Quais são as limitações de atendimento 24 horas com IA?",
+      "Quando vale a pena usar atendimento 24 horas com IA?",
+      "Quanto custa implementar atendimento 24 horas com IA?",
+      "Como implementar atendimento 24 horas com IA?",
+      "atendimento 24 horas com IA pode transferir para um atendente humano?",
+      "atendimento 24 horas com IA pode consultar sistemas da empresa?",
+      "Como medir o resultado de atendimento 24 horas com IA?"
+    ],
+    "status": "published"
+  }
+]

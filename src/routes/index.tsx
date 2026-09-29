@@ -35,6 +35,8 @@ const BusinessProfilePage = lazy(() => import('@/pages/BusinessProfilePage').the
 const AgentTracesPage = lazy(() => import('@/pages/AgentTracesPage').then((m) => ({ default: m.AgentTracesPage })));
 const AgentLearningPage = lazy(() => import('@/pages/AgentLearningPage').then((m) => ({ default: m.AgentLearningPage })));
 const AgentAdvancedSettingsPage = lazy(() => import('@/pages/AgentAdvancedSettingsPage').then((m) => ({ default: m.AgentAdvancedSettingsPage })));
+const BlogIndexPage = lazy(() => import('@/pages/BlogIndexPage').then((m) => ({ default: m.BlogIndexPage })));
+const BlogArticlePage = lazy(() => import('@/pages/BlogArticlePage').then((m) => ({ default: m.BlogArticlePage })));
 
 function LazyPage({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<RouteLoadingFallback />}>{children}</Suspense>;
@@ -48,6 +50,12 @@ export function AppRoutes() {
       <Route path="/legal/privacidade" element={<Navigate to="/politica-privacidade" replace />} />
       <Route path="/legal/:slug" element={<LegalPage />} />
       <Route path="/planos" element={<PlansPage />} />
+      <Route path="/blog" element={<LazyPage><BlogIndexPage /></LazyPage>} />
+      <Route path="/blog/:slug" element={<LazyPage><BlogArticlePage /></LazyPage>} />
+      <Route path="/solucoes/:slug" element={<LazyPage><BlogArticlePage /></LazyPage>} />
+      <Route path="/guias/:slug" element={<LazyPage><BlogArticlePage /></LazyPage>} />
+      <Route path="/comparar/:slug" element={<LazyPage><BlogArticlePage /></LazyPage>} />
+      <Route path="/integracoes/:slug" element={<LazyPage><BlogArticlePage /></LazyPage>} />
 
       <Route element={<PublicRoute />}>
         <Route path="/login" element={<LoginPage />} />

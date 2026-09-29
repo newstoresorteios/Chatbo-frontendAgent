@@ -10,6 +10,7 @@ const navLinks = [
   { href: '#canais', label: 'Canais' },
   { href: '#segmentos', label: 'Receita' },
   { href: '#como-funciona', label: 'Como funciona' },
+  { href: '/blog', label: 'Blog' },
   { href: '#faq', label: 'FAQ' },
 ];
 
@@ -20,6 +21,10 @@ export function LandingNavbar() {
 
   const scrollTo = (href: string) => {
     setOpen(false);
+    if (href.startsWith('/')) {
+      navigate(href);
+      return;
+    }
     if (location.pathname !== '/') {
       navigate(`/${href}`);
       return;
@@ -101,6 +106,7 @@ export function LandingFooter() {
           <Logo size="sm" full className="max-w-[180px]" />
           <p className="text-sm text-gray-500">© 2026 Tironi Tech · ChatBô. Todos os direitos reservados.</p>
           <div className="flex gap-6 text-sm text-gray-500">
+            <Link to="/blog" className="hover:text-gray-300">Blog</Link>
             <Link to="/politica-privacidade" className="hover:text-gray-300">Privacidade</Link>
             <Link to="/legal/termos" className="hover:text-gray-300">Termos</Link>
             <Link to="/legal/suporte" className="hover:text-gray-300">Suporte</Link>

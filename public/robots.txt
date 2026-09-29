@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /atendimento
+Disallow: /system/
+Sitemap: https://www.chatbo.com.br/sitemap.xml

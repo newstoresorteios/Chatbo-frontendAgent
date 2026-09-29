@@ -10,7 +10,9 @@
     "backend:seed": "cd ..\\backend-xnamai && .\\venv\\Scripts\\python.exe scripts\\seed_usuarios.py",
     "backend:setup-conversas": "cd ..\\backend-xnamai && .\\venv\\Scripts\\python.exe scripts\\apply_conversas_schema.py && .\\venv\\Scripts\\python.exe scripts\\seed_conversas.py",
     "backend:seed-conversas": "cd ..\\backend-xnamai && .\\venv\\Scripts\\python.exe scripts\\seed_conversas.py",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/prerender-blog.mjs && node scripts/audit-seo.mjs",
+    "content:sync": "node scripts/sync-blog-content.mjs",
+    "seo:audit": "node scripts/audit-seo.mjs",
     "lint": "eslint .",
     "test": "vitest run",
     "preview": "vite preview"

@@ -5,6 +5,30 @@
       "destination": "https://chatbo-backendagent.onrender.com/api/$1"
     },
     {
+      "source": "/blog",
+      "destination": "/blog/index.html"
+    },
+    {
+      "source": "/blog/:slug",
+      "destination": "/blog/:slug/index.html"
+    },
+    {
+      "source": "/solucoes/:slug",
+      "destination": "/solucoes/:slug/index.html"
+    },
+    {
+      "source": "/guias/:slug",
+      "destination": "/guias/:slug/index.html"
+    },
+    {
+      "source": "/comparar/:slug",
+      "destination": "/comparar/:slug/index.html"
+    },
+    {
+      "source": "/integracoes/:slug",
+      "destination": "/integracoes/:slug/index.html"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }

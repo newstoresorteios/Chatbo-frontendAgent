@@ -4,6 +4,10 @@ import { AuroraBackground } from '@/components/landing/AuroraBackground';
 import { Marquee } from '@/components/landing/Marquee';
 import { ScrollProgress } from '@/components/landing/ScrollProgress';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
+import { BlogCard } from '@/components/blog/BlogCard';
+import { featuredBlogArticles } from '@/content/blog';
+import { siteEntity, siteStructuredData } from '@/content/siteEntity';
+import { SeoHead } from '@/components/seo/SeoHead';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
 import { defaultAppHome } from '@/utils/appHome';
@@ -11,6 +15,7 @@ import { motion } from 'framer-motion';
 import {
   ArrowRight,
   BarChart3,
+  BookOpenText,
   Bot,
   CheckCircle2,
   ChevronDown,
@@ -179,6 +184,7 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
+      <SeoHead title="ChatBô | Atendimento e vendas com inteligência artificial" description={siteEntity.description} path="/" jsonLd={siteStructuredData} />
       <ScrollProgress />
       <LandingNavbar />
 
@@ -481,6 +487,21 @@ export function LandingPage() {
               <p className="mt-2 text-sm text-slate-300">{desc}</p>
             </div>
           ))}
+        </div>
+      </LandingSection>
+
+      {/* FAQ */}
+      <LandingSection id="blog" className="border-y border-white/5">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-[0.16em] text-cyan-300"><BookOpenText className="h-4 w-4" />Conteúdo especializado</div>
+            <h2 className="mt-4 text-3xl font-bold sm:text-4xl">Aprenda a vender e atender melhor com IA</h2>
+            <p className="mt-4 max-w-2xl text-slate-300">Guias práticos sobre chatbot, WhatsApp, automação comercial e experiência do cliente.</p>
+          </div>
+          <Button variant="outline" className="shrink-0 border-cyan-300/30 text-cyan-100 hover:bg-cyan-300/10" onClick={() => navigate('/blog')}>Ver todos os artigos <ArrowRight className="h-4 w-4" /></Button>
+        </div>
+        <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {featuredBlogArticles.slice(0, 3).map((article) => <BlogCard key={article.slug} article={article} />)}
         </div>
       </LandingSection>
 
