@@ -118,6 +118,7 @@ export function ConversationsPage() {
   const [loadingOlderMessages, setLoadingOlderMessages] = useState(false);
   const [hasOlderMessages, setHasOlderMessages] = useState(true);
   const [closeOpen, setCloseOpen] = useState(false);
+  const [avatarPreviewOpen, setAvatarPreviewOpen] = useState(false);
   const [contextOpen, setContextOpen] = useState(false);
   const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
   const [transferAgent, setTransferAgent] = useState('');
@@ -820,12 +821,27 @@ export function ConversationsPage() {
                   >
                     <ArrowLeft className="h-5 w-5" />
                   </Button>
-                  <Avatar
-                    src={activeConversation.customerAvatar}
-                    name={activeConversation.customerName || 'Cliente'}
-                    size="md"
-                    className="hidden shrink-0 sm:block"
-                  />
+                  {activeConversation.customerAvatar ? (
+                    <button
+                      type="button"
+                      onClick={() => setAvatarPreviewOpen(true)}
+                      className="shrink-0 rounded-full outline-none ring-offset-2 transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary-500 dark:ring-offset-gray-950"
+                      title={`Ampliar foto de ${activeConversation.customerName}`}
+                      aria-label={`Ampliar foto de ${activeConversation.customerName}`}
+                    >
+                      <Avatar
+                        src={activeConversation.customerAvatar}
+                        name={activeConversation.customerName || 'Cliente'}
+                        size="md"
+                      />
+                    </button>
+                  ) : (
+                    <Avatar
+                      name={activeConversation.customerName || 'Cliente'}
+                      size="md"
+                      className="shrink-0"
+                    />
+                  )}
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="truncate text-sm font-semibold text-gray-900 dark:text-white sm:text-base">
@@ -1217,6 +1233,25 @@ export function ConversationsPage() {
           )}
         </section>
       </div>
+
+      <Modal
+        open={avatarPreviewOpen && Boolean(activeConversation?.customerAvatar)}
+        onClose={() => setAvatarPreviewOpen(false)}
+        title={activeConversation ? `Foto de ${activeConversation.customerName}` : 'Foto do contato'}
+        size="lg"
+      >
+        {activeConversation?.customerAvatar && (
+          <div className="flex min-h-64 items-center justify-center overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-950">
+            <img
+              src={activeConversation.customerAvatar}
+              alt={activeConversation.customerName}
+              referrerPolicy="no-referrer"
+              className="max-h-[70vh] w-auto max-w-full object-contain"
+              onError={() => setAvatarPreviewOpen(false)}
+            />
+          </div>
+        )}
+      </Modal>
 
       <Modal
         open={transferOpen}
