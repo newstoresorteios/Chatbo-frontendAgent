@@ -25,4 +25,18 @@ describe('blog editorial contract', () => {
       }
     }
   });
+
+  it('publishes the one-hundred and five-hundred long-form expansion batches', () => {
+    const expansionArticles = blogArticles.filter((article) => article.minimumCharacters === 15_000);
+    const latestBatch = blogArticles.filter((article) => article.editorialBatch === 'chatbo-expansion-500');
+    expect(blogArticles).toHaveLength(625);
+    expect(expansionArticles).toHaveLength(600);
+    expect(latestBatch).toHaveLength(500);
+    for (const article of expansionArticles) {
+      expect(article.editorialCharacterCount).toBeGreaterThanOrEqual(15_000);
+      expect(article.sources.length).toBeGreaterThan(0);
+      expect(article.sections.length).toBeGreaterThanOrEqual(6);
+      expect(article.faqs?.length).toBeGreaterThanOrEqual(3);
+    }
+  });
 });

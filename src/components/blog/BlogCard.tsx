@@ -1,9 +1,17 @@
-import type { BlogArticle } from '@/content/blog';
-import { formatArticleDate } from '@/content/blog';
+import { formatArticleDate } from '@/utils/articleDate';
 import { ArrowUpRight, Clock3 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-export function BlogCard({ article }: { article: BlogArticle }) {
+export interface BlogCardArticle {
+  targetUrl: string;
+  cluster: string;
+  readTime: string;
+  title: string;
+  description: string;
+  updated: string;
+}
+
+export function BlogCard({ article }: { article: BlogCardArticle }) {
   return (
     <article className="group flex h-full flex-col rounded-3xl border border-white/10 bg-slate-900/70 p-6 transition hover:-translate-y-1 hover:border-cyan-300/40 hover:bg-slate-900">
       <div className="flex items-center justify-between gap-4 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300">

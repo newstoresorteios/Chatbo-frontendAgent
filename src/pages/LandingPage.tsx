@@ -5,7 +5,7 @@ import { Marquee } from '@/components/landing/Marquee';
 import { ScrollProgress } from '@/components/landing/ScrollProgress';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { BlogCard } from '@/components/blog/BlogCard';
-import { featuredBlogArticles } from '@/content/blog';
+import { homeBlogHighlights } from '@/content/homeBlogHighlights';
 import { siteEntity, siteStructuredData } from '@/content/siteEntity';
 import { SeoHead } from '@/components/seo/SeoHead';
 import { Button } from '@/components/ui/Button';
@@ -501,7 +501,7 @@ export function LandingPage() {
           <Button variant="outline" className="shrink-0 border-cyan-300/30 text-cyan-100 hover:bg-cyan-300/10" onClick={() => navigate('/blog')}>Ver todos os artigos <ArrowRight className="h-4 w-4" /></Button>
         </div>
         <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {featuredBlogArticles.slice(0, 3).map((article) => <BlogCard key={article.slug} article={article} />)}
+          {homeBlogHighlights.map((article) => <BlogCard key={article.targetUrl} article={article} />)}
         </div>
       </LandingSection>
 

@@ -1,4 +1,5 @@
 import generatedArticles from './blogArticles.generated.json';
+export { formatArticleDate } from '@/utils/articleDate';
 
 export interface BlogSource {
   label: string;
@@ -44,6 +45,9 @@ export interface BlogArticle {
   quickAnswer: string;
   relatedArticles: string[];
   relatedSolutions: string[];
+  minimumCharacters: number | null;
+  editorialCharacterCount: number;
+  editorialBatch?: string;
 }
 
 export const blogArticles = generatedArticles as BlogArticle[];
@@ -63,15 +67,6 @@ export function getBlogArticle(slug?: string) {
 
 export function getBlogArticleByUrl(targetUrl: string) {
   return blogArticles.find((article) => article.targetUrl === targetUrl);
-}
-
-export function formatArticleDate(date: string) {
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'UTC',
-  }).format(new Date(`${date}T12:00:00Z`));
 }
 
 export function relatedBlogArticles(article: BlogArticle, limit = 3) {

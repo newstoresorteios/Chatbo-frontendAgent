@@ -3,11 +3,12 @@ import { LandingFooter, LandingNavbar } from '@/components/landing/LandingLayout
 import { SeoHead } from '@/components/seo/SeoHead';
 import { blogArticles, blogCategories } from '@/content/blog';
 import { BookOpenText, Search, Sparkles } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 export function BlogIndexPage() {
   const [category, setCategory] = useState('Todos');
   const [query, setQuery] = useState('');
+  const [visibleLimit, setVisibleLimit] = useState(24);
   const articles = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase('pt-BR');
     return blogArticles.filter((article) => {
@@ -16,6 +17,8 @@ export function BlogIndexPage() {
       return matchesCategory && (!normalizedQuery || haystack.includes(normalizedQuery));
     });
   }, [category, query]);
+  useEffect(() => setVisibleLimit(24), [category, query]);
+  const visibleArticles = articles.slice(0, visibleLimit);
   const pillarArticles = blogArticles.filter((article) => article.pageType === 'pillar').slice(0, 6);
 
   const collectionSchema = {
@@ -74,8 +77,9 @@ export function BlogIndexPage() {
 
           <p className="mt-8 text-sm text-slate-400" aria-live="polite">{articles.length} {articles.length === 1 ? 'artigo encontrado' : 'artigos encontrados'}</p>
           <div className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {articles.map((article) => <BlogCard key={article.slug} article={article} />)}
+            {visibleArticles.map((article) => <BlogCard key={article.slug} article={article} />)}
           </div>
+          {visibleLimit < articles.length && <div className="mt-10 text-center"><button type="button" onClick={() => setVisibleLimit((current) => current + 24)} className="rounded-full border border-cyan-300/30 bg-cyan-300/10 px-6 py-3 font-semibold text-cyan-100 transition hover:bg-cyan-300/20">Carregar mais artigos</button></div>}
           {!articles.length && <div className="mt-12 rounded-3xl border border-dashed border-white/15 p-12 text-center text-slate-300">Nenhum artigo corresponde a esses filtros. Tente uma busca mais ampla.</div>}
         </section>
       </main>
