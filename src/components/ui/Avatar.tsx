@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { cn, getInitials } from '@/utils';
 
 interface AvatarProps {
@@ -14,11 +15,20 @@ const sizes = {
 };
 
 export function Avatar({ src, name, size = 'md', className }: AvatarProps) {
-  if (src) {
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    setFailedSrc(null);
+  }, [src]);
+
+  if (src && failedSrc !== src) {
     return (
       <img
         src={src}
         alt={name}
+        loading="lazy"
+        referrerPolicy="no-referrer"
+        onError={() => setFailedSrc(src)}
         className={cn('rounded-full object-cover', sizes[size], className)}
       />
     );

@@ -4,6 +4,7 @@ import { ChatBubble } from '@/components/chat/ChatBubble';
 import { ConversationCard } from '@/components/chat/ConversationCard';
 import { MessageInput } from '@/components/chat/MessageInput';
 import { Badge } from '@/components/ui/Badge';
+import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { EmptyState, Loading } from '@/components/ui/EmptyState';
 import { ConversationsEmptyState, ConversationsSelectPrompt } from '@/components/ui/GuidedEmptyState';
@@ -39,6 +40,8 @@ import {
   ChevronDown,
   ChevronUp,
   Clock3,
+  ExternalLink,
+  Instagram,
   Maximize2,
   MoreVertical,
   Minimize2,
@@ -817,6 +820,12 @@ export function ConversationsPage() {
                   >
                     <ArrowLeft className="h-5 w-5" />
                   </Button>
+                  <Avatar
+                    src={activeConversation.customerAvatar}
+                    name={activeConversation.customerName || 'Cliente'}
+                    size="md"
+                    className="hidden shrink-0 sm:block"
+                  />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="truncate text-sm font-semibold text-gray-900 dark:text-white sm:text-base">
@@ -839,6 +848,19 @@ export function ConversationsPage() {
                     </div>
                     <div className="mt-0.5 flex min-w-0 items-center gap-1.5">
                       <ChannelBadge channel={activeConversation.channel} />
+                      {activeConversation.channel === 'instagram' && activeConversation.profileUrl && (
+                        <a
+                          href={activeConversation.profileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex max-w-44 shrink-0 items-center gap-1 rounded-md border border-pink-200 bg-pink-50 px-1.5 py-0.5 text-xs font-medium text-pink-700 transition-colors hover:bg-pink-100 dark:border-pink-900 dark:bg-pink-950/40 dark:text-pink-300 dark:hover:bg-pink-950"
+                          title={`Abrir perfil @${activeConversation.profileUsername || activeConversation.customerName}`}
+                        >
+                          <Instagram className="h-3 w-3 shrink-0" />
+                          <span className="truncate">@{activeConversation.profileUsername || activeConversation.customerName}</span>
+                          <ExternalLink className="h-3 w-3 shrink-0" />
+                        </a>
+                      )}
                       <span className="truncate text-xs text-gray-400"><span className="hidden sm:inline">Histórico do contato</span>{(activeConversation.sessionIds?.length ?? 0) > 1 ? ` · ${activeConversation.sessionIds!.length} atendimentos` : ''}</span>
                       {activeConversation.assignedName && (
                         <span className="truncate text-xs text-gray-500">

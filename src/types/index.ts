@@ -226,6 +226,8 @@ export interface Conversation {
   customerId: string;
   customerName: string;
   customerAvatar?: string;
+  profileUsername?: string;
+  profileUrl?: string;
   lastMessage: string;
   lastMessageAt: string;
   status: ConversationStatus;

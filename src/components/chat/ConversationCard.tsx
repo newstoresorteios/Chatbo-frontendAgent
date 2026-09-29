@@ -45,7 +45,12 @@ export function ConversationCard({ conversation, active, pinned, animateWaiting 
         handoffWaiting && active && 'border-red-300 ring-red-100 dark:border-red-800 dark:ring-red-950',
       )}
     >
-      <Avatar name={conversation.customerName || 'Cliente'} size="md" />
+      <Avatar
+        src={conversation.customerAvatar}
+        name={conversation.customerName || 'Cliente'}
+        size="md"
+        className="shrink-0"
+      />
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
           <span className={cn('truncate text-sm font-semibold text-gray-900 dark:text-gray-100', conversation.unreadCount > 0 && 'font-bold')}>
