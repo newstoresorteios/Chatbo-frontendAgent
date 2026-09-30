@@ -18,6 +18,6 @@ vi.mock('../hooks/useCommercialLeads', async importOriginal => {
 describe('commercial lead actions', () => {
   it('renders the customer, evidence, stage counts and actionable handoff controls', () => {
     const html = renderToStaticMarkup(<QueryClientProvider client={new QueryClient()}><MemoryRouter><CommercialLeadsPanel /></MemoryRouter></QueryClientProvider>);
-    for (const text of ['thi.toffanelli', 'Assumir', 'Atribuir comercial', 'Abrir conversa', '1 agora', '1 histórico', '90/100', 'conversa=contact-old']) expect(html).toContain(text);
+    for (const text of ['thi.toffanelli', 'Assumir', 'Atribuir', 'Quentes agora', '90/100', 'Tissot salmão à pronta entrega?']) expect(html).toContain(text);
   });
 });
