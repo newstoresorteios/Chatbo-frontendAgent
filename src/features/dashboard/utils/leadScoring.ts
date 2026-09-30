@@ -3,7 +3,8 @@ import type { LeadScore } from '../types';
 import { daysSince } from './formatters';
 
 export function hasBuyingIntent(message: string): boolean {
-  return /or[cç]amento|pre[cç]o|valor|pedido|comprar|proposta|estoque|entrega|prazo/i.test(message);
+  if (/meu pedido|rastre|despach|j[aá] (comprei|paguei)|status.*pedido|garantia|devolu/i.test(message)) return false;
+  return /or[cç]amento|pre[cç]o|valor|comprar|proposta|estoque|pronta[ -]+entrega/i.test(message);
 }
 
 export function scoreConversation(conv: Conversation, customers: Customer[], orders: Order[]): LeadScore {

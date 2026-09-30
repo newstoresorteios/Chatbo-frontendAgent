@@ -18,6 +18,7 @@ const CampaignsPage = lazy(() => import('@/pages/CampaignsPage').then((m) => ({ 
 const ChannelsPage = lazy(() => import('@/pages/ChannelsPage').then((m) => ({ default: m.ChannelsPage })));
 const ChatbotPage = lazy(() => import('@/pages/ChatbotPage').then((m) => ({ default: m.ChatbotPage })));
 const FunnelPage = lazy(() => import('@/pages/FunnelPage').then((m) => ({ default: m.FunnelPage })));
+const LeadsPage = lazy(() => import('@/pages/LeadsPage').then((m) => ({ default: m.LeadsPage })));
 const IntegrationsPage = lazy(() => import('@/pages/IntegrationsPage').then((m) => ({ default: m.IntegrationsPage })));
 const SystemAdminPage = lazy(() => import('@/pages/SystemAdminPage').then((m) => ({ default: m.SystemAdminPage })));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage').then((m) => ({ default: m.ProfilePage })));
@@ -76,6 +77,7 @@ export function AppRoutes() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/atendimento" element={<LazyPage><ConversationsPage /></LazyPage>} />
+          <Route path="/leads" element={<LazyPage><LeadsPage /></LazyPage>} />
           <Route path="/conversas" element={<Navigate to="/atendimento" replace />} />
           <Route path="/contatos" element={<Navigate to="/atendimento" replace />} />
           <Route path="/clientes" element={<Navigate to="/atendimento" replace />} />

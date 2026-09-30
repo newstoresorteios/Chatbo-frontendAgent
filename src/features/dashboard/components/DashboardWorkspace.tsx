@@ -32,7 +32,7 @@ import { CommercialPerformanceSection } from './CommercialPerformanceSection';
 import { CommercialRoutineSection } from './CommercialRoutineSection';
 import { DashboardExecutiveHeader } from './DashboardExecutiveHeader';
 import { DashboardInternalNav } from './DashboardInternalNav';
-import { LeadScoringSection } from './LeadScoringSection';
+import { Link } from 'react-router-dom';
 import { LoyalCustomersSection } from './LoyalCustomersSection';
 import { NitrosExecutiveSummary } from './NitrosExecutiveSummary';
 import { OperationCredibilitySection } from './OperationCredibilitySection';
@@ -45,7 +45,8 @@ import { ProductCatalogSection } from './ProductCatalogSection';
 import { ServiceCapacitySection } from './ServiceCapacitySection';
 import { useDashboardNavigation, usePresentationMode } from '../hooks';
 import type { CommercialStatusFilter, DashboardNavigationItem, ExecutiveKpi, PeriodFilter, ProductSort, RoutineItem } from '../types';
-import { daysSince, filterConversations, filterOrders, filterProducts, formatPercent, getCustomerAction, getCustomerStatus, hasBuyingIntent, periodCutoff, scoreConversation } from '../utils';
+import { daysSince, filterConversations, filterOrders, filterProducts, formatPercent, getCustomerAction, getCustomerStatus, hasBuyingIntent, periodCutoff } from '../utils';
+import { useCommercialLeads } from '../hooks/useCommercialLeads';
 
 const CHANNEL_LABELS: Record<ChannelType, string> = {
   whatsapp: 'WhatsApp',
@@ -143,6 +144,7 @@ function commercialEntities(snapshot: CommercialBiSnapshot | null | undefined): 
 }
 
 export function DashboardWorkspace() {
+  const commercialLeads = useCommercialLeads();
   const { user } = useAuth();
   const { addToast } = useNotification();
   const queryClient = useQueryClient();
@@ -284,10 +286,7 @@ export function DashboardWorkspace() {
   const pipelineTone: ExecutiveKpi['tone'] = pipelineHealth >= 70 ? 'green' : pipelineHealth >= 45 ? 'amber' : 'red';
   const gargalo = salesMetrics?.funil?.reduce((worst, step) => ((step.quedaPct ?? 0) > (worst.quedaPct ?? 0) ? step : worst), salesMetrics.funil[0]);
 
-  const leadScores = filteredConversations
-    .map((conv) => scoreConversation(conv, customers, filteredOrders))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 8);
+  const leadScores = commercialLeads.data?.leads ?? [];
 
   const loyalCustomers = [...customers]
     .sort((a, b) => b.totalSpent - a.totalSpent || b.ordersCount - a.ordersCount)
@@ -397,7 +396,7 @@ export function DashboardWorkspace() {
             origin: 'Pontuação de leads',
             impact: 'Aumenta foco em oportunidades com maior intenção.',
             action: 'Ver leads',
-            href: '/atendimento',
+            href: '/leads',
           },
         ]
       : []),
@@ -623,7 +622,7 @@ export function DashboardWorkspace() {
           }}
         />
 
-        <LeadScoringSection leads={leadScores} presentationMode={presentationMode} />
+        {!presentationMode && <section id="leads" className="rounded-xl border p-5"><h2 className="font-bold">Leads comerciais</h2><p className="my-2">{leadScores.filter(l => l.label === 'Quente').length} quentes nas últimas 24 horas · {leadScores.length} contatos mapeados</p><Link to="/leads" className="text-blue-500 underline">Acompanhar leads e atribuir ao comercial</Link></section>}
 
         <CommercialRoutineSection items={routineItems} presentationMode={presentationMode} />
 

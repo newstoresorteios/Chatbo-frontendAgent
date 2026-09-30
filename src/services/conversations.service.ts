@@ -117,6 +117,10 @@ export function mergeConversationMessages(current: Message[], incoming: Message[
 }
 
 export const conversationsService = {
+  getContact: async (conversationId: string): Promise<Conversation> => {
+    const { data } = await api.get(`/conversas/${encodeURIComponent(conversationId)}/contato`);
+    return normalizeConversation(data);
+  },
   getConversations: async (options?: { signal?: AbortSignal }): Promise<Conversation[]> => {
     if (USE_MOCK) {
       await delay(400);

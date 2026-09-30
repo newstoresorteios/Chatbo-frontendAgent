@@ -15,6 +15,7 @@ import type { FunnelDeal } from '@/types';
 import { motion } from 'framer-motion';
 import { DollarSign, GitBranch, RefreshCw, ShoppingCart } from 'lucide-react';
 import { useState } from 'react';
+import { CommercialLeadsPanel } from '@/features/dashboard/components/CommercialLeadsPanel';
 
 export function FunnelPage() {
   const { data: stages, isLoading: loadingFunnel } = useFunnel();
@@ -120,6 +121,8 @@ export function FunnelPage() {
           delta={`${metrics?.quantidadeEntregues ?? 0} entregues`}
         />
       </div>
+
+      <CommercialLeadsPanel funnel />
 
       <ChartPanel
         title="Funil de conversão"

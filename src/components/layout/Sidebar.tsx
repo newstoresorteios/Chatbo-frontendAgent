@@ -46,6 +46,7 @@ function buildNavSections(settingsChildren: NavItem[]): NavSection[] {
       { to: '/atendimento', icon: Headphones, label: 'Central de Conversão' },
       { to: '/pedidos', icon: ShoppingCart, label: 'Pedidos', permission: 'viewFinancial', roles: ['owner', 'admin', 'supervisor'] },
       { to: '/funil', icon: GitBranch, label: 'Funil de Vendas', permission: 'viewFinancial', roles: ['owner', 'admin', 'supervisor'] },
+      { to: '/leads', icon: Flame, label: 'Leads comerciais' },
     ] },
     { title: 'AGENTE', items: [
       { to: '/copiloto', icon: Sparkles, label: 'Assistente ChatBô', permission: 'managePlatform', roles: ['owner', 'admin', 'supervisor'] },

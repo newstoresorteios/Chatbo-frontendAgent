@@ -146,7 +146,14 @@ export function ConversationsPage() {
   const knownConversationIdsRef = useRef<Set<string> | null>(null);
   const initialSelectionDone = useRef(false);
   const attemptedReadKeysRef = useRef(new Map<string, number>());
-  const activeConversation = conversations?.find((c) => c.id === activeConversationId);
+  const listedConversation = conversations?.find((c) => c.id === activeConversationId);
+  const { data: linkedContact } = useQuery({
+    queryKey: ['conversation-contact', activeConversationId],
+    queryFn: () => conversationsService.getContact(activeConversationId!),
+    enabled: !!activeConversationId && !listedConversation,
+    refetchInterval: 10_000,
+  });
+  const activeConversation = listedConversation ?? linkedContact;
   const { data: customerDetail } = useCustomerDetail(activeConversation?.customerId, contextOpen);
   const {
     data: agentContext,
