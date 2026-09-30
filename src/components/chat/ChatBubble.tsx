@@ -2,6 +2,7 @@ import { cn, formatDateTime } from '@/utils';
 import type { Message } from '@/types';
 import { Bot, Check, CheckCheck, Clock3, FileText, RotateCcw, User } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
+import { useState } from 'react';
 
 interface ChatBubbleProps {
   message: Message;
@@ -40,6 +41,8 @@ const senderConfig = {
 export function ChatBubble({ message, customerName, onRetry }: ChatBubbleProps) {
   const config = senderConfig[message.sender] ?? senderConfig.agent;
   const isCustomer = message.sender === 'customer';
+  const [failedMediaUrl, setFailedMediaUrl] = useState<string>();
+  const mediaFailed = !!message.mediaUrl && failedMediaUrl === message.mediaUrl;
 
   return (
     <div className={cn('flex gap-2', config.align)}>
@@ -54,11 +57,17 @@ export function ChatBubble({ message, customerName, onRetry }: ChatBubbleProps) 
           </span>
         )}
         <div className={cn('min-w-0 rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed', config.bubble)}>
-          {message.mediaType === 'image' && message.mediaUrl && (
+          {message.mediaType === 'image' && message.mediaUrl && !mediaFailed && (
             <a href={message.mediaUrl} target="_blank" rel="noopener noreferrer" aria-label="Abrir imagem">
               <img src={message.mediaUrl} alt={message.mediaFilename || 'Imagem recebida'}
+                onError={() => setFailedMediaUrl(message.mediaUrl)}
                 loading="lazy" className="mb-2 max-h-72 max-w-full rounded-lg object-contain" />
             </a>
+          )}
+          {message.mediaType === 'video' && message.mediaUrl && !mediaFailed && (
+            <video controls playsInline preload="metadata" src={message.mediaUrl}
+              onError={() => setFailedMediaUrl(message.mediaUrl)}
+              className="mb-2 max-h-80 max-w-full rounded-lg" aria-label="Vídeo recebido" />
           )}
           {message.mediaType === 'audio' && message.mediaUrl && (
             <audio controls preload="none" src={message.mediaUrl} className="mb-2 max-w-full" aria-label="Mensagem de áudio" />
@@ -71,8 +80,8 @@ export function ChatBubble({ message, customerName, onRetry }: ChatBubbleProps) 
             </a>
           )}
           {(!message.mediaType || !message.content.startsWith(`[${message.mediaType}:`)) && <MessageText text={message.content} />}
-          {message.mediaType && !message.mediaUrl && (
-            <span className="block text-xs opacity-70">Anexo temporariamente indisponível</span>
+          {message.mediaType && (!message.mediaUrl || mediaFailed) && (
+            <span className="block text-xs opacity-70">Anexo indisponível ou expirado. Solicite o reenvio ao cliente.</span>
           )}
         </div>
         <div className="mt-1 flex items-center gap-1.5 text-xs text-gray-400">

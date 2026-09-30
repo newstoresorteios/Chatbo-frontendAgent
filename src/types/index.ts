@@ -209,7 +209,7 @@ export interface Message {
   status: MessageStatus;
   aiSource?: 'openai' | 'intelligent';
   externalId?: string;
-  mediaType?: 'image' | 'audio' | 'document';
+  mediaType?: 'image' | 'video' | 'audio' | 'document';
   mediaFilename?: string;
   mediaContentType?: string;
   mediaByteSize?: number;
