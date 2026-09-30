@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useCommercialLeads, stageCounts, type CommercialLead } from '../hooks/useCommercialLeads';
 import { conversationsService } from '@/services/conversations.service';
 import { usersService } from '@/services/users.service';
@@ -25,7 +25,6 @@ function stageTone(stage: string) {
 }
 
 export function CommercialLeadsPanel({ funnel = false }: { funnel?: boolean }) {
-  const navigate = useNavigate();
   const [stage, setStage] = useState('all');
   const [historical, setHistorical] = useState(false);
   const [search, setSearch] = useState('');
@@ -92,7 +91,8 @@ export function CommercialLeadsPanel({ funnel = false }: { funnel?: boolean }) {
       <div className="grid gap-3 p-4 lg:grid-cols-2">
         {filtered.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE).map(lead => {
           const tone = stageTone(lead.stage);
-          return <article key={lead.id} role="button" tabIndex={0} onKeyDown={event => event.key === 'Enter' && navigate(`/atendimento?conversa=${encodeURIComponent(lead.id)}`)} onClick={() => navigate(`/atendimento?conversa=${encodeURIComponent(lead.id)}`)} className={cn('group relative cursor-pointer overflow-hidden rounded-2xl border bg-slate-50/70 p-4 transition hover:-translate-y-0.5 hover:shadow-lg dark:bg-slate-900/70', tone.ring)}>
+          return <article key={lead.id} className={cn('group relative overflow-hidden rounded-2xl border bg-slate-50/70 p-4 transition hover:-translate-y-0.5 hover:shadow-lg dark:bg-slate-900/70', tone.ring)}>
+            <Link to={`/atendimento?conversa=${encodeURIComponent(lead.id)}`} aria-label={`Abrir conversa de ${lead.customerName}`} className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500" />
             <div className={cn('absolute inset-y-0 left-0 w-1', tone.bar)} />
             <div className="flex items-start gap-3">
               <Avatar src={lead.customerAvatar} name={lead.customerName} size="lg" className="shrink-0 ring-2 ring-white dark:ring-slate-800" />
@@ -106,7 +106,7 @@ export function CommercialLeadsPanel({ funnel = false }: { funnel?: boolean }) {
             <blockquote className="mt-3 line-clamp-2 min-h-10 border-l-2 border-slate-300 pl-3 text-sm leading-5 text-slate-600 dark:border-slate-700 dark:text-slate-300">“{lead.evidence || lead.reason}”</blockquote>
             <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-200 pt-3 dark:border-slate-800">
               <div className="flex min-w-0 items-center gap-2 text-xs text-slate-500"><UserCheck className="h-4 w-4 shrink-0" /><span className="truncate">{lead.assignedName || (lead.assignedTo ? 'Atendente atribuído' : 'Sem responsável')}</span></div>
-              <div className="flex shrink-0 gap-2" onClick={event => event.stopPropagation()}>
+              <div className="relative z-20 flex shrink-0 gap-2">
                 <Button size="sm" variant="outline" disabled={lead.status === 'closed' || action.isPending} onClick={() => action.mutate({ lead })}>Assumir</Button>
                 <Button size="sm" disabled={lead.status === 'closed' || action.isPending} onClick={() => { setSelected(lead); setAssignee(''); }}>Atribuir</Button>
               </div>

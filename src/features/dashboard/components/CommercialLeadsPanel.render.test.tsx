@@ -19,5 +19,13 @@ describe('commercial lead actions', () => {
   it('renders the customer, evidence, stage counts and actionable handoff controls', () => {
     const html = renderToStaticMarkup(<QueryClientProvider client={new QueryClient()}><MemoryRouter><CommercialLeadsPanel /></MemoryRouter></QueryClientProvider>);
     for (const text of ['thi.toffanelli', 'Assumir', 'Atribuir', 'Quentes agora', '90/100', 'Tissot salmão à pronta entrega?']) expect(html).toContain(text);
+    expect(html).toContain('href="/atendimento?conversa=contact-old"');
+    expect(html).toContain('aria-label="Abrir conversa de thi.toffanelli"');
+    // Native link keyboard behavior must not wrap the independent action buttons.
+    const card = html.match(/<article[\s\S]*?<\/article>/)?.[0] ?? '';
+    const link = card.match(/<a\b[\s\S]*?<\/a>/)?.[0] ?? '';
+    expect(link).not.toContain('<button');
+    expect(card).not.toContain('role="button"');
+    expect(card.indexOf('</a>')).toBeLessThan(card.indexOf('<button'));
   });
 });
