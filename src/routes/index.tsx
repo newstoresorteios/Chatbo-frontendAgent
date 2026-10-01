@@ -36,6 +36,7 @@ const BusinessProfilePage = lazy(() => import('@/pages/BusinessProfilePage').the
 const AgentTracesPage = lazy(() => import('@/pages/AgentTracesPage').then((m) => ({ default: m.AgentTracesPage })));
 const AgentLearningPage = lazy(() => import('@/pages/AgentLearningPage').then((m) => ({ default: m.AgentLearningPage })));
 const AgentAdvancedSettingsPage = lazy(() => import('@/pages/AgentAdvancedSettingsPage').then((m) => ({ default: m.AgentAdvancedSettingsPage })));
+const StoryReferencesPage = lazy(() => import('@/pages/StoryReferencesPage').then((m) => ({ default: m.StoryReferencesPage })));
 const BlogIndexPage = lazy(() => import('@/pages/BlogIndexPage').then((m) => ({ default: m.BlogIndexPage })));
 const BlogArticlePage = lazy(() => import('@/pages/BlogArticlePage').then((m) => ({ default: m.BlogArticlePage })));
 
@@ -100,6 +101,7 @@ export function AppRoutes() {
             <Route path="/agente-ia" element={<Navigate to="/copiloto" replace />} />
             <Route path="/persona" element={<LazyPage><PersonaPage /></LazyPage>} />
             <Route path="/agente/configuracao-avancada" element={<LazyPage><AgentAdvancedSettingsPage /></LazyPage>} />
+            <Route path="/agente/referencias-stories" element={<LazyPage><StoryReferencesPage /></LazyPage>} />
             <Route path="/agente/aprendizado" element={<LazyPage><AgentLearningPage /></LazyPage>} />
             <Route path="/agente/execucoes" element={<LazyPage><AgentTracesPage /></LazyPage>} />
           </Route>
