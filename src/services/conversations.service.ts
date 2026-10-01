@@ -86,6 +86,7 @@ function normalizeMessage(raw: Partial<Message> & Record<string, unknown>): Mess
     mediaContentType: raw.mediaContentType,
     mediaByteSize: raw.mediaByteSize,
     mediaUrl: raw.mediaUrl,
+    handoffSummary: raw.handoffSummary,
   };
 }
 

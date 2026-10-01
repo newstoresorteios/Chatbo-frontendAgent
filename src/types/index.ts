@@ -200,6 +200,20 @@ export type MessageSender = 'customer' | 'agent' | 'ai';
 export type MessageStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
 export type ConversationStatus = 'active' | 'waiting' | 'closed';
 
+export interface HandoffSummary {
+  version: 1;
+  customer_request?: string;
+  objective?: string | null;
+  constraints?: Record<string, unknown>;
+  product_focus?: { name?: string; reference?: string; brand?: string } | null;
+  order_focus?: { order_id?: string; status?: string } | null;
+  pending_action?: string | null;
+  pending_question?: string | null;
+  delivery_requirement?: { raw_text?: string; earliest_date?: string; latest_date?: string; requires_date_confirmation?: boolean } | null;
+  known_checkout_fields?: string[];
+  consent?: { confirmed?: boolean; reason?: string | null };
+}
+
 export interface Message {
   id: string;
   conversationId: string;
@@ -214,6 +228,7 @@ export interface Message {
   mediaContentType?: string;
   mediaByteSize?: number;
   mediaUrl?: string;
+  handoffSummary?: HandoffSummary;
 }
 
 export interface Conversation {

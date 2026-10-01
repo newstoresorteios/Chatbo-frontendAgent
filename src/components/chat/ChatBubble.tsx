@@ -3,6 +3,7 @@ import type { Message } from '@/types';
 import { Bot, Check, CheckCheck, Clock3, FileText, RotateCcw, User } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { useState } from 'react';
+import { HandoffSummaryCard } from './HandoffSummaryCard';
 
 interface ChatBubbleProps {
   message: Message;
@@ -84,6 +85,7 @@ export function ChatBubble({ message, customerName, onRetry }: ChatBubbleProps) 
             <span className="block text-xs opacity-70">Anexo indisponível ou expirado. Solicite o reenvio ao cliente.</span>
           )}
         </div>
+        {message.sender === 'ai' && message.handoffSummary && <HandoffSummaryCard summary={message.handoffSummary} />}
         <div className="mt-1 flex items-center gap-1.5 text-xs text-gray-400">
           <span>{formatDateTime(message.timestamp)}</span>
           {!isCustomer && message.status === 'sending' && <Clock3 className="h-3 w-3" aria-label="Enviando" />}
