@@ -87,6 +87,14 @@ export const customersService = {
     if (USE_MOCK) {
       await delay(500);
       let items = [...mockCustomers];
+      if (params.whatsappOnly) {
+        items = items.flatMap((customer) => {
+          const digits = customer.phone.replace(/\D/g, '');
+          const phone = digits.length === 10 || digits.length === 11 ? `55${digits}` : digits;
+          return /^\d{12,13}$/.test(phone) && phone.startsWith('55')
+            ? [{ ...customer, phone }] : [];
+        });
+      }
       if (search) {
         items = filterBySearch(items, search, ['name', 'email', 'phone', 'company', 'city']);
       }

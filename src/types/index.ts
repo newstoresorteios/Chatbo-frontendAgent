@@ -571,6 +571,7 @@ export interface PaginatedResponse<T> {
 }
 
 export interface ListParams {
+  whatsappOnly?: boolean;
   page?: number;
   pageSize?: number;
   search?: string;
