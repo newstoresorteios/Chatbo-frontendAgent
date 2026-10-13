@@ -118,6 +118,10 @@ export function mergeConversationMessages(current: Message[], incoming: Message[
 }
 
 export const conversationsService = {
+  openCustomer: async (customerId: string): Promise<Conversation> => {
+    const { data } = await api.post('/conversas/cliente', { customerId });
+    return normalizeConversation(data);
+  },
   getContact: async (conversationId: string): Promise<Conversation> => {
     const { data } = await api.get(`/conversas/${encodeURIComponent(conversationId)}/contato`);
     return normalizeConversation(data);

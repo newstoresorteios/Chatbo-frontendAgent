@@ -662,7 +662,15 @@ export function ConversationsPage() {
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-gray-50 dark:bg-gray-950">
-      <CustomerWhatsAppSearch open={customerSearchOpen} onClose={() => setCustomerSearchOpen(false)} />
+      <CustomerWhatsAppSearch open={customerSearchOpen} onClose={() => setCustomerSearchOpen(false)}
+        onOpenConversation={(conversation) => {
+          queryClient.setQueryData<Conversation[]>(['conversations'], (old = []) =>
+            [conversation, ...old.filter((item) => item.id !== conversation.id)]);
+          queryClient.setQueryData(['conversation-contact', conversation.id], conversation);
+          setFilter('all'); setStatusFilter('all'); setSearchQuery('');
+          setActiveConversationId(conversation.id);
+          navigate(`/atendimento?conversa=${encodeURIComponent(conversation.id)}`);
+        }} />
       <div className={`${activeConversationId ? 'hidden md:flex' : 'flex'} m-0 shrink-0 flex-wrap items-center gap-2 border-x-0 border-t-0 border-b border-gray-200 bg-white px-3 py-2 shadow-sm dark:border-gray-800 dark:bg-gray-900 md:m-2 md:mb-0 md:gap-3 md:rounded-2xl md:border md:px-4 md:py-2.5`}>
         <div className="flex w-full min-w-0 flex-wrap items-center gap-2 md:w-auto">
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-600 dark:bg-primary-950 dark:text-primary-300"><Target className="h-4 w-4" /></span>

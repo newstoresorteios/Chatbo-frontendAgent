@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { conversationsService } from '@/services/conversations.service';
+import type { Conversation } from '@/types';
 import { customersService } from '@/services/data.service';
 import { Modal } from '@/components/ui/Modal';
 import { Search } from '@/components/ui/Search';
@@ -7,10 +9,18 @@ import { Button } from '@/components/ui/Button';
 import { Pagination } from '@/components/ui/Pagination';
 import { extractApiErrorMessage } from '@/utils/apiErrors';
 
-export function CustomerWhatsAppSearch({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function CustomerWhatsAppSearch({ open, onClose, onOpenConversation }: {
+  open: boolean; onClose: () => void; onOpenConversation: (conversation: Conversation) => void;
+}) {
   const [search, setSearch] = useState('');
   const [term, setTerm] = useState('');
   const [page, setPage] = useState(1);
+  const openConversation = useMutation({
+    mutationFn: conversationsService.openCustomer,
+    onSuccess: (conversation) => { onOpenConversation(conversation); onClose(); },
+  });
+  const resetOpenConversation = openConversation.reset;
+  useEffect(() => { if (!open) resetOpenConversation(); }, [open, resetOpenConversation]);
   useEffect(() => {
     const timer = window.setTimeout(() => { setTerm(search.trim()); setPage(1); }, 300);
     return () => window.clearTimeout(timer);
@@ -21,9 +31,10 @@ export function CustomerWhatsAppSearch({ open, onClose }: { open: boolean; onClo
     enabled: open,
   });
   return (
-    <Modal open={open} onClose={onClose} title="Buscar clientes no WhatsApp" size="lg">
+    <Modal open={open} onClose={onClose} title="Iniciar conversa com cliente" size="lg">
       <div className="space-y-4">
-        <p className="text-sm text-gray-500">Encontre clientes com número cadastrado e abra o WhatsApp para escrever sua mensagem.</p>
+        <p className="text-sm text-gray-500">Escolha um cliente para abrir a conversa na Central e enviar sua mensagem por aqui.</p>
+        {openConversation.isError && <p role="alert" className="text-sm text-red-500">{extractApiErrorMessage(openConversation.error, 'Não foi possível abrir a conversa.')}</p>}
         <Search aria-label="Buscar cliente por nome ou telefone" placeholder="Digite o nome, empresa ou telefone..." value={search}
           onChange={(event) => setSearch(event.target.value)} />
         <div className="max-h-[50vh] space-y-2 overflow-y-auto" aria-live="polite">
@@ -40,16 +51,16 @@ export function CustomerWhatsAppSearch({ open, onClose }: { open: boolean; onClo
                   {customer.company !== customer.name && <p className="truncate text-xs text-gray-500">{customer.company}</p>}
                   <p className="text-sm text-gray-500">+{customer.phone}</p>
                 </div>
-                <a href={`https://wa.me/${customer.phone}`} target="_blank" rel="noopener noreferrer"
-                  aria-label={`Abrir WhatsApp de ${customer.name}`}
-                  className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600">
-                  Abrir WhatsApp
-                </a>
+                <Button disabled={openConversation.isPending}
+                  onClick={() => openConversation.mutate(customer.id)}
+                  aria-label={`Abrir conversa com ${customer.name}`}>
+                  {openConversation.isPending && openConversation.variables === customer.id ? 'Abrindo...' : 'Abrir conversa'}
+                </Button>
               </div>
             ))}
         </div>
         {!isFetching && !isError && data && <Pagination page={page} totalPages={data.totalPages} total={data.total} onPageChange={setPage} />}
-        <p className="text-xs text-gray-500">O número cadastrado não confirma uma conta ativa no WhatsApp. O envio é feito no WhatsApp aberto.</p>
+        <p className="text-xs text-gray-500">A mensagem será enviada pelo canal WhatsApp da empresa na Central de Atendimento.</p>
       </div>
     </Modal>
   );
