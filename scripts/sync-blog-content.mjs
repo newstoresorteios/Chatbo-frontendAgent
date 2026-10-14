@@ -1,4 +1,5 @@
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { applySearchConsoleRevisions } from '../content/search-console-revisions.mjs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -342,7 +343,7 @@ const missing = [...selectedSlugs].filter((slug) => !selected.some((article) => 
 if (missing.length) throw new Error(`Artigos não encontrados na origem: ${missing.join(', ')}`);
 
 await mkdir(path.dirname(outputFile), { recursive: true });
-await writeFile(outputFile, `${JSON.stringify(selected, null, 2)}\n`, 'utf8');
+await writeFile(outputFile, `${JSON.stringify(applySearchConsoleRevisions(selected), null, 2)}\n`, 'utf8');
 const keywordMap = allPagePlan.map((plan) => ({
   keyword: plan.primaryKeyword,
   variations: plan.variations,

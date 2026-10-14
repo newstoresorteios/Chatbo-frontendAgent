@@ -69,6 +69,13 @@ for (const article of articles) {
 }
 
 const blogIndex = await readFile(path.join(dist, 'blog', 'index.html'), 'utf8');
+const plansHtml = await readFile(path.join(dist, 'planos', 'index.html'), 'utf8');
+if (capture(plansHtml, /<link rel="canonical" href="([^"]*)"/) !== 'https://www.chatbo.com.br/planos') failures.push('/planos: canonical incorreto');
+if ((plansHtml.match(/<h1(?:\s|>)/g) || []).length !== 1 || !plansHtml.includes('Como escolher seu plano')) failures.push('/planos: conteúdo público ausente');
+for (const target of ['/solucoes/chatbot-whatsapp', '/solucoes/agente-ia-para-atendimento', '/solucoes/agente-ia-para-vendas', '/integracoes/chatbot-estoque-preco']) {
+  if (!targetUrls.has(target)) failures.push(`${target}: destino da navegação inexistente`);
+  if (!blogIndex.includes(`href="${target}"`) || !plansHtml.includes(`href="${target}"`)) failures.push(`${target}: link ausente da navegação pública`);
+}
 for (const article of articles) {
   if (!blogIndex.includes(`href="${article.targetUrl}"`)) failures.push(`${article.targetUrl}: página órfã do índice do blog`);
 }

@@ -12,6 +12,7 @@ const navLinks = [
   { href: '#segmentos', label: 'Receita' },
   { href: '#como-funciona', label: 'Como funciona' },
   { href: '/blog', label: 'Blog' },
+  { href: '/planos', label: 'Planos' },
   { href: '#faq', label: 'FAQ' },
 ];
 
@@ -42,13 +43,14 @@ export function LandingNavbar() {
 
         <nav className="hidden items-center gap-8 md:flex">
           {navLinks.map((link) => (
-            <button
+            <a
+              href={link.href.startsWith('#') ? `/${link.href}` : link.href}
               key={link.href}
-              onClick={() => scrollTo(link.href)}
+              onClick={(event) => { if (!event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) { event.preventDefault(); scrollTo(link.href); } }}
               className="text-sm font-semibold text-slate-200 transition-colors hover:text-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
             >
               {link.label}
-            </button>
+            </a>
           ))}
         </nav>
 
@@ -69,13 +71,14 @@ export function LandingNavbar() {
       {open && (
         <div className="border-t border-white/10 bg-gray-950 px-4 py-4 md:hidden">
           {navLinks.map((link) => (
-            <button
+            <a
+              href={link.href.startsWith('#') ? `/${link.href}` : link.href}
               key={link.href}
-              onClick={() => scrollTo(link.href)}
+              onClick={(event) => { if (!event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) { event.preventDefault(); scrollTo(link.href); } }}
               className="block w-full py-2.5 text-left text-base font-semibold text-slate-100 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
             >
               {link.label}
-            </button>
+            </a>
           ))}
           <div className="mt-4 flex flex-col gap-2">
             <Button variant="outline" onClick={() => navigate('/login')}>Entrar</Button>
@@ -110,6 +113,11 @@ export function LandingFooter() {
           <Logo size="sm" showCompany />
           <p className="text-sm text-slate-300">© 2026 Tironi Tech · ChatBô. Todos os direitos reservados.</p>
           <div className="flex flex-wrap justify-center gap-6 text-sm font-medium text-slate-300">
+            <Link to="/solucoes/chatbot-whatsapp" className="hover:text-white">Chatbot para WhatsApp</Link>
+            <Link to="/solucoes/agente-ia-para-atendimento" className="hover:text-white">IA para atendimento</Link>
+            <Link to="/solucoes/agente-ia-para-vendas" className="hover:text-white">IA para vendas</Link>
+            <Link to="/integracoes/chatbot-estoque-preco" className="hover:text-white">Estoque e preços</Link>
+            <Link to="/planos" className="hover:text-white">Planos</Link>
             <Link to="/blog" className="hover:text-white">Blog</Link>
             <Link to="/politica-privacidade" className="hover:text-white">Privacidade</Link>
             <Link to="/legal/termos" className="hover:text-white">Termos</Link>

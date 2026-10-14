@@ -5,6 +5,10 @@
       "destination": "https://chatbo-backendagent.onrender.com/api/$1"
     },
     {
+      "source": "/planos",
+      "destination": "/planos/index.html"
+    },
+    {
       "source": "/blog",
       "destination": "/blog/index.html"
     },

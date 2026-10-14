@@ -14,6 +14,8 @@ const escapeHtml = (value = '') => String(value)
   .replaceAll('"', '&quot;')
   .replaceAll("'", '&#039;');
 
+const articleByUrl = new Map(articles.map(article => [article.targetUrl, article]));
+const publicNav = `<nav aria-label="Páginas principais"><a href="/">Início</a> · <a href="/planos">Planos</a> · <a href="/solucoes/chatbot-whatsapp">Chatbot para WhatsApp</a> · <a href="/solucoes/agente-ia-para-atendimento">IA para atendimento</a> · <a href="/solucoes/agente-ia-para-vendas">IA para vendas</a> · <a href="/integracoes/chatbot-estoque-preco">Estoque e preços</a> · <a href="/blog">Blog</a></nav>`;
 const absolute = (pathname) => new URL(pathname, `${siteUrl}/`).toString();
 const jsonLd = (value) => JSON.stringify(value).replaceAll('<', '\\u003c');
 
@@ -73,8 +75,8 @@ function renderArticle(article) {
   const faqs = article.faqs?.length ? `<section><h2>Perguntas frequentes</h2>${article.faqs.map((faq) => `<h3>${escapeHtml(faq.question)}</h3><p>${escapeHtml(faq.answer)}</p>`).join('')}</section>` : '';
   const toc = article.sections.length > 3 ? `<nav aria-label="Índice do artigo"><h2>Neste artigo</h2><ol>${article.sections.map((section) => `<li><a href="#${headingId(section.heading)}">${escapeHtml(section.heading)}</a></li>`).join('')}</ol></nav>` : '';
   const related = [...new Set([...(article.relatedSolutions || []), ...(article.relatedArticles || [])])];
-  const relatedNav = related.length ? `<nav aria-label="Conteúdos relacionados"><h2>Conteúdos relacionados</h2><ul>${related.map((target) => `<li><a href="${escapeHtml(target)}">${escapeHtml(target.split('/').filter(Boolean).at(-1).replaceAll('-', ' '))}</a></li>`).join('')}</ul></nav>` : '';
-  return `<header><nav><a href="/">ChatBô</a> · <a href="/blog">Blog</a></nav><p>${escapeHtml(article.category)} · ${escapeHtml(article.readTime)}</p><h1>${escapeHtml(article.title)}</h1><p>${escapeHtml(article.description)}</p><p>Publicado em <time datetime="${article.date}">${article.date}</time> · Atualizado em <time datetime="${article.updated}">${article.updated}</time></p></header><main><article><p>${escapeHtml(article.intro)}</p><aside><h2>Resposta rápida</h2><p>${escapeHtml(article.quickAnswer)}</p><ul>${article.takeaways.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul></aside>${toc}${sections}${faqs}<section><h2>${escapeHtml(article.cta.title)}</h2><p>${escapeHtml(article.cta.text)}</p><a href="/cadastro">${escapeHtml(article.cta.label)}</a></section><section><h2>Fontes e referências</h2><ul>${article.sources.map((source) => `<li><a href="${escapeHtml(source.url)}">${escapeHtml(source.label)}</a></li>`).join('')}</ul></section>${relatedNav}</article></main><footer><a href="/blog">Conheça todos os artigos do ChatBô</a></footer>`;
+  const relatedNav = related.length ? `<nav aria-label="Conteúdos relacionados"><h2>Conteúdos relacionados</h2><ul>${related.map((target) => `<li><a href="${escapeHtml(target)}">${escapeHtml(articleByUrl.get(target)?.title || target.split('/').filter(Boolean).at(-1).replaceAll('-', ' '))}</a></li>`).join('')}</ul></nav>` : '';
+  return `<header><nav><a href="/">ChatBô</a> · <a href="/blog">Blog</a></nav><p>${escapeHtml(article.category)} · ${escapeHtml(article.readTime)}</p><h1>${escapeHtml(article.title)}</h1><p>${escapeHtml(article.description)}</p><p>Publicado em <time datetime="${article.date}">${article.date}</time> · Atualizado em <time datetime="${article.updated}">${article.updated}</time></p></header><main><article><p>${escapeHtml(article.intro)}</p><aside><h2>Resposta rápida</h2><p>${escapeHtml(article.quickAnswer)}</p><ul>${article.takeaways.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul></aside>${toc}${sections}${faqs}<section><h2>${escapeHtml(article.cta.title)}</h2><p>${escapeHtml(article.cta.text)}</p><a href="/cadastro">${escapeHtml(article.cta.label)}</a></section><section><h2>Fontes e referências</h2><ul>${article.sources.map((source) => `<li><a href="${escapeHtml(source.url)}">${escapeHtml(source.label)}</a></li>`).join('')}</ul></section>${relatedNav}</article></main><footer>${publicNav}</footer>`;
 }
 
 const collectionSchema = {
@@ -86,7 +88,7 @@ const collectionSchema = {
   isPartOf: { '@type': 'WebSite', name: 'ChatBô', url: siteUrl },
   mainEntity: articles.map((article) => ({ '@type': 'BlogPosting', headline: article.title, url: absolute(article.targetUrl), dateModified: article.updated })),
 };
-const indexBody = `<header><nav><a href="/">ChatBô</a></nav><h1>Blog ChatBô</h1><p>Guias sobre chatbot com IA, atendimento no WhatsApp, automação comercial, CRM e vendas.</p></header><main><section><h2>Conteúdos em destaque</h2>${articles.map((article) => `<article><p>${escapeHtml(article.category)} · ${escapeHtml(article.readTime)}</p><h2><a href="${escapeHtml(article.targetUrl)}">${escapeHtml(article.title)}</a></h2><p>${escapeHtml(article.description)}</p><time datetime="${article.updated}">Atualizado em ${article.updated}</time></article>`).join('')}</section></main>`;
+const indexBody = `<header>${publicNav}<h1>Blog ChatBô</h1><p>Guias sobre chatbot com IA, atendimento no WhatsApp, automação comercial, CRM e vendas.</p></header><main><section><h2>Conteúdos em destaque</h2>${articles.map((article) => `<article><p>${escapeHtml(article.category)} · ${escapeHtml(article.readTime)}</p><h2><a href="${escapeHtml(article.targetUrl)}">${escapeHtml(article.title)}</a></h2><p>${escapeHtml(article.description)}</p><time datetime="${article.updated}">Atualizado em ${article.updated}</time></article>`).join('')}</section></main>`;
 
 await mkdir(path.join(dist, 'blog'), { recursive: true });
 await writeFile(path.join(dist, 'blog', 'index.html'), withSeo({
@@ -109,6 +111,15 @@ for (const article of articles) {
     body: renderArticle(article),
   }), 'utf8');
 }
+
+await mkdir(path.join(dist, 'planos'), { recursive: true });
+await writeFile(path.join(dist, 'planos', 'index.html'), withSeo({
+  title: 'Planos de chatbot com IA para atendimento e vendas | ChatBô',
+  description: 'Compare os planos do ChatBô para atendimento e vendas com IA. Avalie canais, integrações, volume de uso e suporte com nossa equipe antes de contratar.',
+  pathname: '/planos',
+  structuredData: [{ '@context': 'https://schema.org', '@type': 'WebPage', name: 'Planos do ChatBô', url: absolute('/planos') }],
+  body: `<header>${publicNav}<h1>Planos para sua operação</h1><p>Escolha os recursos que sua equipe precisa. Pagamentos não são processados nesta etapa.</p></header><main><section><h2>Como escolher seu plano</h2><p>Avalie o volume de conversas, os canais utilizados, as integrações necessárias e o suporte esperado. Confirme com nossa equipe os recursos e limites de cada oferta antes de contratar.</p><p>As ofertas disponíveis são carregadas ao abrir a página. Para consultar preços e condições, <a href="mailto:contato@tironitech.com">fale com nossa equipe</a>.</p></section></main>`,
+}), 'utf8');
 
 const staticUrls = [
   { path: '/', priority: '1.0', frequency: 'weekly' },
