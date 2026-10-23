@@ -42,7 +42,10 @@ export function ChannelsPage() {
   const ycloudStatus = useQuery({ queryKey: ['ycloud-status'], queryFn: ycloudService.status });
   const [ycloudName, setYcloudName] = useState('WhatsApp piloto YCloud');
   const ycloudConnect = useMutation({
-    mutationFn: () => ycloudService.connect(ycloudName.trim()),
+    mutationFn: (phone?: string) => ycloudService.connect(
+      phone && (ycloudStatus.data?.numbers?.length ?? 0) > 1 ? `${ycloudName.trim()} ${phone}` : ycloudName.trim(),
+      phone,
+    ),
     onSuccess: async () => {
       await Promise.all([ycloudStatus.refetch(), refetch()]);
       addToast({ title: 'YCloud conectada', message: 'Número validado e canal ativo.', type: 'success' });
@@ -188,19 +191,24 @@ export function ChannelsPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-2">
             <p className="font-semibold text-gray-900 dark:text-white">WhatsApp via YCloud</p>
-            <p className="text-sm text-gray-500">Número piloto separado dos demais canais. O backend valida o número antes de ativar.</p>
-            {ycloudStatus.data?.phone && <p className="text-sm font-medium">Número configurado: {ycloudStatus.data.phone}</p>}
+            <p className="text-sm text-gray-500">Números YCloud separados dos demais canais. O backend valida cada número antes de ativar.</p>
+            {(ycloudStatus.data?.numbers ?? []).filter((item) => item.phone).map((item) => (
+              <div key={item.wabaId + item.phone} className="flex flex-wrap items-center gap-2">
+                <p className="text-sm font-medium">Número configurado: {item.phone}</p>
+                {item.connected
+                  ? <Badge variant="success">Conectado</Badge>
+                  : <Button size="sm" variant="secondary" onClick={() => ycloudConnect.mutate(item.phone ?? undefined)}
+                      loading={ycloudConnect.isPending} disabled={!ycloudStatus.data?.configured || !ycloudName.trim()}>
+                      Validar e conectar
+                    </Button>}
+              </div>
+            ))}
             {ycloudStatus.data?.webhookUrl && <p className="break-all text-xs text-gray-500">Webhook: {ycloudStatus.data.webhookUrl}</p>}
             {ycloudStatus.isError && <p role="alert" className="text-xs text-red-600">{extractApiErrorMessage(ycloudStatus.error)}</p>}
-            {ycloudStatus.data?.connected && <Badge variant="success">Conectado</Badge>}
-            {!ycloudStatus.data?.configured && <p className="text-xs text-amber-700">Configure as variáveis YCLOUD_* no backend para validar o piloto.</p>}
+            {!ycloudStatus.data?.configured && <p className="text-xs text-amber-700">Configure as variáveis YCLOUD_* no backend para validar os números.</p>}
           </div>
           <div className="flex flex-col gap-2 sm:w-64">
-            <Input label="Nome do canal piloto" value={ycloudName} onChange={(event) => setYcloudName(event.target.value)} />
-            <Button onClick={() => ycloudConnect.mutate()} loading={ycloudConnect.isPending}
-              disabled={!ycloudStatus.data?.configured || !ycloudName.trim()}>
-              Validar e conectar YCloud
-            </Button>
+            <Input label="Nome do canal" value={ycloudName} onChange={(event) => setYcloudName(event.target.value)} />
           </div>
         </div>
       </Card>
