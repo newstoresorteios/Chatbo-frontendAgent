@@ -14,11 +14,14 @@ import { usePlatformMutations } from '@/hooks/usePlatformMutations';
 import { useChannels } from '@/hooks/usePlatform';
 import { channelConfig } from '@/utils/channels';
 import { isChannelLive } from '@/utils/featureAvailability';
+import { ycloudService } from '@/services/ycloud.service';
+import { extractApiErrorMessage } from '@/utils/apiErrors';
 import { formatDateTime } from '@/utils';
 import type { Channel, ChannelType } from '@/types';
 import { motion } from 'framer-motion';
 import { Plus, RefreshCw, Settings } from 'lucide-react';
 import { useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
 const channelTypes: { value: ChannelType; label: string; live: boolean }[] = [
@@ -36,6 +39,17 @@ export function ChannelsPage() {
   const { data: channels, isLoading, refetch, isFetching } = useChannels();
   const { connectChannel, updateChannel, toggleChannel } = usePlatformMutations();
   const { addToast } = useNotification();
+  const ycloudStatus = useQuery({ queryKey: ['ycloud-status'], queryFn: ycloudService.status });
+  const [ycloudName, setYcloudName] = useState('WhatsApp piloto YCloud');
+  const ycloudConnect = useMutation({
+    mutationFn: () => ycloudService.connect(ycloudName.trim()),
+    onSuccess: async () => {
+      await Promise.all([ycloudStatus.refetch(), refetch()]);
+      addToast({ title: 'YCloud conectada', message: 'Número validado e canal ativo.', type: 'success' });
+    },
+    onError: (error) => addToast({ title: 'Falha na validação YCloud',
+      message: extractApiErrorMessage(error), type: 'error' }),
+  });
 
   const [connectOpen, setConnectOpen] = useState(false);
   const [configChannel, setConfigChannel] = useState<Channel | null>(null);
@@ -74,6 +88,11 @@ export function ChannelsPage() {
       return;
     }
     if (channel.type === 'whatsapp') {
+      if (channel.provider === 'ycloud') {
+        addToast({ title: 'WhatsApp via YCloud',
+          message: 'As credenciais e o número são configurados no ambiente do backend.', type: 'info' });
+        return;
+      }
       addToast({
         title: 'Configurar WhatsApp',
         message: 'Use Configurações → WhatsApp para conectar a API Meta.',
@@ -98,6 +117,11 @@ export function ChannelsPage() {
 
   const handleToggle = async () => {
     if (!confirmToggle) return;
+    if (confirmToggle.provider === 'ycloud' && !confirmToggle.connected) {
+      setConfirmToggle(null);
+      addToast({ title: 'Validação necessária', message: 'Use Validar e conectar YCloud.', type: 'warning' });
+      return;
+    }
     if (!isChannelLive(confirmToggle.type)) {
       showComingSoon(confirmToggle.name);
       setConfirmToggle(null);
@@ -160,6 +184,27 @@ export function ChannelsPage() {
         </div>
       </Card>
 
+      <Card className="!p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div className="space-y-2">
+            <p className="font-semibold text-gray-900 dark:text-white">WhatsApp via YCloud</p>
+            <p className="text-sm text-gray-500">Número piloto separado dos demais canais. O backend valida o número antes de ativar.</p>
+            {ycloudStatus.data?.phone && <p className="text-sm font-medium">Número configurado: {ycloudStatus.data.phone}</p>}
+            {ycloudStatus.data?.webhookUrl && <p className="break-all text-xs text-gray-500">Webhook: {ycloudStatus.data.webhookUrl}</p>}
+            {ycloudStatus.isError && <p role="alert" className="text-xs text-red-600">{extractApiErrorMessage(ycloudStatus.error)}</p>}
+            {ycloudStatus.data?.connected && <Badge variant="success">Conectado</Badge>}
+            {!ycloudStatus.data?.configured && <p className="text-xs text-amber-700">Configure as variáveis YCLOUD_* no backend para validar o piloto.</p>}
+          </div>
+          <div className="flex flex-col gap-2 sm:w-64">
+            <Input label="Nome do canal piloto" value={ycloudName} onChange={(event) => setYcloudName(event.target.value)} />
+            <Button onClick={() => ycloudConnect.mutate()} loading={ycloudConnect.isPending}
+              disabled={!ycloudStatus.data?.configured || !ycloudName.trim()}>
+              Validar e conectar YCloud
+            </Button>
+          </div>
+        </div>
+      </Card>
+
       {isEmpty ? (
         <ChannelsEmptyState onRegisterWhatsApp={openRegisterWhatsApp} />
       ) : (
@@ -177,7 +222,7 @@ export function ChannelsPage() {
                     <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${config.bg}`}>
                       <Icon className={`h-6 w-6 ${config.color}`} />
                     </div>
-                    <button type="button" onClick={() => setConfirmToggle(channel)}>
+                    <button type="button" onClick={() => setConfirmToggle(channel)} disabled={channel.provider === 'ycloud' && !channel.connected}>
                       <Badge variant={channel.connected ? 'success' : 'danger'} className="cursor-pointer">
                         {channel.connected ? 'Conectado' : 'Desconectado'}
                       </Badge>
@@ -186,14 +231,16 @@ export function ChannelsPage() {
                   <h3 className="mt-4 font-semibold text-gray-900 dark:text-white">{channel.name}</h3>
                   <ChannelBadge channel={channel.type} className="mt-2" />
                   {channel.providerStatus && (
-                    <p className="mt-1 text-xs text-gray-400">API Meta · {channel.providerStatus}</p>
+                    <p className="mt-1 text-xs text-gray-400">{channel.provider === 'ycloud' ? 'YCloud' : 'API Meta'} · {channel.providerStatus}</p>
                   )}
                   {channel.phone && <p className="mt-2 text-sm text-gray-500">{channel.phone}</p>}
                   <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4 dark:border-gray-800">
-                    <div>
-                      <p className="font-display text-3xl font-bold tabular-nums text-gray-900 dark:text-white">{channel.messagesToday}</p>
-                      <p className="text-xs text-gray-500">mensagens hoje</p>
-                    </div>
+                    {channel.provider !== 'ycloud' && (
+                      <div>
+                        <p className="font-display text-3xl font-bold tabular-nums text-gray-900 dark:text-white">{channel.messagesToday}</p>
+                        <p className="text-xs text-gray-500">mensagens hoje</p>
+                      </div>
+                    )}
                     {channel.lastActivity && (
                       <p className="text-xs text-gray-400">Ativo {formatDateTime(channel.lastActivity)}</p>
                     )}

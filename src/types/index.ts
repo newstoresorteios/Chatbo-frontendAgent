@@ -232,6 +232,9 @@ export interface Message {
 }
 
 export interface Conversation {
+  provider?: string | null;
+  botState?: 'bot' | 'waiting_human' | 'human' | null;
+  lastCustomerMessageAt?: string | null;
   handoffRequested?: boolean;
   handoffRequestedAt?: string | null;
   handoffReason?: string | null;

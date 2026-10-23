@@ -65,7 +65,10 @@ export function ConversationCard({ conversation, active, pinned, animateWaiting 
         </p>
         <div className="mt-2 flex min-w-0 items-center gap-1.5 md:mt-2.5">
           <Badge variant={handoffWaiting ? 'danger' : statusVariant[status]}>
-            {handoffWaiting ? 'Aguardando humano' : statusLabel[status]}
+            {conversation.provider === 'ycloud' && status !== 'closed'
+              ? conversation.botState === 'human' ? 'Atendimento humano'
+                : conversation.botState === 'waiting_human' ? 'Aguardando humano' : 'Bot ativo'
+              : handoffWaiting ? 'Aguardando humano' : statusLabel[status]}
           </Badge>
           <span className="text-xs text-gray-400">{conversation.department}</span>
           {conversation.assignedName && (

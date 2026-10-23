@@ -27,6 +27,7 @@ import {
 } from '@/hooks/useQueries';
 import { useConversationScroll } from '@/hooks/useConversationScroll';
 import { sortConversationsByLatestMessage } from '@/utils/conversationOrder';
+import { isYCloudTextWindowClosed } from '@/utils/ycloudWindow';
 import { useConversationSuggestion } from '@/hooks/useConversationSuggestion';
 import { useUnclaimedConversationAlert } from '@/hooks/useUnclaimedConversationAlert';
 import { conversationsService, mergeConversationMessages } from '@/services/conversations.service';
@@ -250,6 +251,9 @@ export function ConversationsPage() {
   const isClosed = activeConversation?.status === 'closed';
   const isAssignedToMe = !!user?.id && activeConversation?.assignedTo === user.id;
   const canReply = Boolean(user?.id) && isAssignedToMe && !isClosed;
+  const ycloudWindowClosed = isYCloudTextWindowClosed(
+    activeConversation?.provider, activeConversation?.lastCustomerMessageAt,
+  );
 
   useEffect(() => {
     if (!activeConversationId || !isAssignedToMe || !activeConversation?.unreadCount
@@ -518,6 +522,17 @@ export function ConversationsPage() {
     },
   });
 
+  const returnToBotMutation = useMutation({
+    mutationFn: () => conversationsService.returnToBot(activeConversationId!),
+    onSuccess: async (updated) => {
+      await patchConversationCache(updated);
+      addToast({ title: 'Bot reativado', message: 'As próximas mensagens do cliente serão respondidas automaticamente.', type: 'success' });
+      invalidateConversation();
+    },
+    onError: (error) => addToast({ title: 'Não foi possível devolver ao bot',
+      message: extractApiErrorMessage(error), type: 'error' }),
+  });
+
   const closeMutation = useMutation({
     mutationFn: () =>
       conversationsService.close(activeConversationId!, closeNote || undefined),
@@ -570,6 +585,11 @@ export function ConversationsPage() {
   });
 
   const handleSend = (content: string) => {
+    if (ycloudWindowClosed) {
+      addToast({ title: 'Janela de 24 horas encerrada',
+        message: 'Para responder agora, é necessário um template aprovado pela Meta.', type: 'warning' });
+      return;
+    }
     if (!activeConversationId || !canReply) {
       addToast({
         title: 'Assuma a conversa',
@@ -588,6 +608,10 @@ export function ConversationsPage() {
 
   const handleSendFile = (file: File, caption: string) => {
     if (!activeConversationId || !canReply) return false;
+    if (activeConversation?.provider === 'ycloud') {
+      addToast({ title: 'Anexo indisponível', message: 'Envio de anexos pela YCloud ainda não está disponível neste painel.', type: 'warning' });
+      return false;
+    }
     if (file.type.startsWith('audio/') && caption.trim()) {
       addToast({ title: 'Áudio sem legenda', message: 'Envie o texto separadamente do áudio.', type: 'warning' });
       return false;
@@ -946,6 +970,12 @@ export function ConversationsPage() {
                   >
                     <RefreshCw className="h-4 w-4" /> Transferir
                   </Button>
+                  {activeConversation.provider === 'ycloud' && canReply && (
+                    <Button variant="outline" size="sm" onClick={() => returnToBotMutation.mutate()}
+                      disabled={returnToBotMutation.isPending}>
+                      Devolver ao bot
+                    </Button>
+                  )}
                 </div>
                 <div className="ml-auto flex shrink-0 items-center gap-1 md:hidden">
                   {!isClosed && !isAssignedToMe && user && (
@@ -996,6 +1026,13 @@ export function ConversationsPage() {
                           disabled={!canReply}
                         >
                           <CheckCircle2 className="h-4 w-4" /> Concluir atendimento
+                        </button>
+                      )}
+                      {activeConversation.provider === 'ycloud' && canReply && (
+                        <button type="button" className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
+                          onClick={() => { setMobileActionsOpen(false); returnToBotMutation.mutate(); }}
+                          disabled={returnToBotMutation.isPending}>
+                          Devolver ao bot
                         </button>
                       )}
                       <button
@@ -1121,14 +1158,27 @@ export function ConversationsPage() {
                   </div>
                 )}
 
+                {activeConversation.provider === 'ycloud' && (
+                  <div className="shrink-0 border-t border-gray-200 px-3 py-2 text-xs dark:border-gray-800">
+                    <span className="font-semibold">{isClosed ? 'Conversa encerrada'
+                      : activeConversation.botState === 'human' ? 'Atendimento humano'
+                      : activeConversation.botState === 'waiting_human' ? 'Aguardando humano' : 'Bot ativo'}</span>
+                    {ycloudWindowClosed && <p role="alert" className="text-amber-700 dark:text-amber-300">
+                      Janela de 24 horas encerrada. O envio agora exige template aprovado pela Meta.
+                    </p>}
+                  </div>
+                )}
+
                 <div className="shrink-0 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] dark:border-gray-800 dark:bg-gray-950">
                   <MessageInput
                     onSend={handleSend}
                     onSendFile={handleSendFile}
-                    disabled={!canReply}
+                    disabled={!canReply || ycloudWindowClosed}
                     placeholder={
                       isClosed
                         ? 'Conversa encerrada'
+                        : ycloudWindowClosed
+                          ? 'Janela de 24 horas encerrada; use template aprovado'
                         : canReply
                           ? 'Digite sua resposta comercial...'
                           : 'Assuma a conversa para responder o cliente...'

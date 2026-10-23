@@ -54,6 +54,10 @@ function normalizeConversation(raw: Partial<Conversation> & Record<string, unkno
     lastMessage: String(raw.lastMessage ?? ''),
     lastMessageAt: String(raw.lastMessageAt || new Date().toISOString()),
     status: asStatus(raw.status),
+    provider: raw.provider ? String(raw.provider) : null,
+    botState: raw.botState === 'human' || raw.botState === 'waiting_human' || raw.botState === 'bot'
+      ? raw.botState : null,
+    lastCustomerMessageAt: (raw.lastCustomerMessageAt as string | null | undefined) ?? null,
     handoffRequested: raw.handoffRequested === true,
     handoffRequestedAt: raw.handoffRequestedAt ?? null,
     handoffReason: raw.handoffReason ?? null,
@@ -238,6 +242,17 @@ export const conversationsService = {
       `/conversas/${conversationId}/assumir`, undefined, { params: { scope: 'contact' } },
     );
     return data;
+  },
+
+  returnToBot: async (conversationId: string): Promise<Conversation> => {
+    if (USE_MOCK) {
+      await delay(200);
+      const conv = mockConversations.find((c) => c.id === conversationId);
+      if (!conv) throw new Error('Conversa não encontrada');
+      return { ...conv, assignedTo: undefined, botState: 'bot' };
+    }
+    const { data } = await api.patch<Conversation>(`/conversas/${conversationId}/devolver-bot`);
+    return normalizeConversation(data as Conversation & Record<string, unknown>);
   },
 
   markRead: async (conversationId: string): Promise<Conversation> => {
